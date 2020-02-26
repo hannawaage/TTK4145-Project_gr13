@@ -29,10 +29,9 @@ timerChns := TimerChns {
     stopTimer: make(chan bool)
     timerTimeout: make (chan bool)
 }
-
+/*
 func RunElevator(esmChns EsmChns) {
-
-    elevator := Elevator{
+    elevator := esmChns.Elevator{
       //ID:  int //eller noe for å vit om master eller ikke
       Floor: int
       Dir: elevio.MotorDirection
@@ -55,8 +54,8 @@ func RunElevator(esmChns EsmChns) {
         ordre = lokale ordre
    til slutt, uansett hvor ordre kommer fra:
    avgjør retning basert på ordre
+//
 
-    */
 
     for {
         select {
@@ -104,25 +103,39 @@ func RunElevator(esmChns EsmChns) {
                 for b := elevio.ButtonType(0); b < 3; b++ {
                     elevio.SetButtonLamp(b, f, false)
                 }
-            }*/
+            }//
         }
     }
 }
+*/
 
 func fsm_buttonRequest(buttonEvent elevio.ButtonEvent, esmChns EsmChns) {
-  switch(esmChns.Elevator.state) {
+  switch(esmChns.Elevator.State) {
   case Idle:
-      if(esmChns.Elevator.floor == buttonEvent.floor){
+      if esmChns.Elevator.Floor == buttonEvent.Floor{
         elevio.SetDoorOpenLamp(true)
         timerChn.startTimer <- OpenDoorTime
-        esmChns.Elevator.state = OpenDoor
+        esmChns.Elevator.State = OpenDoor
       } else {
-
+        esmChns.Elevator.Orders[buttonEvent.Floor][buttonEvent.Button] = true
+        esmChns.Elevator.Dir = fsm_chooseDirection(esmChns.Elevator)
+        elev_io.SetMotorDirection(esmChns.Elevator.Dir)
+        esmChns.Elevator.State = Moving
       }
   case OpenDoor:
-    
+    if esmChns.Elevator.Floor =  buttonEvent.floor{
+      timerChn.startTimer <- OpenDoorTime
+    } else {
+      esmChns.Elevator.Orders[buttonEvent.Floor][buttonEvent.Button] = true
+    }
+  case Moving:
+    esmChns.Elevator.Orders[buttonEvent.Floor][buttonEvent.Button] = true
+
+  // sette lys??
 
   }
+
+
 
 func fsm_chooseDirection(elevator EsmChns.Elevator) {
   switch elevator.Dir {
@@ -154,34 +167,3 @@ func fsm_chooseDirection(elevator EsmChns.Elevator) {
 	}
 	return DirStop
 }
-
-/*
-
-  switch(elevator.behaviour){
-
-   case EB_DoorOpen:
-       if(elevator.floor == btn_floor){
-           timer_start(elevator.config.doorOpenDuration_s);
-       } else {
-           elevator.requests[btn_floor][btn_type] = 1;
-       }
-       break;
-
-   case EB_Moving:
-       elevator.requests[btn_floor][btn_type] = 1;
-       break;
-
-   case EB_Idle:
-       if(elevator.floor == btn_floor){
-           outputDevice.doorLight(1);
-           timer_start(elevator.config.doorOpenDuration_s);
-           elevator.behaviour = EB_DoorOpen;
-       } else {
-           elevator.requests[btn_floor][btn_type] = 1;
-           elevator.dirn = requests_chooseDirection(elevator);
-           outputDevice.motorDirection(elevator.dirn);
-           elevator.behaviour = EB_Moving;
-       }
-       break;
-}
-*/
