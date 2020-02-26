@@ -9,9 +9,9 @@ import (
 
 func main(){
 
-    numFloors := 4
+    //numFloors := 4
 
-    elevio.Init("localhost:15657", numFloors)
+    elevio.Init("localhost:15657", NumFloors)
 
     var d elevio.MotorDirection = elevio.MD_Stop
     elevio.SetMotorDirection(d)

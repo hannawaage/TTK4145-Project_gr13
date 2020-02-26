@@ -16,10 +16,11 @@ type ElevState struct {
 
 type EsmChns struct {
     NewOrder chan elevio.ButtonEvent
-    Elevator chan Elevator
+    Elevator chan config.Elevator
     OrderAbove chan bool
     OrderBelow chan bool
     ShouldStop chan bool
+    SignalChns chan orders.SignalChns
     //to be continued...
 }
 
@@ -30,6 +31,14 @@ timerChns := TimerChns {
 }
 
 func RunElevator(esmChns EsmChns) {
+
+    elevator := Elevator{
+      //ID:  int //eller noe for å vit om master eller ikke
+      Floor: int
+      Dir: elevio.MotorDirection
+      State:  esm.ElevState
+      Orders: [NumFloors][NumButtons]bool
+    }
     esmChns.Elevator.State = Idle
     /*
     Alt dette i annen modul:
@@ -52,7 +61,7 @@ func RunElevator(esmChns EsmChns) {
     for {
         select {
         case buttonEvent := <- NewOrder:
-          fsm_buttonRequest(buttonEvent, esmChns.Elevator.State)
+          fsm_buttonRequest(buttonEvent, esmChns)
        /*
         case a := <- signal_channel.drv_buttons:
             fmt.Printf("%+v\n", a)
@@ -100,16 +109,18 @@ func RunElevator(esmChns EsmChns) {
     }
 }
 
-func fsm_buttonRequest(buttonEvent elevio.ButtonEvent, Elevator EsmChns.Elevator) {
-  switch(Elevator.state) {
+func fsm_buttonRequest(buttonEvent elevio.ButtonEvent, esmChns EsmChns) {
+  switch(esmChns.Elevator.state) {
   case Idle:
-      if(Elevator.floor == buttonEvent.floor){
+      if(esmChns.Elevator.floor == buttonEvent.floor){
         elevio.SetDoorOpenLamp(true)
-        timerChn.startTimer <- config._openDoorTime
-        Elevator.state = OpenDoor
+        timerChn.startTimer <- OpenDoorTime
+        esmChns.Elevator.state = OpenDoor
       } else {
 
       }
+  case OpenDoor:
+    
 
   }
 
@@ -144,6 +155,8 @@ func fsm_chooseDirection(elevator EsmChns.Elevator) {
 	return DirStop
 }
 
+/*
+
   switch(elevator.behaviour){
 
    case EB_DoorOpen:
@@ -171,3 +184,4 @@ func fsm_chooseDirection(elevator EsmChns.Elevator) {
        }
        break;
 }
+*/

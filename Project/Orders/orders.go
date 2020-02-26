@@ -44,8 +44,8 @@ func shouldStop(elevator esmChns.Elevator) bool {
 
 
 func ordersAbove(elevator esmChns.Elevator) bool {
-	for floor := elevator.Floor + 1; floor < _numFloors; floor++ {
-		for btn := 0; btn < _numButtons; btn++ {
+	for floor := elevator.Floor + 1; floor < config._numFloors; floor++ {
+		for btn := 0; btn < config._numButtons; btn++ {
 			if elevator.Orders[floor][btn] {
 				return true
 			}
@@ -56,7 +56,7 @@ func ordersAbove(elevator esmChns.Elevator) bool {
 
 func ordersBelow(elevator esmChns.Elevator) bool {
 	for floor := 0; floor < elevator.Floor; floor++ {
-		for btn := 0; btn < _numButtons; btn++ {
+		for btn := 0; btn < config._numButtons; btn++ {
 			if elevator.Orders[floor][btn] {
 				return true
 			}
