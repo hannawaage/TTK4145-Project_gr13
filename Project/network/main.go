@@ -1,13 +1,15 @@
 package main
 
 import (
-	"./network/bcast"
-	"./network/localip"
-	"./network/peers"
+	//"../network"
 	"flag"
 	"fmt"
 	"os"
 	"time"
+
+	"../network/bcast"
+	"../network/localip"
+	"../network/peers"
 )
 
 // We define some custom struct to send over the network.

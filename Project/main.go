@@ -11,6 +11,9 @@ func main(){
 
     //numFloors := 4
 
+    //Er jeg master???
+
+
     elevio.Init("localhost:15657", NumFloors)
 
     var d elevio.MotorDirection = elevio.MD_Stop
