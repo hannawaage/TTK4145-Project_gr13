@@ -1,6 +1,6 @@
 package main
 
-import (
+imporg (
   "./driver-go/elevio"
   "./StateMachine"
   "fmt"
@@ -11,8 +11,15 @@ func main(){
 
     //numFloors := 4
 
-    //Er jeg master???
-
+    //Finne master og backups, lagre ID
+    Init, finn peers:
+    - send udp "Hei jeg lever"
+    - lytt etter udp melding, legg til peers som svarer
+    - lagre ID = ip adresse 5 siffer fra peers
+    - sammenlign siste siffer ID:
+      hvis lavest -> master
+      ellers -> backup 
+    
 
     elevio.Init("localhost:15657", NumFloors)
 
