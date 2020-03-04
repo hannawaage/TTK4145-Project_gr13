@@ -2,30 +2,50 @@ package config
 
 import (
 	"time"
-
-	"../driver-go/elevio"
+	. "../driver-go/elevio"
 )
 
-const OpenDoorTime = 3000 * time.Millisecond
+// Passe på at de ulike modulene ikke importerer hverandre, designe som et hieraki.
+
+const DoorOpenTime = 3000 * time.Millisecond
 const NumElevs = 3
 const NumButtons = 3
 const NumFloors = 4
 
+
+type ElevState int
+
+const (
+	Undefined ElevState = iota - 1
+	Idle
+	Moving
+	DoorOpen
+)
+
 type Elevator struct {
-	ID          int //eller noe for å vit om master eller ikke
+	Id          int //eller noe for å vit om master eller ikke
 	Floor       int
-	Dir         elevio.MotorDirection
-	State       esm.ElevState
-	localOrders [NumFloors][NumButtons]bool
+	Dir         MotorDirection
+	State       ElevState
+	Orders [NumFloors][NumButtons]bool
 }
 
 type BackupMessage struct {
 	Elev      Elevator
-  allOrders [NumElevs][NumFloors][NumButtons]bool
+  AllOrders [NumElevs][NumFloors][NumButtons]bool
 }
 
 type MasterMessage struct {
 	Elev      Elevator
-  allOrders [NumElevs][NumFloors][NumButtons]bool
+  AllOrders [NumElevs][NumFloors][NumButtons]bool
 }
 
+type EsmChns struct {
+    NewOrder 		chan ButtonEvent
+    //Elevator 		chan Elevator
+    OrderAbove 	chan bool
+    OrderBelow 	chan bool
+    ShouldStop 	chan bool
+    //SignalChns chan orders.SignalChns bør ikke avhenge av orders
+    //to be continued...
+}

@@ -38,8 +38,6 @@ type ButtonEvent struct {
 
 
 
-
-
 func Init(addr string, numFloors int) {
 	if _initialized {
 		fmt.Println("Driver already initialized!")

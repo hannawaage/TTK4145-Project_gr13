@@ -2,23 +2,29 @@ package timer
 
 import "time"
 
+//const DoorOpenTime = 3000 * time.Millisecond
+
 type TimerChns struct {
-    startTimer chan int
-    stopTimer chan bool
-    timerTimeout chan bool
+    StartTimer chan int
+    StopTimer chan bool
+    TimerTimeout chan bool
 }
-var timer time.Timer
+
+
 
 func RunTimer(timerChns TimerChns) {
+  var timer time.Timer
   for {
     select {
-    case start := <- timerChn.startTimer:
-      timer := time.NewTimer(start)
-    }
-  case <- timerChns.stopTimer:
-      timer.Stop()
+    case start := <- timerChns.StartTimer:
+      timer := time.NewTimer(time.Duration(start))
+      _ = timer
+    case <- timerChns.StopTimer:
+        timer.Stop()
     case <- timer.C:
       timer.Stop()
-      timerTimeout <- true
+      timerChns.TimerTimeout <- true
+    }
   }
+
 }
