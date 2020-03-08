@@ -12,7 +12,6 @@ const NumElevs = 3
 const NumButtons = 3
 const NumFloors = 4
 
-
 type ElevState int
 
 const (
