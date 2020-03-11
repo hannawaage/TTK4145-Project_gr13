@@ -41,6 +41,8 @@ type MasterMessage struct {
 
 type EsmChns struct {
     NewOrder 		chan ButtonEvent
+		Buttons			chan ButtonEvent
+		Floors 			chan int
     //Elevator 		chan Elevator
     OrderAbove 	chan bool
     OrderBelow 	chan bool
