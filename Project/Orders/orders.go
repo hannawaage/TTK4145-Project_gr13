@@ -7,27 +7,25 @@ import (
 	. "../driver-go/elevio"
 	//"../StateMachine/esm"
 )
-
-type SignalChns struct {
-	Buttons chan ButtonEvent
-	Floors  chan int
-}
-
 // Funksjoner som begynner med stor forbokstav kan kun brukes utenfor modulen, eks UpdateOrders, motsatt for funksjoner med liten forbokstav
 // . "../directory/example" gjør at man slipper example.Function, kan bare bruke Function
 
-func GetLocalOrders(elevator Elevator, esmChns EsmChns, signalChns SignalChns) {
-	for {
-		buttonEvent := <-signalChns.Buttons
-		fmt.Printf("%+v\n", buttonEvent)
-		SetButtonLamp(buttonEvent.Button, buttonEvent.Floor, true)
-		//esmChns.NewOrder <- buttonEvent
-		go AddOrder(buttonEvent, esmChns.NewOrder)
-		if elevator.Floor != buttonEvent.Floor {
-			elevator.Orders[buttonEvent.Floor][buttonEvent.Button] = true
-		}
-		//fmt.Printf("%+v\n", elevator.Orders)
-
+func UpdateState(elevator Elevator, esmChns EsmChns){
+	for{
+		select {
+    case a := <-esmChns.Floors:
+    	elevator.Floor = a
+			fmt.Printf("%+v\n", elevator.Floor)
+			fmt.Printf("%+v\n", elevator.Dir)
+			ShouldStop(elevator)
+		case b := <- esmChns.Buttons:
+			SetButtonLamp(b.Button, b.Floor, true)
+			elevator.Orders[b.Floor][b.Button] = true
+			fmt.Printf("%+v\n", elevator.Orders)
+			fmt.Printf("%+v\n", elevator.Dir)
+			SetDirection(elevator)
+    default:
+    }
 	}
 }
 
@@ -123,3 +121,18 @@ func ordersBelow(elevator Elevator) bool {
 	}
 	return false
 }
+
+
+/*
+func GetLocalOrders(elevator Elevator, esmChns EsmChns,receiver chan ButtonEvent) {
+	for {
+		buttonEvent := <-esmChns.Buttons
+		SetButtonLamp(buttonEvent.Button, buttonEvent.Floor, true)
+		fmt.Printf("%+v\n", elevator.Floor)
+		if elevator.Floor != buttonEvent.Floor {
+			elevator.Orders[buttonEvent.Floor][buttonEvent.Button] = true
+		}
+		fmt.Printf("%+v\n", elevator.Orders)
+	}
+}
+*/
