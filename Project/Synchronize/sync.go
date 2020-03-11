@@ -7,7 +7,7 @@ import (
 	"../config"
 )
 
-/* 
+/*
 Send og motta meldinger, anta offline hvis ikke svar
 
 
@@ -19,7 +19,7 @@ type SyncChns struct {
 	//to be continued...
 }
 allOrders := make(chan)
-oppdatertStates := make(chan) 
+oppdatertStates := make(chan)
 oppdatertOrdre [][]bool := make(chan)
 var online := make(chan bool)
 kvitteringer [kvittering][id] := make(chan)
@@ -27,19 +27,19 @@ kvitteringer [kvittering][id] := make(chan)
 
 
 /*
-Funksjon/goroutine som henter meldinger, sjekker kvitteringer, 
-og legger ut oppdateringer på channels som Syncro bruker til 
+Funksjon/goroutine som henter meldinger, sjekker kvitteringer,
+og legger ut oppdateringer på channels som Syncro bruker til
 kost funksjon/merging av ordre
 
-Skal deles meldinger med ordre hvert sekund, svarer med kvittering, 
+Skal deles meldinger med ordre hvert sekund, svarer med kvittering,
 anta offline hvis ikke to kvitteringer per melding
 */
 
 func meldinger (
 	timeout := make(chan bool)
 	go func() { time.Sleep(1 * time.Second); timeout <- true }()
-	
-	 
+
+
 	select {
 		case melding := <-ch.InnMelding:
 			oppdatertStates = melding.Elevator
@@ -50,7 +50,7 @@ func meldinger (
 		case <-timeout:
 			for kvitteringer:
 				to unike id per kvittering?
-				if not 
+				if not
 					online = false
 		}
 )
@@ -58,8 +58,8 @@ func meldinger (
 
 
 /*
-online: 
-	master: ta inn egne og andres states og ordre fra channels, kostfunksjon i 3D, 
+online:
+	master: ta inn egne og andres states og ordre fra channels, kostfunksjon i 3D,
 			distribuere allOrders, legg til timespamps, sett på lys etter mottatte kvittering
 	backup: send states og ordre, ta imot allOrders
 !online:
@@ -71,12 +71,13 @@ func Syncro (
 		if(iAmMaster) {
 			heis2 := <- Elevator2chn
 			heis3 := <- Elevator3chn
-	
+
+	liste med heiser
 			kostfunksjon(esmchns.Elevator, heis2, heis3) => allOrders
 			channel <- allOrders
 			legg til time stamps
 			sett på lys hos alle
-	
+
 		}
 		else {
 			state_channel <- esmchns.Elevator.State
@@ -90,8 +91,3 @@ func Syncro (
 		esmchns.Elevator.Orders <-  merge(backup)
 	}
 )
-
-
-
-
-
