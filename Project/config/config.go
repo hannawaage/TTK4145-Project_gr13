@@ -40,7 +40,7 @@ type MasterMessage struct {
 }
 
 type EsmChns struct {
-    NewOrder 		chan ButtonEvent
+    CurrentAllOrders		chan [NumElevs][NumFloors][NumButtons]bool
 		Buttons			chan ButtonEvent
 		Floors 			chan int
     Elev				chan Elevator
