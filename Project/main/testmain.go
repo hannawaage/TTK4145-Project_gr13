@@ -1,7 +1,6 @@
 package main
 
 import (
-	//. "../StateMachine/esmFunctions"
 	. "../StateMachine"
 	. "../config"
 	. "../driver-go/elevio"
@@ -10,39 +9,22 @@ import (
 
 )
 
-/*func GetOrders(button chan ButtonEvent, receiver chan ButtonEvent){
-	fmt.Printf("Heihei\n")
-
-	for{
-		select{
-		case buttonEvent := <-button:
-			SetButtonLamp(buttonEvent.Button,buttonEvent.Floor, true)
-			receiver <- buttonEvent
-		default:
-		}
-	}
-}
-
-/*func addOrder(receiver chan<- ButtonEvent, button ButtonEvent){
-	receiver <- button
-}*/
 func main() {
-
 
 	esmChns := EsmChns{
 		Elev: make(chan Elevator),
-		NewOrder: make(chan ButtonEvent),
+		CurrentAllOrders: make(chan [NumElevs][NumFloors][NumButtons]bool),
 		Buttons: make(chan ButtonEvent),
 		Floors:  make(chan int),
 
 	}
 	Init("localhost:15657", NumFloors)
 
+	go SyncTest(esmChns.CurrentAllOrders)
+
 	go PollButtons(esmChns.Buttons)
 	go PollFloorSensor(esmChns.Floors)
-	RunElevator(esmChns)
-	//go GetOrders(esmChns.Buttons, esmChns.NewOrder)
-	//go addOrder(esmChnns)
+	go RunElevator(esmChns)
 
 	for {
 
