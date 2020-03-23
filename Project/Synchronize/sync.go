@@ -1,93 +1,182 @@
-package Synchronize
+package sync
 
 import (
-	"../network/bcast"
+	"fmt"
+	"math/rand"
+	"strconv"
+	"time"
+
 	"../network/localip"
-	"../network/peers"
-	"../config"
 )
 
-/*
-Send og motta meldinger, anta offline hvis ikke svar
+type Elevator struct {
+	Floor int
+	Dir   int
+}
 
-
-*/
-
+type Message struct {
+	Elev    Elevator
+	MsgId   int
+	Receipt bool
+	LocalIP string
+	LocalID string
+}
 
 type SyncChns struct {
-	Status chan Message
-	//to be continued...
+	SendChn   chan Message
+	RecChn    chan Message
+	Online    chan bool
+	IAmMaster chan bool
 }
-allOrders := make(chan)
-oppdatertStates := make(chan)
-oppdatertOrdre [][]bool := make(chan)
-var online := make(chan bool)
-kvitteringer [kvittering][id] := make(chan)
 
+func Sync(id string, ch SyncChns) {
+	const numPeers = 2 //Burde ligge i config
+	elev := Elevator{3, 0}
 
+	var (
+		onlineIPs       []string
+		receivedReceipt []string
+		currentMsgID    int
+		numTimeouts     int
+	)
 
-/*
-Funksjon/goroutine som henter meldinger, sjekker kvitteringer,
-og legger ut oppdateringer på channels som Syncro bruker til
-kost funksjon/merging av ordre
+	localIP, err := localip.LocalIP()
+	if err != nil {
+		fmt.Println(err)
+		localIP = "DISCONNECTED"
+	}
 
-Skal deles meldinger med ordre hvert sekund, svarer med kvittering,
-anta offline hvis ikke to kvitteringer per melding
-*/
+	msgTimer := time.NewTimer(5 * time.Second)
+	msgTimer.Stop()
 
-func meldinger (
-	timeout := make(chan bool)
-	go func() { time.Sleep(1 * time.Second); timeout <- true }()
+	go func() {
+		currentMsgID = rand.Intn(256)
+		msg := Message{elev, currentMsgID, false, localIP, id}
+		for {
+			ch.SendChn <- msg
+			msgTimer.Reset(800 * time.Millisecond)
+			time.Sleep(1 * time.Second)
+			/*
+				go func() {
+					msgRec := <-ch.timerConf
+					if msgRec == randNr {
+						msgTimer.Stop()
+					}
+				}()
+			*/
+		}
+	}()
 
+	for {
+		select {
+		case incomming := <-ch.RecChn:
+			recID := incomming.LocalID
+			if id != recID { //Hvis det ikke er fra oss selv, BYTTES TIL IP VED KJØRING PÅ FORSKJELLIGE MASKINER
+				if !contains(onlineIPs, recID) {
+					// Dersom heisen enda ikke er registrert, sjekker vi om vi nå er online og sjekker om vi er master
+					onlineIPs = append(onlineIPs, recID)
+					if len(onlineIPs) == numPeers {
+						ch.Online <- true
+						idDig, _ := strconv.Atoi(id)
+						for i := 0; i < numPeers; i++ {
+							theID, _ := strconv.Atoi(onlineIPs[i])
+							if idDig > theID {
+								ch.IAmMaster <- false
+								break
+							}
+							ch.IAmMaster <- true
+						}
+						/*
+							Dette er ved diff på IP:
+							localDig, _ := strconv.Atoi(localIP[len(localIP)-3:])
+							for i := 0; i <= numPeers; i++ {
+								theIP := onlineIPs[i]
+								lastDig, _ := strconv.Atoi(theIP[len(theIP)-3:])
+								if localDig < lastDig {
+									iAmMaster = false
+									break
+								}
+							}
+						*/
+					}
+				}
+				if !incomming.Receipt {
+					// Hvis det ikke er en kvittering, skal vi svare med kvittering
+					msg := Message{elev, incomming.MsgId, true, localIP, id}
+					//sender ut fem kvitteringer på femti millisekunder
+					for i := 0; i < 5; i++ {
+						ch.SendChn <- msg
+						time.Sleep(10 * time.Millisecond)
+					}
+				} else { // Hvis det er en kvittering
+					if incomming.MsgId == currentMsgID {
+						if !contains(receivedReceipt, recID) {
+							receivedReceipt = append(receivedReceipt, recID)
+							if len(receivedReceipt) == numPeers {
+								numTimeouts = 0
+								msgTimer.Stop()
+								receivedReceipt = receivedReceipt[:0]
+							}
+						}
+					}
+				}
+			}
+		case <-msgTimer.C:
+			numTimeouts++
+			if numTimeouts > 2 {
+				ch.Online <- false
+				fmt.Println("Three timeouts in a row")
+				numTimeouts = 0
+				onlineIPs = onlineIPs[:0]
+			}
+		}
+	}
+}
 
-	select {
-		case melding := <-ch.InnMelding:
-			oppdatertStates = melding.Elevator
-			oppdatertOrdre = melding.Ordre
-			kvitteringPåMelding.sendMelding
-		case kvittering := <-ch.InnKvittering:
-			kvitteringer <- kvittering
-		case <-timeout:
-			for kvitteringer:
-				to unike id per kvittering?
-				if not
+func OrdersDist(ch SyncChns) {
+	var (
+		online    bool //initiates to false
+		iAmMaster bool = true
+	)
+	go func() {
+		for {
+			select {
+			case b := <-ch.Online:
+				if b {
+					online = true
+					fmt.Println("Yaho, we are online!")
+				} else {
 					online = false
-		}
-)
-
-
-
-/*
-online:
-	master: ta inn egne og andres states og ordre fra channels, kostfunksjon i 3D,
-			distribuere allOrders, legg til timespamps, sett på lys etter mottatte kvittering
-	backup: send states og ordre, ta imot allOrders
-!online:
-	merge allOrders og nye ordre
-*/
-func Syncro (
-
-	if (online) {
-		if(iAmMaster) {
-			heis2 := <- Elevator2chn
-			heis3 := <- Elevator3chn
-
-	liste med heiser
-			kostfunksjon(esmchns.Elevator, heis2, heis3) => allOrders
-			channel <- allOrders
-			legg til time stamps
-			sett på lys hos alle
+					fmt.Println("Boo, we are offline.")
+				}
+			case b := <-ch.IAmMaster:
+				if b {
+					iAmMaster = true
+				} else {
+					iAmMaster = false
+				}
+			}
 
 		}
-		else {
-			state_channel <- esmchns.Elevator.State
-			order_channel <- esmchns.Elevator.Orders
-			backup := <- BackupChannel (mottar oppdatert ordreliste)
-			esmchns.Elevator.Orders <- backup(ID)
+	}()
+	for {
+		if online {
+			fmt.Println("Online")
+			if iAmMaster {
+				fmt.Println(".. and I am master")
+			} else {
+				fmt.Println(".. and I am backup")
+			}
+			time.Sleep(5 * time.Second)
 		}
 	}
-	else {
-		update backup with localOrders
-		esmchns.Elevator.Orders <-  merge(backup)
+}
+
+func contains(elevs []string, str string) bool {
+	for _, a := range elevs {
+		if a == str {
+			return true
+		}
 	}
-)
+	return false
+}
