@@ -2,6 +2,7 @@ package config
 
 import (
 	"time"
+
 	. "../driver-go/elevio"
 )
 
@@ -22,29 +23,28 @@ const (
 )
 
 type Elevator struct {
-	Id          int //eller noe for å vit om master eller ikke
-	Floor       int
-	Dir         MotorDirection
-	State       ElevState
+	Id     int //eller noe for å vit om master eller ikke
+	Floor  int
+	Dir    MotorDirection
+	State  ElevState
 	Orders [NumFloors][NumButtons]bool
 }
 
-type BackupMessage struct {
+type Message struct {
 	Elev      Elevator
-  AllOrders [NumElevs][NumFloors][NumButtons]bool
-}
-
-type MasterMessage struct {
-	Elev      Elevator
-  AllOrders [NumElevs][NumFloors][NumButtons]bool
+	AllOrders [NumElevs][NumFloors][NumButtons]bool
+	MsgId     int
+	Receipt   bool
+	LocalIP   string
+	LocalID   string
 }
 
 type EsmChns struct {
-    CurrentAllOrders		chan [NumElevs][NumFloors][NumButtons]bool
-		Buttons			chan ButtonEvent
-		Floors 			chan int
-    Elev				chan Elevator
-    OrderAbove 	chan bool
-    OrderBelow 	chan bool
-    ShouldStop 	chan bool
+	CurrentAllOrders chan [NumElevs][NumFloors][NumButtons]bool
+	Buttons          chan ButtonEvent
+	Floors           chan int
+	Elev             chan Elevator
+	OrderAbove       chan bool
+	OrderBelow       chan bool
+	ShouldStop       chan bool
 }

@@ -6,39 +6,39 @@ import (
 	"strconv"
 	"time"
 
+	. "../config"
 	"../network/localip"
 )
 
-type Elevator struct {
-	Floor int
-	Dir   int
-}
-
-type Message struct {
-	Elev    Elevator
-	MsgId   int
-	Receipt bool
-	LocalIP string
-	LocalID string
-}
-
 type SyncChns struct {
-	SendChn   chan Message
-	RecChn    chan Message
-	Online    chan bool
-	IAmMaster chan bool
+	SendChn          chan Message
+	RecChn           chan Message
+	Online           chan bool
+	IAmMaster        chan bool
+	UpdatedAllOrders chan [NumElevs][NumFloors][NumButtons]bool
 }
 
-func Sync(id string, ch SyncChns) {
-	const numPeers = 2 //Burde ligge i config
-	elev := Elevator{3, 0}
-
+func Sync(id string, syncCh SyncChns, esmChns EsmChns) {
+	const numPeers = NumElevs - 1
+	idDig, _ := strconv.Atoi(id)
 	var (
+		elev            Elevator
+		allOrders       [NumElevs][NumFloors][NumButtons]bool
 		onlineIPs       []string
 		receivedReceipt []string
 		currentMsgID    int
 		numTimeouts     int
+		MergedAllOrders [NumElevs][NumFloors][NumButtons]bool
 	)
+	go func() {
+		for {
+			select {
+			case newElev := <-esmChns.Elev:
+				elev = newElev
+				MergedAllOrders[idDig] = newElev.Orders
+			}
+		}
+	}()
 
 	localIP, err := localip.LocalIP()
 	if err != nil {
@@ -51,40 +51,32 @@ func Sync(id string, ch SyncChns) {
 
 	go func() {
 		currentMsgID = rand.Intn(256)
-		msg := Message{elev, currentMsgID, false, localIP, id}
+		msg := Message{elev, allOrders, currentMsgID, false, localIP, id}
 		for {
-			ch.SendChn <- msg
+			syncCh.SendChn <- msg
 			msgTimer.Reset(800 * time.Millisecond)
 			time.Sleep(1 * time.Second)
-			/*
-				go func() {
-					msgRec := <-ch.timerConf
-					if msgRec == randNr {
-						msgTimer.Stop()
-					}
-				}()
-			*/
 		}
 	}()
 
 	for {
 		select {
-		case incomming := <-ch.RecChn:
+		case incomming := <-syncCh.RecChn:
 			recID := incomming.LocalID
 			if id != recID { //Hvis det ikke er fra oss selv, BYTTES TIL IP VED KJØRING PÅ FORSKJELLIGE MASKINER
 				if !contains(onlineIPs, recID) {
 					// Dersom heisen enda ikke er registrert, sjekker vi om vi nå er online og sjekker om vi er master
 					onlineIPs = append(onlineIPs, recID)
 					if len(onlineIPs) == numPeers {
-						ch.Online <- true
+						syncCh.Online <- true
 						idDig, _ := strconv.Atoi(id)
 						for i := 0; i < numPeers; i++ {
 							theID, _ := strconv.Atoi(onlineIPs[i])
 							if idDig > theID {
-								ch.IAmMaster <- false
+								syncCh.IAmMaster <- false
 								break
 							}
-							ch.IAmMaster <- true
+							syncCh.IAmMaster <- true
 						}
 						/*
 							Dette er ved diff på IP:
@@ -102,10 +94,10 @@ func Sync(id string, ch SyncChns) {
 				}
 				if !incomming.Receipt {
 					// Hvis det ikke er en kvittering, skal vi svare med kvittering
-					msg := Message{elev, incomming.MsgId, true, localIP, id}
+					msg := Message{elev, allOrders, incomming.MsgId, true, localIP, id}
 					//sender ut fem kvitteringer på femti millisekunder
 					for i := 0; i < 5; i++ {
-						ch.SendChn <- msg
+						syncCh.SendChn <- msg
 						time.Sleep(10 * time.Millisecond)
 					}
 				} else { // Hvis det er en kvittering
@@ -124,7 +116,7 @@ func Sync(id string, ch SyncChns) {
 		case <-msgTimer.C:
 			numTimeouts++
 			if numTimeouts > 2 {
-				ch.Online <- false
+				syncCh.Online <- false
 				fmt.Println("Three timeouts in a row")
 				numTimeouts = 0
 				onlineIPs = onlineIPs[:0]
@@ -133,7 +125,7 @@ func Sync(id string, ch SyncChns) {
 	}
 }
 
-func OrdersDist(ch SyncChns) {
+func OrdersDist(syncCh SyncChns) {
 	var (
 		online    bool //initiates to false
 		iAmMaster bool = true
@@ -141,7 +133,7 @@ func OrdersDist(ch SyncChns) {
 	go func() {
 		for {
 			select {
-			case b := <-ch.Online:
+			case b := <-syncCh.Online:
 				if b {
 					online = true
 					fmt.Println("Yaho, we are online!")
@@ -149,7 +141,7 @@ func OrdersDist(ch SyncChns) {
 					online = false
 					fmt.Println("Boo, we are offline.")
 				}
-			case b := <-ch.IAmMaster:
+			case b := <-syncCh.IAmMaster:
 				if b {
 					iAmMaster = true
 				} else {
@@ -161,6 +153,9 @@ func OrdersDist(ch SyncChns) {
 	}()
 	for {
 		if online {
+			if !iAmMaster {
+
+			}
 			fmt.Println("Online")
 			if iAmMaster {
 				fmt.Println(".. and I am master")
