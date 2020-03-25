@@ -6,36 +6,36 @@ import (
 	"strconv"
 	"time"
 
-	. "../config"
+	"../config"
 	"../network/localip"
 )
 
-type SyncChns struct {
-	SendChn          chan Message
-	RecChn           chan Message
-	Online           chan bool
-	IAmMaster        chan bool
-	UpdatedAllOrders chan [NumElevs][NumFloors][NumButtons]bool
-}
-
-func Sync(id string, syncCh SyncChns, esmChns EsmChns) {
-	const numPeers = NumElevs - 1
+func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
+	const numPeers = config.NumElevs - 1
 	idDig, _ := strconv.Atoi(id)
 	var (
-		elev            Elevator
-		allOrders       [NumElevs][NumFloors][NumButtons]bool
+		elev            config.Elevator
 		onlineIPs       []string
 		receivedReceipt []string
 		currentMsgID    int
 		numTimeouts     int
-		MergedAllOrders [NumElevs][NumFloors][NumButtons]bool
+		iAmMaster       bool = true
+		allOrders       [config.NumElevs][config.NumFloors][config.NumButtons]bool
 	)
+
 	go func() {
 		for {
 			select {
 			case newElev := <-esmChns.Elev:
 				elev = newElev
-				MergedAllOrders[idDig] = newElev.Orders
+				allOrders[idDig] = elev.Orders
+				esmChns.CurrentAllOrders <- allOrders
+				/*
+					if iAmMaster {
+						allOrders[idDig] = newElev.Orders
+					} else {
+						mergedAllOrders[idDig] = newElev.Orders
+					}*/
 			}
 		}
 	}()
@@ -50,9 +50,15 @@ func Sync(id string, syncCh SyncChns, esmChns EsmChns) {
 	msgTimer.Stop()
 
 	go func() {
-		currentMsgID = rand.Intn(256)
-		msg := Message{elev, allOrders, currentMsgID, false, localIP, id}
+		/*
+			if iAmMaster {
+				msg = config.Message{elev, allOrders, currentMsgID, false, iAmMaster, localIP, id}
+			} else {
+				msg = config.Message{elev, mergedAllOrders, currentMsgID, false, iAmMaster, localIP, id}
+			}*/
 		for {
+			currentMsgID = rand.Intn(256)
+			msg := config.Message{elev, allOrders, currentMsgID, false, iAmMaster, localIP, id}
 			syncCh.SendChn <- msg
 			msgTimer.Reset(800 * time.Millisecond)
 			time.Sleep(1 * time.Second)
@@ -69,14 +75,15 @@ func Sync(id string, syncCh SyncChns, esmChns EsmChns) {
 					onlineIPs = append(onlineIPs, recID)
 					if len(onlineIPs) == numPeers {
 						syncCh.Online <- true
-						idDig, _ := strconv.Atoi(id)
 						for i := 0; i < numPeers; i++ {
 							theID, _ := strconv.Atoi(onlineIPs[i])
 							if idDig > theID {
 								syncCh.IAmMaster <- false
+								iAmMaster = false
 								break
 							}
 							syncCh.IAmMaster <- true
+							iAmMaster = true
 						}
 						/*
 							Dette er ved diff på IP:
@@ -92,9 +99,19 @@ func Sync(id string, syncCh SyncChns, esmChns EsmChns) {
 						*/
 					}
 				}
+				if iAmMaster {
+					theID, _ := strconv.Atoi(recID)
+					allOrders[theID] = incomming.Elev.Orders
+					//allOrders = costfcn(allOrders) //INSERT KOSTFUNKSJON
+				} else {
+					if incomming.MsgFromMaster {
+						allOrders = incomming.AllOrders
+					}
+				}
+
 				if !incomming.Receipt {
 					// Hvis det ikke er en kvittering, skal vi svare med kvittering
-					msg := Message{elev, allOrders, incomming.MsgId, true, localIP, id}
+					msg := config.Message{elev, allOrders, incomming.MsgId, true, iAmMaster, localIP, id}
 					//sender ut fem kvitteringer på femti millisekunder
 					for i := 0; i < 5; i++ {
 						syncCh.SendChn <- msg
@@ -105,9 +122,11 @@ func Sync(id string, syncCh SyncChns, esmChns EsmChns) {
 						if !contains(receivedReceipt, recID) {
 							receivedReceipt = append(receivedReceipt, recID)
 							if len(receivedReceipt) == numPeers {
+								//Hvis vi har fått bekreftelse fra alle andre peers på meldingen
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
+								//syncCh.MsgConfirmed <- true
 							}
 						}
 					}
@@ -120,12 +139,13 @@ func Sync(id string, syncCh SyncChns, esmChns EsmChns) {
 				fmt.Println("Three timeouts in a row")
 				numTimeouts = 0
 				onlineIPs = onlineIPs[:0]
+				iAmMaster = true
 			}
 		}
 	}
 }
 
-func OrdersDist(syncCh SyncChns) {
+func OrdersDist(syncCh config.SyncChns) {
 	var (
 		online    bool //initiates to false
 		iAmMaster bool = true

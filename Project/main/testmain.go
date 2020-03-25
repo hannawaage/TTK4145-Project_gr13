@@ -4,9 +4,9 @@ import (
 	"flag"
 
 	. "../StateMachine"
-	. "../Synchronize"
-	. "../config"
+	"../config"
 	. "../driver-go/elevio"
+	"../sync"
 
 	"../network/bcast"
 	//	"time"
@@ -14,19 +14,22 @@ import (
 )
 
 func main() {
-
-	esmChns := EsmChns{
-		Elev:             make(chan Elevator),
+	const NumElevs = config.NumElevs
+	const NumFloors = config.NumFloors
+	const NumButtons = config.NumButtons
+	esmChns := config.EsmChns{
+		Elev:             make(chan config.Elevator),
 		CurrentAllOrders: make(chan [NumElevs][NumFloors][NumButtons]bool),
 		Buttons:          make(chan ButtonEvent),
 		Floors:           make(chan int),
 	}
-	Init("localhost:15657", NumFloors)
+
+	Init("localhost:12345", NumFloors)
 
 	/////// DETTE ER FRA SYNC ////////////
-	syncChns := sync.SyncChns{
-		SendChn:   make(chan sync.Message),
-		RecChn:    make(chan sync.Message),
+	syncChns := config.SyncChns{
+		SendChn:   make(chan config.Message),
+		RecChn:    make(chan config.Message),
 		Online:    make(chan bool),
 		IAmMaster: make(chan bool),
 	}

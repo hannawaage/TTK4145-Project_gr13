@@ -23,7 +23,7 @@ const (
 )
 
 type Elevator struct {
-	Id     int //eller noe for å vit om master eller ikke
+	Id     int
 	Floor  int
 	Dir    MotorDirection
 	State  ElevState
@@ -31,12 +31,13 @@ type Elevator struct {
 }
 
 type Message struct {
-	Elev      Elevator
-	AllOrders [NumElevs][NumFloors][NumButtons]bool
-	MsgId     int
-	Receipt   bool
-	LocalIP   string
-	LocalID   string
+	Elev          Elevator
+	AllOrders     [NumElevs][NumFloors][NumButtons]bool
+	MsgId         int
+	Receipt       bool
+	MsgFromMaster bool
+	LocalIP       string
+	LocalID       string
 }
 
 type EsmChns struct {
@@ -47,4 +48,12 @@ type EsmChns struct {
 	OrderAbove       chan bool
 	OrderBelow       chan bool
 	ShouldStop       chan bool
+}
+
+type SyncChns struct {
+	SendChn          chan Message
+	RecChn           chan Message
+	Online           chan bool
+	IAmMaster        chan bool
+	UpdatedAllOrders chan [NumElevs][NumFloors][NumButtons]bool
 }
