@@ -78,7 +78,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 							}
 							syncCh.IAmMaster <- true
 							iAmMaster = true
-							fmt.Println("iAmMaster!!")
 						}
 						/*
 							Dette er ved diff på IP:
@@ -105,10 +104,12 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					}
 					if iAmMaster {
 						theID, _ := strconv.Atoi(recID)
-						allOrders[theID-1] = incomming.Elev.Orders
-						allOrders[theID-1][0][0] = true
-						syncCh.UpdateElev <- true
+						if allOrders[theID-1] != incomming.Elev.Orders {
+							allOrders = costfcn()
+							//allOrders[theID-1] = incomming.Elev.Orders
+						}
 						//allOrders = costfcn(allOrders) //INSERT KOSTFUNKSJON
+						syncCh.UpdateElev <- true
 					} else {
 						if incomming.MsgFromMaster {
 							allOrders = incomming.AllOrders
@@ -191,4 +192,11 @@ func contains(elevs []string, str string) bool {
 		}
 	}
 	return false
+}
+
+func costfcn() [config.NumElevs][config.NumFloors][config.NumButtons]bool {
+	var allOrderMat [config.NumElevs][config.NumFloors][config.NumButtons]bool
+	allOrderMat[1][2][1] = true
+	allOrderMat[2][2][2] = true
+	return allOrderMat
 }
