@@ -48,7 +48,7 @@ func SetOrders(idDig int, elevator Elevator, currentAllOrders [NumElevs][NumFloo
 			}
 		}
 	}
-	return elevator.Orders, elevator.Lights
+	return elevator.Orders
 }
 
 func ClearOrders(elevator Elevator) ([NumFloors][NumButtons]bool, [NumElevs][NumFloors][NumButtons]bool) {
