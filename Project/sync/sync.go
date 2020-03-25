@@ -179,7 +179,7 @@ func OrdersDist(syncCh config.SyncChns) {
 			} else {
 				fmt.Println(".. and I am backup")
 			}
-			//time.Sleep(5 * time.Second)
+			time.Sleep(5 * time.Second)
 		}
 	}
 }
