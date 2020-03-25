@@ -16,7 +16,8 @@ func InitElev(elevator Elevator, esmChns EsmChns)int {
 		a = <- esmChns.Floors
 	}
 	SetMotorDirection(MD_Stop)
-	fmt.Println("Heisen er klar i etasje nr ", a+1)
+	SetFloorIndicator(a)
+	fmt.Println("Heisen er klar i etasje nr ", a)
 	return a
 }
 
@@ -24,12 +25,23 @@ func ShareElev(elevator Elevator, esmChns EsmChns){
 	esmChns.Elev <- elevator
 }
 
+<<<<<<< HEAD
 func SetOrders(idDig int, elevator Elevator, currentAllOrders [NumElevs][NumFloors][NumButtons]bool)[NumFloors][NumButtons]bool{
+=======
+func SetCurrentOrders(elevator Elevator, currentAllOrders [NumElevs][NumFloors][NumButtons]bool)([NumFloors][NumButtons]bool,[NumElevs][NumFloors][NumButtons]bool){
+>>>>>>> e2476d81770c3255ce9f64437aad6e023205a755
 	var btn ButtonType
 	for elev := 0; elev < NumElevs; elev++ {
 		for floor := 0; floor < NumFloors; floor++ {
 			for btn = 0; btn < NumButtons; btn++ {
-				if currentAllOrders[elev][floor][btn]{
+				if !currentAllOrders[elev][floor][btn] && elevator.Lights[elev][floor][btn]{
+					elevator.Lights[elev][floor][btn] = false
+					if !elevator.Orders[floor][btn] {
+						SetButtonLamp(btn,floor, false)
+					}
+				}
+				if currentAllOrders[elev][floor][btn] && !(elev != 1 && btn == NumButtons-1){//id, hvis det ikke er cab hos annen heis
+					elevator.Lights[elev][floor][btn] = true
 					SetButtonLamp(btn,floor, true)
 					if elev == idDig {// id
 						elevator.Orders[floor][btn] = true
@@ -39,17 +51,17 @@ func SetOrders(idDig int, elevator Elevator, currentAllOrders [NumElevs][NumFloo
 			}
 		}
 	}
-	return elevator.Orders
+	return elevator.Orders, elevator.Lights
 }
 
-
-func ClearOrders(elevator Elevator)[NumFloors][NumButtons]bool{
+func ClearOrders(elevator Elevator)([NumFloors][NumButtons]bool, [NumElevs][NumFloors][NumButtons]bool){
 	var b ButtonType
 	for b = 0; b < NumButtons; b++ {
+		elevator.Lights[1][elevator.Floor][b] = false //id
 		SetButtonLamp(b,elevator.Floor,false)
 		elevator.Orders[elevator.Floor][b] = false
 	}
-	return elevator.Orders
+	return elevator.Orders, elevator.Lights
 }
 
 
