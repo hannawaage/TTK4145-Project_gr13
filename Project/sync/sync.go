@@ -19,7 +19,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 		receivedReceipt []string
 		currentMsgID    int
 		numTimeouts     int
-		iAmMaster       bool = true
+		iAmMaster       bool
 		allOrders       [config.NumElevs][config.NumFloors][config.NumButtons]bool
 	)
 
