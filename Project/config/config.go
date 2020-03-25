@@ -28,6 +28,7 @@ type Elevator struct {
 	Dir    MotorDirection
 	State  ElevState
 	Orders [NumFloors][NumButtons]bool
+	Lights [NumElevs][NumFloors][NumButtons]bool
 }
 
 type Message struct {
