@@ -28,11 +28,11 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 			select {
 			case newElev := <-esmChns.Elev:
 				elev = newElev
-				if allOrders[idDig - 1] != elev.Orders {
-					allOrders[idDig - 1] = elev.Orders
+				if allOrders[idDig-1] != elev.Orders {
+					allOrders[idDig-1] = elev.Orders
 					esmChns.CurrentAllOrders <- allOrders
 				}
-			case b := syncCh.UpdateElev:
+			case <-syncCh.UpdateElev:
 				esmChns.CurrentAllOrders <- allOrders
 			}
 		}
@@ -91,7 +91,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						*/
 					}
 				}
-				
 
 				if !incomming.Receipt {
 					// Hvis det ikke er en kvittering, skal vi svare med kvittering
@@ -103,8 +102,8 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					}
 					if iAmMaster {
 						theID, _ := strconv.Atoi(recID)
-						allOrders[theID - 1] = incomming.Elev.Orders
-						allOrders[theID - 1][0][0] = true
+						allOrders[theID-1] = incomming.Elev.Orders
+						allOrders[theID-1][0][0] = true
 						//allOrders = costfcn(allOrders) //INSERT KOSTFUNKSJON
 					} else {
 						if incomming.MsgFromMaster {

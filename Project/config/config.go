@@ -52,9 +52,9 @@ type EsmChns struct {
 }
 
 type SyncChns struct {
-	SendChn          chan Message
-	RecChn           chan Message
-	Online           chan bool
-	IAmMaster        chan bool
+	SendChn    chan Message
+	RecChn     chan Message
+	Online     chan bool
+	IAmMaster  chan bool
 	UpdateElev chan bool
 }

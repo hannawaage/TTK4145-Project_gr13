@@ -114,7 +114,7 @@ func RunElevator(esmChns EsmChns, idDig int) {
 				elevator.State = DoorOpen
 				SetMotorDirection(MD_Stop)
 				doorTimedOut.Reset(DoorOpenTime)
-				elevator.Orders, elevator.Lights = ClearOrders(elevator)
+				elevator.Orders = ClearOrders(elevator)
 			}
 			go ShareElev(elevator, esmChns)
 
