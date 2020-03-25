@@ -32,8 +32,11 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					allOrders[idDig-1] = elev.Orders
 					esmChns.CurrentAllOrders <- allOrders
 				}
-			case b := <-syncCh.UpdateElev:
-				if b {
+			case <-syncCh.UpdateElev:
+				if iAmMaster {
+					allOrders = costfcn()
+					esmChns.CurrentAllOrders <- allOrders
+				} else {
 					esmChns.CurrentAllOrders <- allOrders
 				}
 			}
@@ -102,19 +105,10 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						syncCh.SendChn <- msg
 						time.Sleep(10 * time.Millisecond)
 					}
-					if iAmMaster {
-						theID, _ := strconv.Atoi(recID)
-						if allOrders[theID-1] != incomming.Elev.Orders {
-							allOrders = costfcn()
-							//allOrders[theID-1] = incomming.Elev.Orders
-						}
-						//allOrders = costfcn(allOrders) //INSERT KOSTFUNKSJON
+					theID, _ := strconv.Atoi(recID)
+					if allOrders[theID-1] != incomming.Elev.Orders {
+						// Hvis vi mottar noe nytt
 						syncCh.UpdateElev <- true
-					} else {
-						if incomming.MsgFromMaster {
-							allOrders = incomming.AllOrders
-							syncCh.UpdateElev <- true
-						}
 					}
 				} else { // Hvis det er en kvittering
 					if incomming.MsgId == currentMsgID {
