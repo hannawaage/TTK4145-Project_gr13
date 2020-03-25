@@ -27,7 +27,7 @@ func main() {
 		Floors:           make(chan int),
 	}
 
-	Init("localhost:12345", NumFloors)
+	Init("localhost:12347", NumFloors)
 
 	/////// DETTE ER FRA SYNC ////////////
 	syncChns := config.SyncChns{
