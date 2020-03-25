@@ -78,6 +78,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 							}
 							syncCh.IAmMaster <- true
 							iAmMaster = true
+							fmt.Println("iAmMaster!!")
 						}
 						/*
 							Dette er ved diff på IP:
