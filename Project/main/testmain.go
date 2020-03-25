@@ -46,7 +46,7 @@ func main() {
 	go bcast.Transmitter(bcastport, syncChns.SendChn)
 	go bcast.Receiver(bcastport, syncChns.RecChn)
 	go sync.Sync(id, syncChns, esmChns)
-	//go sync.OrdersDist(syncChns)
+	go sync.OrdersDist(syncChns)
 	/////////////
 
 	//go SyncTest(esmChns.CurrentAllOrders, esmChns.Elev)
