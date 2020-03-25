@@ -32,8 +32,10 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					allOrders[idDig-1] = elev.Orders
 					esmChns.CurrentAllOrders <- allOrders
 				}
-			case <-syncCh.UpdateElev:
-				esmChns.CurrentAllOrders <- allOrders
+			case b := <-syncCh.UpdateElev:
+				if b {
+					esmChns.CurrentAllOrders <- allOrders
+				}
 			}
 		}
 	}()
@@ -133,7 +135,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				fmt.Println("Three timeouts in a row")
 				numTimeouts = 0
 				onlineIPs = onlineIPs[:0]
-				iAmMaster = true
+				iAmMaster = false
 			}
 		}
 	}
