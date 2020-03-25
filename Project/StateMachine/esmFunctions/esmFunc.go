@@ -24,15 +24,16 @@ func ShareElev(elevator Elevator, esmChns EsmChns){
 	esmChns.Elev <- elevator
 }
 
-func SetOrders(elevator Elevator, currentAllOrders [NumElevs][NumFloors][NumButtons]bool)[NumFloors][NumButtons]bool{
+func SetOrders(idDig int, elevator Elevator, currentAllOrders [NumElevs][NumFloors][NumButtons]bool)[NumFloors][NumButtons]bool{
 	var btn ButtonType
 	for elev := 0; elev < NumElevs; elev++ {
 		for floor := 0; floor < NumFloors; floor++ {
 			for btn = 0; btn < NumButtons; btn++ {
 				if currentAllOrders[elev][floor][btn]{
 					SetButtonLamp(btn,floor, true)
-					if elev == 1 {// id
-					elevator.Orders[floor][btn] = true
+					if elev == idDig {// id
+						elevator.Orders[floor][btn] = true
+						fmt.Println("Updated order for elevator ", idDig + 1)
 					}
 				}
 			}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"strconv"
 
 	. "../StateMachine"
 	"../config"
@@ -24,7 +25,7 @@ func main() {
 		Floors:           make(chan int),
 	}
 
-	Init("localhost:12345", NumFloors)
+	Init("localhost:12347", NumFloors)
 
 	/////// DETTE ER FRA SYNC ////////////
 	syncChns := config.SyncChns{
@@ -37,20 +38,22 @@ func main() {
 	var id string
 	flag.StringVar(&id, "id", "", "id of this peer")
 	flag.Parse()
+	idDig, _ := strconv.Atoi(id)
+	idDig--
 
-	port := 16576
+	bcastport := 16576
 
-	go bcast.Transmitter(port, syncChns.SendChn)
-	go bcast.Receiver(port, syncChns.RecChn)
+	go bcast.Transmitter(bcastport, syncChns.SendChn)
+	go bcast.Receiver(bcastport, syncChns.RecChn)
 	go sync.Sync(id, syncChns, esmChns)
-	go sync.OrdersDist(syncChns)
+	//go sync.OrdersDist(syncChns)
 	/////////////
 
 	//go SyncTest(esmChns.CurrentAllOrders)
 
 	go PollButtons(esmChns.Buttons)
 	go PollFloorSensor(esmChns.Floors)
-	go RunElevator(esmChns)
+	go RunElevator(esmChns, idDig)
 
 	for {
 

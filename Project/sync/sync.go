@@ -28,14 +28,12 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 			select {
 			case newElev := <-esmChns.Elev:
 				elev = newElev
-				allOrders[idDig] = elev.Orders
+				if allOrders[idDig - 1] != elev.Orders {
+					allOrders[idDig - 1] = elev.Orders
+					esmChns.CurrentAllOrders <- allOrders
+				}
+			case b := syncCh.UpdateElev:
 				esmChns.CurrentAllOrders <- allOrders
-				/*
-					if iAmMaster {
-						allOrders[idDig] = newElev.Orders
-					} else {
-						mergedAllOrders[idDig] = newElev.Orders
-					}*/
 			}
 		}
 	}()
@@ -50,12 +48,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 	msgTimer.Stop()
 
 	go func() {
-		/*
-			if iAmMaster {
-				msg = config.Message{elev, allOrders, currentMsgID, false, iAmMaster, localIP, id}
-			} else {
-				msg = config.Message{elev, mergedAllOrders, currentMsgID, false, iAmMaster, localIP, id}
-			}*/
 		for {
 			currentMsgID = rand.Intn(256)
 			msg := config.Message{elev, allOrders, currentMsgID, false, iAmMaster, localIP, id}
@@ -99,15 +91,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						*/
 					}
 				}
-				if iAmMaster {
-					theID, _ := strconv.Atoi(recID)
-					allOrders[theID] = incomming.Elev.Orders
-					//allOrders = costfcn(allOrders) //INSERT KOSTFUNKSJON
-				} else {
-					if incomming.MsgFromMaster {
-						allOrders = incomming.AllOrders
-					}
-				}
+				
 
 				if !incomming.Receipt {
 					// Hvis det ikke er en kvittering, skal vi svare med kvittering
@@ -116,6 +100,17 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					for i := 0; i < 5; i++ {
 						syncCh.SendChn <- msg
 						time.Sleep(10 * time.Millisecond)
+					}
+					if iAmMaster {
+						theID, _ := strconv.Atoi(recID)
+						allOrders[theID - 1] = incomming.Elev.Orders
+						allOrders[theID - 1][0][0] = true
+						//allOrders = costfcn(allOrders) //INSERT KOSTFUNKSJON
+					} else {
+						if incomming.MsgFromMaster {
+							allOrders = incomming.AllOrders
+							syncCh.UpdateElev <- true
+						}
 					}
 				} else { // Hvis det er en kvittering
 					if incomming.MsgId == currentMsgID {
