@@ -104,6 +104,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						theID, _ := strconv.Atoi(recID)
 						allOrders[theID-1] = incomming.Elev.Orders
 						allOrders[theID-1][0][0] = true
+						syncCh.UpdateElev <- true
 						//allOrders = costfcn(allOrders) //INSERT KOSTFUNKSJON
 					} else {
 						if incomming.MsgFromMaster {
