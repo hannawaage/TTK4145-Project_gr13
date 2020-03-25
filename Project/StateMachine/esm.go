@@ -62,7 +62,7 @@ func SyncTest(CurrentAllOrders chan<- [NumElevs][NumFloors][NumButtons]bool, ele
 	}
 }
 
-func RunElevator(esmChns EsmChns, idDig int) {
+func RunElevator(esmChns EsmChns) {
 
 	elevator := Elevator{
 		State:  Idle,
@@ -85,7 +85,7 @@ func RunElevator(esmChns EsmChns, idDig int) {
 			}
 
 		case currentAllOrders := <-esmChns.CurrentAllOrders:
-			elevator.Orders = SetOrders(idDig, elevator, currentAllOrders)
+			elevator.Orders, elevator.Lights = SetCurrentOrders(elevator, currentAllOrders)
 			switch elevator.State {
 			case Undefined:
 			case Idle:
@@ -95,13 +95,13 @@ func RunElevator(esmChns EsmChns, idDig int) {
 					elevator.State = DoorOpen
 					SetDoorOpenLamp(true)
 					doorTimedOut.Reset(3 * time.Second)
-					elevator.Orders = ClearOrders(elevator)
+					elevator.Orders, elevator.Lights = ClearOrders(elevator)
 				} else {
 					elevator.State = Moving
 				}
 			case Moving:
 			case DoorOpen:
-				elevator.Orders = ClearOrders(elevator)
+				elevator.Orders, elevator.Lights = ClearOrders(elevator)
 			default:
 			}
 			go ShareElev(elevator, esmChns)
@@ -114,7 +114,7 @@ func RunElevator(esmChns EsmChns, idDig int) {
 				elevator.State = DoorOpen
 				SetMotorDirection(MD_Stop)
 				doorTimedOut.Reset(DoorOpenTime)
-				elevator.Orders = ClearOrders(elevator)
+				elevator.Orders, elevator.Lights = ClearOrders(elevator)
 			}
 			go ShareElev(elevator, esmChns)
 
