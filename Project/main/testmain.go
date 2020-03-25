@@ -46,7 +46,7 @@ func main() {
 	go sync.OrdersDist(syncChns)
 	/////////////
 
-	//go SyncTest(esmChns.CurrentAllOrders)
+	//go SyncTest(esmChns.CurrentAllOrders, esmChns.Elev)
 
 	go PollButtons(esmChns.Buttons)
 	go PollFloorSensor(esmChns.Floors)
