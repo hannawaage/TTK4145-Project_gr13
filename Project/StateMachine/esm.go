@@ -62,7 +62,7 @@ func SyncTest(CurrentAllOrders chan<- [NumElevs][NumFloors][NumButtons]bool, ele
 	}
 }
 
-func RunElevator(esmChns EsmChns) {
+func RunElevator(esmChns EsmChns, id int) {
 
 	elevator := Elevator{
 		State:  Idle,
@@ -85,7 +85,7 @@ func RunElevator(esmChns EsmChns) {
 			}
 
 		case currentAllOrders := <-esmChns.CurrentAllOrders:
-			elevator.Orders, elevator.Lights = SetCurrentOrders(elevator, currentAllOrders)
+			elevator.Orders, elevator.Lights = SetCurrentOrders(id, elevator, currentAllOrders)
 			switch elevator.State {
 			case Undefined:
 			case Idle:

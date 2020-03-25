@@ -4,12 +4,14 @@ import (
 	//"flag"
 	//"strconv"
 
+	"flag"
+	"strconv"
+
 	. "../StateMachine"
 	"../config"
 	. "../driver-go/elevio"
-//	"../sync"
-
-	//"../network/bcast"
+	"../network/bcast"
+	"../sync"
 	//	"time"
 	//"fmt"
 )
@@ -28,7 +30,7 @@ func main() {
 	Init("localhost:12345", NumFloors)
 
 	/////// DETTE ER FRA SYNC ////////////
-/*	syncChns := config.SyncChns{
+	syncChns := config.SyncChns{
 		SendChn:   make(chan config.Message),
 		RecChn:    make(chan config.Message),
 		Online:    make(chan bool),
@@ -46,14 +48,14 @@ func main() {
 	go bcast.Transmitter(bcastport, syncChns.SendChn)
 	go bcast.Receiver(bcastport, syncChns.RecChn)
 	go sync.Sync(id, syncChns, esmChns)
-	go sync.OrdersDist(syncChns) */
+	go sync.OrdersDist(syncChns)
 	/////////////
 
-	go SyncTest(esmChns.CurrentAllOrders, esmChns.Elev)
+	//go SyncTest(esmChns.CurrentAllOrders, esmChns.Elev)
 
 	go PollButtons(esmChns.Buttons)
 	go PollFloorSensor(esmChns.Floors)
-	go RunElevator(esmChns)
+	go RunElevator(esmChns, idDig)
 
 	for {
 

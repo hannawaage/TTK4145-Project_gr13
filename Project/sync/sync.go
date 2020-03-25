@@ -121,7 +121,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
-								//syncCh.MsgConfirmed <- true
 							}
 						}
 					}
@@ -177,7 +176,7 @@ func OrdersDist(syncCh config.SyncChns) {
 			} else {
 				fmt.Println(".. and I am backup")
 			}
-			time.Sleep(5 * time.Second)
+			//time.Sleep(5 * time.Second)
 		}
 	}
 }
