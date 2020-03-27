@@ -25,7 +25,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		online             bool
 	)
-
 	go func() {
 		for {
 			select {
@@ -38,10 +37,9 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					fmt.Println("Boo, we are offline.")
 
 				}
-			case newElev := <-esmChns.Elev:
-				elev = newElev
-				if updatedLocalOrders[idDig] != newElev.Orders {
-					updatedLocalOrders[idDig] = newElev.Orders
+			case elev := <-esmChns.Elev:
+				if updatedLocalOrders[idDig] != elev.Orders {
+					updatedLocalOrders[idDig] = elev.Orders
 				}
 			}
 		}
@@ -121,7 +119,8 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 							// Hvis vi mottar noe nytt
 							if masterID == idDig {
 								// Hvis jeg er master: oppdater ordrelisten vi skal sende ut med kostfunksjon
-								updatedLocalOrders = costfcn(idDig, currentAllOrders, incomming.AllOrders[recIDDig])
+								updatedLocalOrders = CostFunction()
+								//costfcn(idDig, currentAllOrders, incomming.AllOrders[recIDDig])
 								esmChns.CurrentAllOrders <- currentAllOrders
 								currentAllOrders = updatedLocalOrders
 							} else if masterID == recIDDig {
