@@ -31,11 +31,11 @@ func main() {
 
 	/////// DETTE ER FRA SYNC ////////////
 	syncChns := config.SyncChns{
-		SendChn:   make(chan config.Message),
-		RecChn:    make(chan config.Message),
-		Online:    make(chan bool),
-		IAmMaster: make(chan bool),
-		OfflineUpdate make(chan [NumElevs][NumFloors][NumButtons]bool),
+		SendChn:       make(chan config.Message),
+		RecChn:        make(chan config.Message),
+		Online:        make(chan bool),
+		IAmMaster:     make(chan bool),
+		OfflineUpdate: make(chan [NumElevs][NumFloors][NumButtons]bool),
 	}
 
 	var id string
