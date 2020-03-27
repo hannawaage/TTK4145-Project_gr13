@@ -184,11 +184,11 @@ func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 			case newLocalOrders = <-esmCh.Elev:
 				if allOrders[id] != newLocalOrders.Orders {
 					allOrders[id] = newLocalOrders.Orders
-					syncCh.NewOrdersToSend <- allOrders
+					go func() { syncCh.NewOrdersToSend <- allOrders }()
 					if online {
-						esmCh.CurrentAllOrders <- receivedOrders
+						go func() { esmCh.CurrentAllOrders <- receivedOrders }()
 					} else {
-						esmCh.CurrentAllOrders <- allOrders
+						go func() { esmCh.CurrentAllOrders <- allOrders }()
 					}
 				}
 			}
