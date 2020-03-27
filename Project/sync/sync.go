@@ -143,6 +143,8 @@ func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 		allOrders      [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		receivedOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		newLocalOrders config.Elevator
+		updateOrders   bool
+		updateOffline  bool
 	)
 
 	go func() {
@@ -163,33 +165,38 @@ func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 					iAmMaster = false
 				}
 			case receivedOrders = <-syncCh.ReceivedOrders:
-				if iAmMaster {
-					esmCh.CurrentAllOrders <- costfcn()
-					fmt.Println(".. I am Master and I just updated my orders")
-				} else {
-					esmCh.CurrentAllOrders <- receivedOrders
-					fmt.Println(".. and I am backup and I just updated my orders")
-				}
+				updateOrders = true
 			case newLocalOrders = <-esmCh.Elev:
-				if allOrders[id] != newLocalOrders.Orders {
-					allOrders[id] = newLocalOrders.Orders
-					go func() { esmCh.CurrentAllOrders <- allOrders }()
-				}
+				updateOffline = true
 			}
+
 		}
 	}()
 	for {
-		/*
-			if online {
-
+		if online {
+			if iAmMaster {
+				if updateOrders {
+					esmCh.CurrentAllOrders <- costfcn()
+					fmt.Println(".. I am Master and I just updated my orders")
+					updateOrders = false
+				}
 			} else {
-				//fmt.Println("Singlemode")
-				if updateOffline {
-					//fmt.Println("Just updated my currentAllOrders")
-
+				if updateOrders {
+					esmCh.CurrentAllOrders <- receivedOrders
+					fmt.Println(".. and I am backup and I just updated my orders")
+					updateOrders = false
 				}
 			}
-		*/
+		} else {
+			//fmt.Println("Singlemode")
+			if updateOffline {
+				//fmt.Println("Just updated my currentAllOrders")
+				if allOrders[id] != newLocalOrders.Orders {
+					allOrders[id] = newLocalOrders.Orders
+					esmCh.CurrentAllOrders <- allOrders
+				}
+			}
+		}
 	}
 }
 
