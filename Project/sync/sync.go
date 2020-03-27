@@ -13,6 +13,7 @@ import (
 func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 	const numPeers = config.NumElevs - 1
 	idDig, _ := strconv.Atoi(id)
+	masterID := idDig
 	var (
 		elev            config.Elevator
 		onlineIPs       []string
@@ -29,8 +30,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				elev = newElev
 				if allOrders[idDig-1] != elev.Orders {
 					allOrders[idDig-1] = elev.Orders
-					// esmChns.CurrentAllOrders <- allOrders
-					// DETTE MÅ SKJE ETTER BEKREFTELSE PGA LYS
 				}
 			}
 		}
@@ -60,7 +59,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 		case incomming := <-syncCh.RecChn:
 			recID := incomming.LocalID
 			recIDDig, _ := strconv.Atoi(recID)
-			masterID := idDig
+
 			if id != recID { //Hvis det ikke er fra oss selv, BYTTES TIL IP VED KJØRING PÅ FORSKJELLIGE MASKINER
 				if !contains(onlineIPs, recID) {
 					// Dersom heisen enda ikke er registrert, sjekker vi om vi nå er online og sjekker om vi er master
@@ -129,6 +128,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				fmt.Println("Three timeouts in a row")
 				numTimeouts = 0
 				onlineIPs = onlineIPs[:0]
+				masterID = idDig
 				//iAmMaster = false
 			}
 		}
@@ -174,6 +174,8 @@ func OrdersDistribute(syncCh config.SyncChns, esmCh config.EsmChns) {
 					esmCh.CurrentAllOrders <- costfcn()
 					fmt.Println(".. I am Master and I just updated my orders")
 					updateOrders = false
+				} else {
+					esmCh.CurrentAllOrders <- costfcn()
 				}
 			} else {
 				if updateOrders {
