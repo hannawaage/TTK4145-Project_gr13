@@ -30,6 +30,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 			select {
 			case newElev := <-esmChns.Elev:
 				if currentAllOrders[idDig] != newElev.Orders {
+					fmt.Println("ulik")
 					updatedLocalOrders[idDig] = newElev.Orders
 					go func() { syncCh.OfflineUpdate <- updatedLocalOrders }()
 				}
@@ -172,11 +173,9 @@ func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 							iAmMaster = false
 							fmt.Println(".. and I am backup")
 						}*/
-			case new := <-syncCh.OfflineUpdate:
-				if currentAllOrders != new {
-					if !online {
-						esmCh.CurrentAllOrders <- currentAllOrders
-					}
+			case currentAllOrders = <-syncCh.OfflineUpdate:
+				if !online {
+					esmCh.CurrentAllOrders <- currentAllOrders
 				}
 			}
 		}
