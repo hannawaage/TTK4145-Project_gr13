@@ -106,8 +106,9 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 
 				if !incomming.Receipt {
-					fmt.Println(recIDDig)
-					fmt.Println(incomming.Elev.Orders)
+					if incomming.Elev.Orders[0][0] {
+						fmt.Println("Sant")
+					}
 					if currentAllOrders[recIDDig] != incomming.Elev.Orders {
 						// Hvis vi mottar noe nytt
 						if masterID == idDig {
@@ -123,7 +124,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					}
 					// Hvis det ikke er en kvittering, skal vi svare med kvittering
 					msg := config.Message{elev, updatedLocalOrders, incomming.MsgId, true, localIP, id}
-					fmt.Println("Sender kvitteringer")
 					//sender ut fem kvitteringer på femti millisekunder
 					for i := 0; i < 5; i++ {
 						syncCh.SendChn <- msg
