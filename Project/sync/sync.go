@@ -45,6 +45,9 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					if !online {
 						esmChns.CurrentAllOrders <- updatedLocalOrders
 					}
+					fmt.Println(currentAllOrders[idDig])
+					fmt.Println(newElev.Orders)
+					time.Sleep(100 * time.Second)
 					//go func() { syncCh.OfflineUpdate <- updatedLocalOrders }()
 				}
 			}
