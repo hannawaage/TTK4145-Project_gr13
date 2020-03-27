@@ -135,12 +135,15 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 	}
 }
 
-func OrdersDistribute(syncCh config.SyncChns, esmCh config.EsmChns) {
+func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 	var (
 		online         bool //initiates to false
 		iAmMaster      bool = true
+		allOrders      [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		receivedOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
+		newLocalOrders config.Elevator
 		updateOrders   bool
+		updateOffline  bool
 	)
 
 	go func() {
@@ -162,6 +165,8 @@ func OrdersDistribute(syncCh config.SyncChns, esmCh config.EsmChns) {
 				}
 			case receivedOrders = <-syncCh.ReceivedOrders:
 				updateOrders = true
+			case newLocalOrders = <-esmCh.Elev:
+				updateOffline = true
 			}
 
 		}
@@ -174,8 +179,6 @@ func OrdersDistribute(syncCh config.SyncChns, esmCh config.EsmChns) {
 					esmCh.CurrentAllOrders <- costfcn()
 					fmt.Println(".. I am Master and I just updated my orders")
 					updateOrders = false
-				} else {
-					esmCh.CurrentAllOrders <- costfcn()
 				}
 			} else {
 				if updateOrders {
@@ -183,6 +186,12 @@ func OrdersDistribute(syncCh config.SyncChns, esmCh config.EsmChns) {
 					fmt.Println(".. and I am backup and I just updated my orders")
 					updateOrders = false
 				}
+			}
+		} else {
+			fmt.Println("Singlemode")
+			if updateOffline {
+				allOrders[id] = newLocalOrders.Orders
+				esmCh.CurrentAllOrders <- allOrders
 			}
 		}
 	}
