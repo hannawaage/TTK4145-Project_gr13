@@ -42,7 +42,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				if currentAllOrders[idDig] != newElev.Orders {
 					fmt.Println(currentAllOrders)
 					fmt.Println(newElev.Orders)
-					time.Sleep(5 * time.Second)
+					time.Sleep(1 * time.Second)
 					fmt.Println("ulik")
 					updatedLocalOrders[idDig] = newElev.Orders
 					if !online {
