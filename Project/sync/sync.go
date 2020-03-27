@@ -107,17 +107,19 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 
 				if !incomming.Receipt {
-					if currentAllOrders[recIDDig] != incomming.AllOrders[recIDDig] {
-						// Hvis vi mottar noe nytt
-						if masterID == idDig {
-							// Hvis jeg er master: oppdater ordrelisten vi skal sende ut med kostfunksjon
-							updatedLocalOrders = costfcn()
-							fmt.Println("Jeg er master og jeg har oppdatert updated")
-						} else if masterID == recIDDig {
-							// Hvis meldingen er fra Master: oppdatter med en gang (masters word is law)
-							currentAllOrders = incomming.AllOrders
-							esmChns.CurrentAllOrders <- currentAllOrders
-							fmt.Println("Fått melding fra master og har lagt ut mine nye")
+					if online {
+						if currentAllOrders[recIDDig] != incomming.AllOrders[recIDDig] {
+							// Hvis vi mottar noe nytt
+							if masterID == idDig {
+								// Hvis jeg er master: oppdater ordrelisten vi skal sende ut med kostfunksjon
+								updatedLocalOrders = costfcn()
+								fmt.Println("Jeg er master og jeg har oppdatert updated")
+							} else if masterID == recIDDig {
+								// Hvis meldingen er fra Master: oppdatter med en gang (masters word is law)
+								currentAllOrders = incomming.AllOrders
+								esmChns.CurrentAllOrders <- currentAllOrders
+								fmt.Println("Fått melding fra master og har lagt ut mine nye")
+							}
 						}
 					}
 					// Hvis det ikke er en kvittering, skal vi svare med kvittering
@@ -202,7 +204,7 @@ func contains(elevs []string, str string) bool {
 
 func costfcn() [config.NumElevs][config.NumFloors][config.NumButtons]bool {
 	var allOrderMat [config.NumElevs][config.NumFloors][config.NumButtons]bool
-	allOrderMat[1][2][1] = true
+	allOrderMat[0][2][1] = true
 	allOrderMat[2][2][2] = true
 	return allOrderMat
 }
