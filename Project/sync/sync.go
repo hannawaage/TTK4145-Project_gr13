@@ -23,24 +23,12 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 		allOrders       [config.NumElevs][config.NumFloors][config.NumButtons]bool
 	)
 
-	/*
-		go func() {
-			for {
-				select {
-				case newElev := <-esmChns.Elev:
-					elev = newElev
-					if allOrders[idDig-1] != elev.Orders {
-						allOrders[idDig-1] = elev.Orders
-					}
-				}
-			}
-		}()*/
-
 	go func() {
 		for {
 			select {
 			case b := <-syncCh.NewOrdersToSend:
 				allOrders = b
+				fmt.Println("just updated orders")
 			}
 		}
 	}()
