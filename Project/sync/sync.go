@@ -147,8 +147,8 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 	var (
-		online           bool //initiates to false
-		iAmMaster        bool = true
+		online bool //initiates to false
+		//iAmMaster        bool = true
 		currentAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
 	)
 
@@ -164,14 +164,15 @@ func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 					fmt.Println("Boo, we are offline.")
 
 				}
-			case b := <-syncCh.IAmMaster:
-				if b {
-					iAmMaster = true
-					fmt.Println(".. I am Master")
-				} else {
-					iAmMaster = false
-					fmt.Println(".. and I am backup")
-				}
+				/*
+					case b := <-syncCh.IAmMaster:
+						if b {
+							iAmMaster = true
+							fmt.Println(".. I am Master")
+						} else {
+							iAmMaster = false
+							fmt.Println(".. and I am backup")
+						}*/
 			case currentAllOrders = <-syncCh.OfflineUpdate:
 				fmt.Println(".. Vi er inne i oppdatering")
 				if !online {
