@@ -168,38 +168,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 	}
 }
 
-func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
-	var (
-	//online bool //initiates to false
-	//iAmMaster        bool = true
-	//currentAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
-	)
-	/*
-		go func() {
-
-			for {
-				select {
-
-				/*
-					case b := <-syncCh.IAmMaster:
-						if b {
-							iAmMaster = true
-							fmt.Println(".. I am Master")
-						} else {
-							iAmMaster = false
-							fmt.Println(".. and I am backup")
-						}
-				case currentAllOrders = <-syncCh.OfflineUpdate:
-					if !online {
-						esmCh.CurrentAllOrders <- currentAllOrders
-					}
-				}
-			}
-		}()*/
-	for {
-	}
-}
-
 func contains(elevs []string, str string) bool {
 	for _, a := range elevs {
 		if a == str {
@@ -210,9 +178,7 @@ func contains(elevs []string, str string) bool {
 }
 
 func costfcn(id int, current [config.NumElevs][config.NumFloors][config.NumButtons]bool, new [config.NumFloors][config.NumButtons]bool) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
-	var allOrderMat [config.NumElevs][config.NumFloors][config.NumButtons]bool
-	allOrderMat[2][2][0] = true
-	allOrderMat[2][2][1] = true
-	allOrderMat[2][2][2] = true
+	allOrderMat := current
+	allOrderMat[id] = new
 	return allOrderMat
 }
