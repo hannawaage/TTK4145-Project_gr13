@@ -23,16 +23,29 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 		numTimeouts        int
 		updatedLocalOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
+		online             bool
 	)
 
 	go func() {
 		for {
 			select {
+			case b := <-syncCh.Online:
+				if b {
+					online = true
+					fmt.Println("Yaho, we are online!")
+				} else {
+					online = false
+					fmt.Println("Boo, we are offline.")
+
+				}
 			case newElev := <-esmChns.Elev:
 				if currentAllOrders[idDig] != newElev.Orders {
 					fmt.Println("ulik")
 					updatedLocalOrders[idDig] = newElev.Orders
-					go func() { syncCh.OfflineUpdate <- updatedLocalOrders }()
+					if !online {
+						esmChns.CurrentAllOrders <- updatedLocalOrders
+					}
+					//go func() { syncCh.OfflineUpdate <- updatedLocalOrders }()
 				}
 			}
 		}
@@ -147,23 +160,16 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 	var (
-		online bool //initiates to false
-		//iAmMaster        bool = true
-		currentAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
+	//online bool //initiates to false
+	//iAmMaster        bool = true
+	//currentAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
 	)
+	/*
+		go func() {
 
-	go func() {
-		for {
-			select {
-			case b := <-syncCh.Online:
-				if b {
-					online = true
-					fmt.Println("Yaho, we are online!")
-				} else {
-					online = false
-					fmt.Println("Boo, we are offline.")
+			for {
+				select {
 
-				}
 				/*
 					case b := <-syncCh.IAmMaster:
 						if b {
@@ -172,14 +178,14 @@ func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 						} else {
 							iAmMaster = false
 							fmt.Println(".. and I am backup")
-						}*/
-			case currentAllOrders = <-syncCh.OfflineUpdate:
-				if !online {
-					esmCh.CurrentAllOrders <- currentAllOrders
+						}
+				case currentAllOrders = <-syncCh.OfflineUpdate:
+					if !online {
+						esmCh.CurrentAllOrders <- currentAllOrders
+					}
 				}
 			}
-		}
-	}()
+		}()*/
 	for {
 	}
 }
