@@ -174,7 +174,6 @@ func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 	}()
 	for {
 		if online {
-			fmt.Println("Online")
 			if iAmMaster {
 				if updateOrders {
 					esmCh.CurrentAllOrders <- costfcn()
