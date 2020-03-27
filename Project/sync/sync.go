@@ -47,6 +47,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						updatedLocalOrders[idDig] = newElev.Orders
 					}
 					if !online { // Hvis vi er offline, skal disse rett ut på heisen
+						updatedLocalOrders = mergeAllOrders(idDig, updatedLocalOrders)
 						esmChns.CurrentAllOrders <- updatedLocalOrders
 					}
 				}
@@ -178,4 +179,21 @@ func costfcn(id int, current [config.NumElevs][config.NumFloors][config.NumButto
 	allOrderMat[1] = new
 	allOrderMat[2] = new
 	return allOrderMat
+}
+
+func mergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumButtons]bool) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
+	var merged [config.NumElevs][config.NumFloors][config.NumButtons]bool
+	for elev := 0; elev < config.NumElevs; elev++ {
+		if elev == id {
+			continue
+		}
+		for floor := 0; floor < config.NumFloors; floor++ {
+			for btn := 0; btn < config.NumButtons; btn++ {
+				if all[elev][floor][btn] {
+					merged[id][floor][btn] = true
+				}
+			}
+		}
+	}
+	return merged
 }
