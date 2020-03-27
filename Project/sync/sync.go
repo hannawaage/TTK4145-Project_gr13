@@ -31,13 +31,14 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				if currentAllOrders[idDig] != newElev.Orders {
 					fmt.Println("Fått inn bestilling")
 					updatedLocalOrders[idDig] = newElev.Orders
-					go func() {
-						syncCh.OfflineUpdate <- updatedLocalOrders
-						fmt.Println("Send den til offlineupdate")
-					}()
 				}
 			}
 		}
+	}()
+
+	go func() {
+		syncCh.OfflineUpdate <- updatedLocalOrders
+		//fmt.Println("Sendt den til offlineupdate")
 	}()
 
 	localIP, err := localip.LocalIP()
