@@ -15,20 +15,23 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 	idDig, _ := strconv.Atoi(id)
 	masterID := idDig
 	var (
-		elev            config.Elevator
-		onlineIPs       []string
-		receivedReceipt []string
-		currentMsgID    int
-		numTimeouts     int
-		allOrders       [config.NumElevs][config.NumFloors][config.NumButtons]bool
+		elev               config.Elevator
+		onlineIPs          []string
+		receivedReceipt    []string
+		currentMsgID       int
+		numTimeouts        int
+		updatedLocalOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
+		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
 	)
 
 	go func() {
 		for {
 			select {
-			case b := <-syncCh.NewOrdersToSend:
-				allOrders = b
-				fmt.Println("just updated orders")
+			case newElev := <-esmChns.Elev:
+				if currentAllOrders[idDig] != newElev.Orders {
+					updatedLocalOrders[idDig] = newElev.Orders
+					go func() { syncCh.OfflineUpdate <- updatedLocalOrders }()
+				}
 			}
 		}
 	}()
@@ -45,7 +48,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 	go func() {
 		for {
 			currentMsgID = rand.Intn(256)
-			msg := config.Message{elev, allOrders, currentMsgID, false, localIP, id}
+			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, localIP, id}
 			syncCh.SendChn <- msg
 			msgTimer.Reset(800 * time.Millisecond)
 			time.Sleep(1 * time.Second)
@@ -57,7 +60,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 		case incomming := <-syncCh.RecChn:
 			recID := incomming.LocalID
 			recIDDig, _ := strconv.Atoi(recID)
-
+			recIDDig--
 			if id != recID { //Hvis det ikke er fra oss selv, BYTTES TIL IP VED KJØRING PÅ FORSKJELLIGE MASKINER
 				if !contains(onlineIPs, recID) {
 					// Dersom heisen enda ikke er registrert, sjekker vi om vi nå er online og sjekker om vi er master
@@ -91,19 +94,23 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 
 				if !incomming.Receipt {
+					if currentAllOrders[recIDDig] != incomming.Elev.Orders {
+						// Hvis vi mottar noe nytt
+						if masterID == idDig {
+							// Hvis jeg er master: oppdater ordrelisten vi skal sende ut med kostfunksjon
+							updatedLocalOrders = costfcn()
+						} else if masterID == recIDDig {
+							// Hvis meldingen er fra Master: oppdatter med en gang (masters word is law)
+							currentAllOrders = incomming.AllOrders
+							esmChns.CurrentAllOrders <- currentAllOrders
+						}
+					}
 					// Hvis det ikke er en kvittering, skal vi svare med kvittering
-					msg := config.Message{elev, allOrders, incomming.MsgId, true, localIP, id}
+					msg := config.Message{elev, updatedLocalOrders, incomming.MsgId, true, localIP, id}
 					//sender ut fem kvitteringer på femti millisekunder
 					for i := 0; i < 5; i++ {
 						syncCh.SendChn <- msg
 						time.Sleep(10 * time.Millisecond)
-					}
-					theID, _ := strconv.Atoi(recID)
-					if allOrders[theID-1] != incomming.Elev.Orders {
-						// Hvis vi mottar noe nytt
-						if (masterID == theID) || (recIDDig == masterID) {
-							syncCh.ReceivedOrders <- incomming.AllOrders
-						}
 					}
 				} else { // Hvis det er en kvittering
 					if incomming.MsgId == currentMsgID {
@@ -114,6 +121,10 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
+								// Har fått bekreftet fra resten at de har fått med seg mine nye bestillinger,
+								// da kan jeg slå på lys
+								currentAllOrders = updatedLocalOrders
+								esmChns.CurrentAllOrders <- currentAllOrders
 							}
 						}
 					}
@@ -127,7 +138,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				numTimeouts = 0
 				onlineIPs = onlineIPs[:0]
 				masterID = idDig
-				//iAmMaster = false
 			}
 		}
 	}
@@ -135,13 +145,9 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 	var (
-		online         bool //initiates to false
-		iAmMaster      bool = true
-		allOrders      [config.NumElevs][config.NumFloors][config.NumButtons]bool
-		receivedOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
-		newLocalOrders config.Elevator
-		//updateOrders   bool
-		//updateOffline  bool
+		online           bool //initiates to false
+		iAmMaster        bool = true
+		currentAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
 	)
 
 	go func() {
@@ -154,45 +160,24 @@ func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 				} else {
 					online = false
 					fmt.Println("Boo, we are offline.")
+
 				}
 			case b := <-syncCh.IAmMaster:
 				if b {
 					iAmMaster = true
+					fmt.Println(".. I am Master")
 				} else {
 					iAmMaster = false
+					fmt.Println(".. and I am backup")
 				}
-			case receivedOrders = <-syncCh.ReceivedOrders:
-				if iAmMaster {
-					esmCh.CurrentAllOrders <- costfcn()
-					fmt.Println(".. I am Master and I just updated my orders")
-				} else {
-					esmCh.CurrentAllOrders <- receivedOrders
-					fmt.Println(".. and I am backup and I just updated my orders")
-				}
-			case newLocalOrders = <-esmCh.Elev:
-				if allOrders[id] != newLocalOrders.Orders {
-					allOrders[id] = newLocalOrders.Orders
-					go func() { syncCh.NewOrdersToSend <- allOrders }()
-					if online {
-						go func() { esmCh.CurrentAllOrders <- receivedOrders }()
-					} else {
-						go func() { esmCh.CurrentAllOrders <- allOrders }()
-					}
+			case currentAllOrders = <-syncCh.OfflineUpdate:
+				if !online {
+					esmCh.CurrentAllOrders <- currentAllOrders
 				}
 			}
 		}
 	}()
 	for {
-		/*
-			if online {
-
-			} else {
-				//fmt.Println("Singlemode")
-				if updateOffline {
-					//fmt.Println("Just updated my currentAllOrders")
-				}
-			}
-		}*/
 	}
 }
 
