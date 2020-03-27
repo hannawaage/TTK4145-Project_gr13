@@ -41,7 +41,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 			case newElev := <-esmChns.Elev:
 				if updatedLocalOrders[idDig] != newElev.Orders {
 					updatedLocalOrders[idDig] = newElev.Orders
-					if !online {
+					if !online { // Hvis vi er offline, skal disse rett ut på heisen
 						esmChns.CurrentAllOrders <- updatedLocalOrders
 					}
 					//go func() { syncCh.OfflineUpdate <- updatedLocalOrders }()
@@ -87,11 +87,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								masterID = theID
 							}
 						}
-						if masterID == idDig {
-							syncCh.IAmMaster <- true
-						} else {
-							syncCh.IAmMaster <- false
-						}
 						/*
 							Dette er ved diff på IP:
 							localDig, _ := strconv.Atoi(localIP[len(localIP)-3:])
@@ -117,10 +112,12 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 							// Hvis meldingen er fra Master: oppdatter med en gang (masters word is law)
 							currentAllOrders = incomming.AllOrders
 							esmChns.CurrentAllOrders <- currentAllOrders
+							fmt.Println("Fått melding fra master og har lagt ut mine nye")
 						}
 					}
 					// Hvis det ikke er en kvittering, skal vi svare med kvittering
 					msg := config.Message{elev, updatedLocalOrders, incomming.MsgId, true, localIP, id}
+					fmt.Println("Sender kvitteringer")
 					//sender ut fem kvitteringer på femti millisekunder
 					for i := 0; i < 5; i++ {
 						syncCh.SendChn <- msg
@@ -139,6 +136,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								// da kan jeg slå på lys
 								currentAllOrders = updatedLocalOrders
 								esmChns.CurrentAllOrders <- currentAllOrders
+								fmt.Println("Fått bekreftelse og lagt ut")
 							}
 						}
 					}

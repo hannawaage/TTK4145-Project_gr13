@@ -34,7 +34,6 @@ func main() {
 		SendChn:       make(chan config.Message),
 		RecChn:        make(chan config.Message),
 		Online:        make(chan bool),
-		IAmMaster:     make(chan bool),
 		OfflineUpdate: make(chan [NumElevs][NumFloors][NumButtons]bool),
 	}
 

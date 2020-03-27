@@ -54,6 +54,5 @@ type SyncChns struct {
 	SendChn       chan Message
 	RecChn        chan Message
 	Online        chan bool
-	IAmMaster     chan bool
 	OfflineUpdate chan [NumElevs][NumFloors][NumButtons]bool
 }
