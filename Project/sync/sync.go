@@ -172,9 +172,11 @@ func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 							iAmMaster = false
 							fmt.Println(".. and I am backup")
 						}*/
-			case currentAllOrders = <-syncCh.OfflineUpdate:
-				if !online {
-					esmCh.CurrentAllOrders <- currentAllOrders
+			case new := <-syncCh.OfflineUpdate:
+				if currentAllOrders != new {
+					if !online {
+						esmCh.CurrentAllOrders <- currentAllOrders
+					}
 				}
 			}
 		}
