@@ -181,6 +181,7 @@ func costfcn(id int, current [config.NumElevs][config.NumFloors][config.NumButto
 
 func mergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumButtons]bool) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
 	var merged [config.NumElevs][config.NumFloors][config.NumButtons]bool
+	merged[id] = all[id]
 	for elev := 0; elev < config.NumElevs; elev++ {
 		if elev == id {
 			continue
