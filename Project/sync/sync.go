@@ -185,11 +185,11 @@ func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 				if allOrders[id] != newLocalOrders.Orders {
 					allOrders[id] = newLocalOrders.Orders
 					syncCh.NewOrdersToSend <- allOrders
-				}
-				if online {
-					esmCh.CurrentAllOrders <- receivedOrders
-				} else {
-					esmCh.CurrentAllOrders <- allOrders
+					if online {
+						esmCh.CurrentAllOrders <- receivedOrders
+					} else {
+						esmCh.CurrentAllOrders <- allOrders
+					}
 				}
 			}
 		}
