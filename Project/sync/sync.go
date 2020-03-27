@@ -39,7 +39,8 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 	go func() {
 		for {
 			select {
-			case allOrders = <-syncCh.NewOrdersToSend:
+			case b := <-syncCh.NewOrdersToSend:
+				allOrders = b
 			}
 		}
 	}()
@@ -185,8 +186,12 @@ func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 					allOrders[id] = newLocalOrders.Orders
 					syncCh.NewOrdersToSend <- allOrders
 				}
+				if online {
+					esmCh.CurrentAllOrders <- receivedOrders
+				} else {
+					esmCh.CurrentAllOrders <- allOrders
+				}
 			}
-
 		}
 	}()
 	for {
