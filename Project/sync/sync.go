@@ -39,9 +39,9 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 	go func() {
 		for {
 			syncCh.OfflineUpdate <- updatedLocalOrders
+			fmt.Println("Sendt den til offlineupdate")
 		}
-
-		//fmt.Println("Sendt den til offlineupdate")
+		//
 	}()
 
 	localIP, err := localip.LocalIP()
@@ -179,6 +179,7 @@ func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 					fmt.Println(".. and I am backup")
 				}
 			case currentAllOrders = <-syncCh.OfflineUpdate:
+				fmt.Println(".. Vi er inne i oppdatering")
 				if !online {
 					esmCh.CurrentAllOrders <- currentAllOrders
 				}
