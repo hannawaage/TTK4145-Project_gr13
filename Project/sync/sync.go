@@ -192,8 +192,10 @@ func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 			//fmt.Println("Singlemode")
 			if updateOffline {
 				//fmt.Println("Just updated my currentAllOrders")
-				allOrders[id] = newLocalOrders.Orders
-				esmCh.CurrentAllOrders <- allOrders
+				if allOrders[id] != newLocalOrders.Orders {
+					allOrders[id] = newLocalOrders.Orders
+					esmCh.CurrentAllOrders <- allOrders
+				}
 			}
 		}
 	}
