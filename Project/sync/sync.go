@@ -173,7 +173,7 @@ func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 			case newLocalOrders = <-esmCh.Elev:
 				if allOrders[id] != newLocalOrders.Orders {
 					allOrders[id] = newLocalOrders.Orders
-					esmCh.CurrentAllOrders <- allOrders
+					go func() { esmCh.CurrentAllOrders <- allOrders }()
 				}
 			}
 		}
