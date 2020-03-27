@@ -30,11 +30,8 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 			select {
 			case newElev := <-esmChns.Elev:
 				if currentAllOrders[idDig] != newElev.Orders {
-					fmt.Println("Fått inn bestilling")
 					updatedLocalOrders[idDig] = newElev.Orders
-					//esmChns.currentAllOrders <- updatedLocalOrders
 					go func() { syncCh.OfflineUpdate <- updatedLocalOrders }()
-					fmt.Println("Sendt den til offlineupdate")
 				}
 			}
 		}
@@ -176,7 +173,6 @@ func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 							fmt.Println(".. and I am backup")
 						}*/
 			case currentAllOrders = <-syncCh.OfflineUpdate:
-				fmt.Println(".. Vi er inne i oppdatering")
 				if !online {
 					esmCh.CurrentAllOrders <- currentAllOrders
 				}
