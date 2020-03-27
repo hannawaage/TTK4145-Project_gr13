@@ -57,6 +57,18 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 		}
 	}()
 
+	go func() {
+		for {
+			if !online {
+				updatedLocalOrders = mergeAllOrders(idDig, updatedLocalOrders)
+				esmChns.CurrentAllOrders <- updatedLocalOrders
+			} else {
+				esmChns.CurrentAllOrders <- currentAllOrders
+			}
+			time.Sleep(500 * time.Millisecond)
+		}
+	}()
+
 	localIP, err := localip.LocalIP()
 	if err != nil {
 		fmt.Println(err)
@@ -118,17 +130,10 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								// Hvis jeg er master: oppdater ordrelisten vi skal sende ut med kostfunksjon
 								updatedLocalOrders = costfcn(idDig, currentAllOrders, incomming.AllOrders[recIDDig])
 								currentAllOrders = updatedLocalOrders
-								if !online {
-									updatedLocalOrders = mergeAllOrders(idDig, updatedLocalOrders)
-									esmChns.CurrentAllOrders <- updatedLocalOrders
-								} else {
-									esmChns.CurrentAllOrders <- currentAllOrders
-								}
 							} else if masterID == recIDDig {
 								// Hvis meldingen er fra Master: oppdatter med en gang (masters word is law)
 								updatedLocalOrders = incomming.AllOrders
 								currentAllOrders = incomming.AllOrders
-								esmChns.CurrentAllOrders <- currentAllOrders
 							}
 						}
 					}
@@ -148,11 +153,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
-								// Har fått bekreftet fra resten at de har fått med seg mine nye bestillinger,
-								/*if currentAllOrders != updatedLocalOrders {
-									currentAllOrders = updatedLocalOrders
-									esmChns.CurrentAllOrders <- currentAllOrders
-								}*/
+								// Har fått bekreftet fra resten at de har fått med seg mine nye bestillinger
 							}
 						}
 					}
