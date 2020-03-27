@@ -67,9 +67,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 		for {
 			currentMsgID = rand.Intn(256)
 			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, localIP, id}
-			if updatedLocalOrders[1][0][0] {
-				fmt.Println(updatedLocalOrders)
-			}
 			syncCh.SendChn <- msg
 			msgTimer.Reset(800 * time.Millisecond)
 			time.Sleep(1 * time.Second)
@@ -119,13 +116,11 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								updatedLocalOrders = costfcn(idDig, currentAllOrders, incomming.AllOrders[recIDDig])
 								currentAllOrders = updatedLocalOrders
 								esmChns.CurrentAllOrders <- currentAllOrders
-								fmt.Println("Jeg er master og jeg har oppdatert min heis")
 							} else if masterID == recIDDig {
 								// Hvis meldingen er fra Master: oppdatter med en gang (masters word is law)
 								updatedLocalOrders = incomming.AllOrders
 								currentAllOrders = incomming.AllOrders
 								esmChns.CurrentAllOrders <- currentAllOrders
-								fmt.Println("Fått melding fra master og har oppdatert min heis")
 							}
 						}
 					}
