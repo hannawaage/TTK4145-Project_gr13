@@ -42,7 +42,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				elev = newElev
 				if updatedLocalOrders[idDig] != newElev.Orders {
 					if masterID == idDig {
-						updatedLocalOrders[idDig] != newElev.Orders
+						updatedLocalOrders[idDig] = newElev.Orders
 						//updatedLocalOrders = costfcn(idDig, currentAllOrders, newElev.Orders)
 						esmChns.CurrentAllOrders <- updatedLocalOrders
 					} else {
