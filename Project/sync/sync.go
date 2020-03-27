@@ -41,17 +41,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 			case newElev := <-esmChns.Elev:
 				elev = newElev
 				if updatedLocalOrders[idDig] != newElev.Orders {
-					if masterID == idDig {
-						updatedLocalOrders[idDig] = newElev.Orders
-						//updatedLocalOrders = costfcn(idDig, currentAllOrders, newElev.Orders)
-						esmChns.CurrentAllOrders <- updatedLocalOrders
-					} else {
-						updatedLocalOrders[idDig] = newElev.Orders
-					}
-					if !online { // Hvis vi er offline, skal disse rett ut på heisen
-						updatedLocalOrders = mergeAllOrders(idDig, updatedLocalOrders)
-						esmChns.CurrentAllOrders <- updatedLocalOrders
-					}
+					updatedLocalOrders[idDig] = newElev.Orders
 				}
 			}
 		}
@@ -68,7 +58,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 				currentAllOrders = updatedLocalOrders
 			}
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(100 * time.Millisecond)
 		}
 	}()
 
