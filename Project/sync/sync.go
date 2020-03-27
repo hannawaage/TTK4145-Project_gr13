@@ -103,6 +103,8 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 
 				if !incomming.Receipt {
+					fmt.Println(recIDDig)
+					fmt.Println(incomming.Elev.Orders)
 					if currentAllOrders[recIDDig] != incomming.Elev.Orders {
 						// Hvis vi mottar noe nytt
 						if masterID == idDig {
