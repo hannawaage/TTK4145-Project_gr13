@@ -13,6 +13,7 @@ import (
 func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 	const numPeers = config.NumElevs - 1
 	idDig, _ := strconv.Atoi(id)
+	idDig--
 	masterID := idDig
 	var (
 		elev               config.Elevator
@@ -31,6 +32,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				if currentAllOrders[idDig] != newElev.Orders {
 					fmt.Println("Fått inn bestilling")
 					updatedLocalOrders[idDig] = newElev.Orders
+					//esmChns.currentAllOrders <- updatedLocalOrders
 					go func() { syncCh.OfflineUpdate <- updatedLocalOrders }()
 					fmt.Println("Sendt den til offlineupdate")
 				}
