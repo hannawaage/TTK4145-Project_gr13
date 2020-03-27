@@ -142,10 +142,10 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
 								// Har fått bekreftet fra resten at de har fått med seg mine nye bestillinger,
-								// da kan jeg slå på lys
-								currentAllOrders = updatedLocalOrders
-								esmChns.CurrentAllOrders <- currentAllOrders
-								//fmt.Println("Fått bekreftelse og lagt ut")
+								if currentAllOrders != updatedLocalOrders {
+									currentAllOrders = updatedLocalOrders
+									esmChns.CurrentAllOrders <- currentAllOrders
+								}
 							}
 						}
 					}
