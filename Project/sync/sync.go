@@ -87,6 +87,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						syncCh.Online <- true
 						for i := 0; i < numPeers; i++ {
 							theID, _ := strconv.Atoi(onlineIPs[i])
+							theID--
 							if theID < masterID {
 								masterID = theID
 							}
