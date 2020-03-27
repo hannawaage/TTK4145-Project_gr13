@@ -59,14 +59,12 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 	go func() {
 		for {
-			if !online {
-				if currentAllOrders != updatedLocalOrders {
+			if currentAllOrders != updatedLocalOrders {
+				if !online {
 					updatedLocalOrders = mergeAllOrders(idDig, updatedLocalOrders)
-					esmChns.CurrentAllOrders <- updatedLocalOrders
-					currentAllOrders = updatedLocalOrders
 				}
-			} else {
-				esmChns.CurrentAllOrders <- currentAllOrders
+				esmChns.CurrentAllOrders <- updatedLocalOrders
+				currentAllOrders = updatedLocalOrders
 			}
 			time.Sleep(500 * time.Millisecond)
 		}
@@ -132,11 +130,9 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 							if masterID == idDig {
 								// Hvis jeg er master: oppdater ordrelisten vi skal sende ut med kostfunksjon
 								updatedLocalOrders = costfcn(idDig, currentAllOrders, incomming.AllOrders[recIDDig])
-								currentAllOrders = updatedLocalOrders
 							} else if masterID == recIDDig {
 								// Hvis meldingen er fra Master: oppdatter med en gang (masters word is law)
 								updatedLocalOrders = incomming.AllOrders
-								currentAllOrders = incomming.AllOrders
 							}
 						}
 					}
