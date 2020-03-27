@@ -32,13 +32,12 @@ type Elevator struct {
 }
 
 type Message struct {
-	Elev          Elevator
-	AllOrders     [NumElevs][NumFloors][NumButtons]bool
-	MsgId         int
-	Receipt       bool
-	MsgFromMaster bool
-	LocalIP       string
-	LocalID       string
+	Elev      Elevator
+	AllOrders [NumElevs][NumFloors][NumButtons]bool
+	MsgId     int
+	Receipt   bool
+	LocalIP   string
+	LocalID   string
 }
 
 type EsmChns struct {
@@ -52,9 +51,9 @@ type EsmChns struct {
 }
 
 type SyncChns struct {
-	SendChn    chan Message
-	RecChn     chan Message
-	Online     chan bool
-	IAmMaster  chan bool
-	UpdateElev chan bool
+	SendChn        chan Message
+	RecChn         chan Message
+	Online         chan bool
+	IAmMaster      chan bool
+	ReceivedOrders chan [NumElevs][NumFloors][NumButtons]bool
 }

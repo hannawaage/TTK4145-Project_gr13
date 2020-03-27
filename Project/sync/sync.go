@@ -19,7 +19,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 		receivedReceipt []string
 		currentMsgID    int
 		numTimeouts     int
-		iAmMaster       bool
 		allOrders       [config.NumElevs][config.NumFloors][config.NumButtons]bool
 	)
 
@@ -30,14 +29,8 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				elev = newElev
 				if allOrders[idDig-1] != elev.Orders {
 					allOrders[idDig-1] = elev.Orders
-					esmChns.CurrentAllOrders <- allOrders
-				}
-			case <-syncCh.UpdateElev:
-				if iAmMaster {
-					allOrders = costfcn()
-					esmChns.CurrentAllOrders <- allOrders
-				} else {
-					esmChns.CurrentAllOrders <- allOrders
+					// esmChns.CurrentAllOrders <- allOrders
+					// DETTE MÅ SKJE ETTER BEKREFTELSE PGA LYS
 				}
 			}
 		}
@@ -55,7 +48,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 	go func() {
 		for {
 			currentMsgID = rand.Intn(256)
-			msg := config.Message{elev, allOrders, currentMsgID, false, iAmMaster, localIP, id}
+			msg := config.Message{elev, allOrders, currentMsgID, false, localIP, id}
 			syncCh.SendChn <- msg
 			msgTimer.Reset(800 * time.Millisecond)
 			time.Sleep(1 * time.Second)
@@ -66,6 +59,8 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 		select {
 		case incomming := <-syncCh.RecChn:
 			recID := incomming.LocalID
+			recIDDig, _ := strconv.Atoi(recID)
+			masterID := idDig
 			if id != recID { //Hvis det ikke er fra oss selv, BYTTES TIL IP VED KJØRING PÅ FORSKJELLIGE MASKINER
 				if !contains(onlineIPs, recID) {
 					// Dersom heisen enda ikke er registrert, sjekker vi om vi nå er online og sjekker om vi er master
@@ -74,13 +69,14 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						syncCh.Online <- true
 						for i := 0; i < numPeers; i++ {
 							theID, _ := strconv.Atoi(onlineIPs[i])
-							if idDig > theID {
-								syncCh.IAmMaster <- false
-								iAmMaster = false
-								break
+							if theID < masterID {
+								masterID = theID
 							}
+						}
+						if masterID == idDig {
 							syncCh.IAmMaster <- true
-							iAmMaster = true
+						} else {
+							syncCh.IAmMaster <- false
 						}
 						/*
 							Dette er ved diff på IP:
@@ -99,7 +95,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 				if !incomming.Receipt {
 					// Hvis det ikke er en kvittering, skal vi svare med kvittering
-					msg := config.Message{elev, allOrders, incomming.MsgId, true, iAmMaster, localIP, id}
+					msg := config.Message{elev, allOrders, incomming.MsgId, true, localIP, id}
 					//sender ut fem kvitteringer på femti millisekunder
 					for i := 0; i < 5; i++ {
 						syncCh.SendChn <- msg
@@ -108,7 +104,9 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					theID, _ := strconv.Atoi(recID)
 					if allOrders[theID-1] != incomming.Elev.Orders {
 						// Hvis vi mottar noe nytt
-						syncCh.UpdateElev <- true
+						if (masterID == theID) || (recIDDig == masterID) {
+							syncCh.ReceivedOrders <- incomming.AllOrders
+						}
 					}
 				} else { // Hvis det er en kvittering
 					if incomming.MsgId == currentMsgID {
@@ -131,17 +129,20 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				fmt.Println("Three timeouts in a row")
 				numTimeouts = 0
 				onlineIPs = onlineIPs[:0]
-				iAmMaster = false
+				//iAmMaster = false
 			}
 		}
 	}
 }
 
-func OrdersDist(syncCh config.SyncChns) {
+func OrdersDistribute(syncCh config.SyncChns, esmCh config.EsmChns) {
 	var (
-		online    bool //initiates to false
-		iAmMaster bool = true
+		online         bool //initiates to false
+		iAmMaster      bool = true
+		receivedOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
+		updateOrders   bool
 	)
+
 	go func() {
 		for {
 			select {
@@ -159,22 +160,28 @@ func OrdersDist(syncCh config.SyncChns) {
 				} else {
 					iAmMaster = false
 				}
+			case receivedOrders = <-syncCh.ReceivedOrders:
+				updateOrders = true
 			}
 
 		}
 	}()
 	for {
 		if online {
-			if !iAmMaster {
-
-			}
 			fmt.Println("Online")
 			if iAmMaster {
-				fmt.Println(".. and I am master")
+				if updateOrders {
+					esmCh.CurrentAllOrders <- costfcn()
+					fmt.Println(".. I am Master and I just updated my orders")
+					updateOrders = false
+				}
 			} else {
-				fmt.Println(".. and I am backup")
+				if updateOrders {
+					esmCh.CurrentAllOrders <- receivedOrders
+					fmt.Println(".. and I am backup and I just updated my orders")
+					updateOrders = false
+				}
 			}
-			time.Sleep(5 * time.Second)
 		}
 	}
 }
