@@ -40,14 +40,14 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 			case newElev := <-esmChns.Elev:
 				if currentAllOrders[idDig] != newElev.Orders {
+					fmt.Println(currentAllOrders[idDig])
+					fmt.Println(newElev.Orders)
+					time.Sleep(5 * time.Second)
 					fmt.Println("ulik")
 					updatedLocalOrders[idDig] = newElev.Orders
 					if !online {
 						esmChns.CurrentAllOrders <- updatedLocalOrders
 					}
-					fmt.Println(currentAllOrders[idDig])
-					fmt.Println(newElev.Orders)
-					time.Sleep(100 * time.Second)
 					//go func() { syncCh.OfflineUpdate <- updatedLocalOrders }()
 				}
 			}
