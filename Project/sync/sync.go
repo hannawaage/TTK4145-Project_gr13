@@ -41,11 +41,8 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 			case newElev := <-esmChns.Elev:
 				elev = newElev
 				if updatedLocalOrders[idDig] != newElev.Orders {
-					fmt.Println(updatedLocalOrders[idDig])
-					fmt.Println(newElev.Orders)
 					if masterID == idDig {
 						updatedLocalOrders = costfcn(idDig, currentAllOrders, newElev.Orders)
-						fmt.Println(updatedLocalOrders[idDig])
 					} else {
 						updatedLocalOrders[idDig] = newElev.Orders
 					}
