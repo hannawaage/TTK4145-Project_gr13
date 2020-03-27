@@ -37,7 +37,7 @@ func SetCurrentOrders(id int, elevator Elevator, currentAllOrders [NumElevs][Num
 						SetButtonLamp(btn, floor, false)
 					}
 				}
-				if currentAllOrders[elev][floor][btn] && !(elev != 1 && btn == NumButtons-1) { //id, hvis det ikke er cab hos annen heis
+				if currentAllOrders[elev][floor][btn] && !(elev != id && btn == NumButtons-1) { //id, hvis det ikke er cab hos annen heis
 					elevator.Lights[elev][floor][btn] = true
 					SetButtonLamp(btn, floor, true)
 					if elev == id { // id
