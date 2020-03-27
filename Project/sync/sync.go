@@ -36,6 +36,14 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 			}
 		}()*/
 
+	go func() {
+		for {
+			select {
+			case allOrders = <-syncCh.NewOrdersToSend:
+			}
+		}
+	}()
+
 	localIP, err := localip.LocalIP()
 	if err != nil {
 		fmt.Println(err)
@@ -175,7 +183,7 @@ func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 			case newLocalOrders = <-esmCh.Elev:
 				if allOrders[id] != newLocalOrders.Orders {
 					allOrders[id] = newLocalOrders.Orders
-					esmCh.CurrentAllOrders <- allOrders
+					syncCh.NewOrdersToSend <- allOrders
 				}
 			}
 
