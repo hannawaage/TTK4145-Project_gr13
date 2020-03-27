@@ -174,10 +174,8 @@ func contains(elevs []string, str string) bool {
 }
 
 func costfcn(id int, current [config.NumElevs][config.NumFloors][config.NumButtons]bool, new [config.NumFloors][config.NumButtons]bool) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
-	allOrderMat := current
-	allOrderMat[0] = new
-	allOrderMat[1] = new
-	allOrderMat[2] = new
+	current[id] = new
+	allOrderMat := mergeAllOrders(0, current)
 	return allOrderMat
 }
 
