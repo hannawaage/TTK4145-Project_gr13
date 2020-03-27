@@ -41,11 +41,14 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 			case newElev := <-esmChns.Elev:
 				elev = newElev
 				if updatedLocalOrders[idDig] != newElev.Orders {
-					updatedLocalOrders[idDig] = newElev.Orders
+					if masterID == idDig {
+						updatedLocalOrders = costfcn(idDig, currentAllOrders, newElev.Orders)
+					} else {
+						updatedLocalOrders[idDig] = newElev.Orders
+					}
 					if !online { // Hvis vi er offline, skal disse rett ut på heisen
 						esmChns.CurrentAllOrders <- updatedLocalOrders
 					}
-					//go func() { syncCh.OfflineUpdate <- updatedLocalOrders }()
 				}
 			}
 		}
@@ -113,13 +116,16 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 							// Hvis vi mottar noe nytt
 							if masterID == idDig {
 								// Hvis jeg er master: oppdater ordrelisten vi skal sende ut med kostfunksjon
-								updatedLocalOrders = costfcn()
-								fmt.Println("Jeg er master og jeg har oppdatert updated")
+								updatedLocalOrders = costfcn(idDig, currentAllOrders, incomming.AllOrders[recIDDig])
+								currentAllOrders = updatedLocalOrders
+								esmChns.CurrentAllOrders <- currentAllOrders
+								fmt.Println("Jeg er master og jeg har oppdatert min heis")
 							} else if masterID == recIDDig {
 								// Hvis meldingen er fra Master: oppdatter med en gang (masters word is law)
+								updatedLocalOrders = incomming.AllOrders
 								currentAllOrders = incomming.AllOrders
 								esmChns.CurrentAllOrders <- currentAllOrders
-								fmt.Println("Fått melding fra master og har lagt ut mine nye")
+								fmt.Println("Fått melding fra master og har oppdatert min heis")
 							}
 						}
 					}
@@ -203,9 +209,10 @@ func contains(elevs []string, str string) bool {
 	return false
 }
 
-func costfcn() [config.NumElevs][config.NumFloors][config.NumButtons]bool {
+func costfcn(id int, current [config.NumElevs][config.NumFloors][config.NumButtons]bool, new [config.NumFloors][config.NumButtons]bool) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
 	var allOrderMat [config.NumElevs][config.NumFloors][config.NumButtons]bool
-	allOrderMat[0][2][1] = true
+	allOrderMat[2][2][0] = true
+	allOrderMat[2][2][1] = true
 	allOrderMat[2][2][2] = true
 	return allOrderMat
 }
