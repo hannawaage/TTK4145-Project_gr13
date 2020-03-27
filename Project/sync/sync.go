@@ -39,6 +39,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 				}
 			case newElev := <-esmChns.Elev:
+				elev = newElev
 				if updatedLocalOrders[idDig] != newElev.Orders {
 					updatedLocalOrders[idDig] = newElev.Orders
 					if !online { // Hvis vi er offline, skal disse rett ut på heisen
@@ -106,13 +107,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 
 				if !incomming.Receipt {
-					if incomming.Elev.Orders[0][0] {
-						fmt.Println("Sant")
-					}
-					if recIDDig == 1 {
-						fmt.Println(incomming.Elev.Orders)
-					}
-					if currentAllOrders[recIDDig] != incomming.Elev.Orders {
+					if currentAllOrders[recIDDig] != incomming.AllOrders[recIDDig] {
 						// Hvis vi mottar noe nytt
 						if masterID == idDig {
 							// Hvis jeg er master: oppdater ordrelisten vi skal sende ut med kostfunksjon
