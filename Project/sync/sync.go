@@ -142,7 +142,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								// da kan jeg slå på lys
 								currentAllOrders = updatedLocalOrders
 								esmChns.CurrentAllOrders <- currentAllOrders
-								fmt.Println("Fått bekreftelse og lagt ut")
+								//fmt.Println("Fått bekreftelse og lagt ut")
 							}
 						}
 					}
