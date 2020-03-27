@@ -202,7 +202,6 @@ func OrdersDistribute(id int, syncCh config.SyncChns, esmCh config.EsmChns) {
 				//fmt.Println("Singlemode")
 				if updateOffline {
 					//fmt.Println("Just updated my currentAllOrders")
-
 				}
 			}
 		}*/
