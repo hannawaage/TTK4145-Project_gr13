@@ -37,7 +37,10 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 	}()
 
 	go func() {
-		syncCh.OfflineUpdate <- updatedLocalOrders
+		for {
+			syncCh.OfflineUpdate <- updatedLocalOrders
+		}
+
 		//fmt.Println("Sendt den til offlineupdate")
 	}()
 
