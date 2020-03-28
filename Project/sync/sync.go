@@ -40,6 +40,10 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 			case elev := <-esmChns.Elev:
 				if updatedLocalOrders[idDig] != elev.Orders {
 					if online {
+						if idDig == 1 {
+							fmt.Println("Oppdatert fra heisen")
+							fmt.Println(updatedLocalOrders)
+						}
 						updatedLocalOrders = mergeLocalOrders(idDig, updatedLocalOrders, elev.Orders)
 					} else {
 						updatedLocalOrders[idDig] = elev.Orders
