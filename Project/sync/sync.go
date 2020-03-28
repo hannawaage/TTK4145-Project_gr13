@@ -121,9 +121,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								// Hvis jeg er master: oppdater ordrelisten vi skal sende ut med kostfunksjon
 								updatedLocalOrders = costfcn(recIDDig, currentAllOrders, incomming.AllOrders[recIDDig])
 								//CostFunction(allElevs)
-								//costfcn(idDig, currentAllOrders, incomming.AllOrders[recIDDig])
-								esmChns.CurrentAllOrders <- currentAllOrders
-								currentAllOrders = updatedLocalOrders
 							} else if masterID == recIDDig {
 								// Hvis meldingen er fra Master: oppdater med en gang (masters word is law)
 								updatedLocalOrders = incomming.AllOrders
@@ -148,6 +145,8 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
+								esmChns.CurrentAllOrders <- updatedLocalOrders
+								currentAllOrders = updatedLocalOrders
 								// Har fått bekreftet fra resten at de har fått med seg mine nye bestillinger
 							}
 						}
