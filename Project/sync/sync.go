@@ -151,12 +151,6 @@ func contains(elevs []string, str string) bool {
 	return false
 }
 
-func costfcn(id int, current [config.NumElevs][config.NumFloors][config.NumButtons]bool, new [config.NumFloors][config.NumButtons]bool) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
-	current[id] = new
-	allOrderMat := mergeAllOrders(0, current)
-	return allOrderMat
-}
-
 func mergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumButtons]bool) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
 	var merged [config.NumElevs][config.NumFloors][config.NumButtons]bool
 	merged[id] = all[id]
@@ -170,19 +164,6 @@ func mergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumBu
 					merged[id][floor][btn] = true
 					merged[elev][floor][btn] = false
 				}
-			}
-		}
-	}
-	return merged
-}
-
-func mergeLocalOrders(id int, inc [config.NumElevs][config.NumFloors][config.NumButtons]bool, local [config.NumFloors][config.NumButtons]bool) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
-	var merged [config.NumElevs][config.NumFloors][config.NumButtons]bool
-	merged = inc
-	for floor := 0; floor < config.NumFloors; floor++ {
-		for btn := 0; btn < config.NumButtons; btn++ {
-			if local[floor][btn] {
-				merged[id][floor][btn] = true
 			}
 		}
 	}
