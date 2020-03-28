@@ -82,7 +82,8 @@ func RunElevator(esmChns EsmChns, id int) {
 			if elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] == false { //Hvis ikke allerede en ordre
 				elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] = true
 				go ShareElev(elevator, esmChns)
-				elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] = false //Så ordren ikke påvirker esm før kostfunksjonen har evaluert den
+				//elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] = false //Så ordren ikke påvirker esm før kostfunksjonen har evaluert den
+				//go ShareElev(elevator, esmChns)
 			}
 
 		case currentAllOrders := <-esmChns.CurrentAllOrders:
@@ -121,7 +122,6 @@ func RunElevator(esmChns EsmChns, id int) {
 
 		case <-doorTimedOut.C:
 			SetDoorOpenLamp(false)
-			go ShareElev(elevator, esmChns)
 			elevator.Dir = SetDirection(elevator)
 			if elevator.Dir == MD_Stop {
 				elevator.State = Idle
