@@ -99,13 +99,30 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						}
 					}
 				}
+				// OBS: CurrentAllOrders er alltid det samme som ligger på heisen. Når online er
+				// dette alltid de ordrene som er bekreftet at de andre har mottat.
 				if !incomming.Receipt {
 					if online {
 						allElevs[recIDDig] = incomming.Elev
 						allElevs[recIDDig].Orders = incomming.AllOrders[recIDDig]
-						/*if currentAllOrders[recIDDig] != incomming.AllOrders[recIDDig] {
+						if currentAllOrders != incomming.AllOrders {
 							// Hvis vi mottar noe nytt
-						}*/
+							if idDig == masterID {
+								// Hvis jeg er master
+								updatedLocalOrders = CostFunction(allElevs)
+								// Lokale endringer tas med i elev uansett
+							} else if recIDDig == masterID {
+								// Hvis det er melding fra master
+								if updatedLocalOrders != currentAllOrders {
+									updatedLocalOrders = mergeLocalOrders(idDig, incomming.AllOrders, updatedLocalOrders)
+									// Hvis det er lokale endringer som har skjedd som vi ikke har
+									// fått bekreftelse på
+								} else {
+									// Hvis alle er up to date med mine lokale bestillinger
+									updatedLocalOrders = incomming.AllOrders
+								}
+							}
+						}
 					}
 					msg := config.Message{elev, updatedLocalOrders, incomming.MsgId, true, localIP, id}
 					for i := 0; i < 5; i++ {
@@ -170,6 +187,19 @@ func mergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumBu
 					merged[id][floor][btn] = true
 					merged[elev][floor][btn] = false
 				}
+			}
+		}
+	}
+	return merged
+}
+
+func mergeLocalOrders(id int, inc [config.NumElevs][config.NumFloors][config.NumButtons]bool, local [config.NumElevs][config.NumFloors][config.NumButtons]bool) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
+	var merged [config.NumElevs][config.NumFloors][config.NumButtons]bool
+	merged = inc
+	for floor := 0; floor < config.NumFloors; floor++ {
+		for btn := 0; btn < config.NumButtons; btn++ {
+			if local[id][floor][btn] {
+				merged[id][floor][btn] = true
 			}
 		}
 	}
