@@ -114,7 +114,9 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 									fmt.Println("Sant")
 								}
 								updatedLocalOrders = CostFunction(allElevs)
-
+								if incomming.AllOrders[recIDDig][0][0] {
+									fmt.Println(updatedLocalOrders)
+								}
 								//updatedLocalOrders = costfcn(recIDDig, currentAllOrders, incomming.AllOrders[recIDDig])
 								//CostFunction(allElevs)
 							} else if masterID == recIDDig {
