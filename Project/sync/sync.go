@@ -73,6 +73,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, localIP, id}
 			syncCh.SendChn <- msg
 			msgTimer.Reset(800 * time.Millisecond)
+			esmChns.CurrentAllOrders <- updatedLocalOrders
 			time.Sleep(1 * time.Second)
 		}
 	}()
@@ -108,7 +109,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 							updatedLocalOrders = incomming.AllOrders
 						}
 						if currentAllOrders != updatedLocalOrders {
-							esmChns.CurrentAllOrders <- updatedLocalOrders
 							currentAllOrders = updatedLocalOrders
 						}
 					}
