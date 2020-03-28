@@ -116,7 +116,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						time.Sleep(10 * time.Millisecond)
 					}
 				} else {
-					allElevs[recIDDig] = incomming.Elev
 					if incomming.MsgId == currentMsgID {
 						if !contains(receivedReceipt, recID) {
 							receivedReceipt = append(receivedReceipt, recID)
