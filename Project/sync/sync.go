@@ -191,9 +191,8 @@ func mergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumBu
 		}
 		for floor := 0; floor < config.NumFloors; floor++ {
 			for btn := 0; btn < config.NumButtons; btn++ {
-				if all[elev][floor][btn] && (btn != config.NumButtons-1) {
+				if all[elev][floor][btn] {
 					merged[id][floor][btn] = true
-					all[elev][floor][btn] = false
 				}
 			}
 		}
