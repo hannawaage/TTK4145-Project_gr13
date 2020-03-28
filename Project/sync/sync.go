@@ -141,7 +141,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						if !contains(receivedReceipt, recID) {
 							receivedReceipt = append(receivedReceipt, recID)
 							if len(receivedReceipt) == numPeers {
-								//Hvis vi har fått bekreftelse fra alle andre peers på meldingen
+								//Hvis vi har fått bekreftelse fra de alle andre peers på meldingen
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
