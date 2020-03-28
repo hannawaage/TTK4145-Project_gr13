@@ -116,23 +116,25 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								updatedLocalOrders = CostFunction(allElevs)
 								// Lokale endringer tas med i elev uansett
 							} else if recIDDig == masterID {
-								// Hvis det er melding fra master
-								if updatedLocalOrders != currentAllOrders {
-									updatedLocalOrders = mergeLocalOrders(idDig, incomming.AllOrders, updatedLocalOrders[idDig])
-									// Hvis det er lokale endringer som har skjedd som vi ikke har
-									// fått bekreftelse på, skal vi ta inn beskjeden fra
-									// master og merge med de nye endringene
-									fmt.Println("Merger lokalt med masterbestilling og sender ut på ny")
-								} else {
-									// Hvis alle er up to speed med mine lokale bestillinger
-									updatedLocalOrders = incomming.AllOrders
-									fmt.Println("Alle er up to speed med mitt, jeg tar inn master command")
-									fmt.Println(incomming.AllOrders[idDig])
-									if currentAllOrders != updatedLocalOrders {
-										esmChns.CurrentAllOrders <- updatedLocalOrders
-										currentAllOrders = updatedLocalOrders
-									}
+								updatedLocalOrders = incomming.AllOrders
+								fmt.Println("Jeg tar inn master command")
+								fmt.Println(incomming.AllOrders[idDig])
+								if currentAllOrders != updatedLocalOrders {
+									esmChns.CurrentAllOrders <- updatedLocalOrders
+									currentAllOrders = updatedLocalOrders
 								}
+								/*
+									// Hvis det er melding fra master
+									if updatedLocalOrders != currentAllOrders {
+										updatedLocalOrders = mergeLocalOrders(idDig, incomming.AllOrders, updatedLocalOrders[idDig])
+										// Hvis det er lokale endringer som har skjedd som vi ikke har
+										// fått bekreftelse på, skal vi ta inn beskjeden fra
+										// master og merge med de nye endringene
+										fmt.Println("Merger lokalt med masterbestilling og sender ut på ny")
+									} else {
+										// Hvis alle er up to speed med mine lokale bestillinger
+
+									}*/
 							}
 						}
 					}
@@ -153,10 +155,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 									if masterID == idDig {
 										esmChns.CurrentAllOrders <- updatedLocalOrders
 										currentAllOrders = updatedLocalOrders
-									}
-									if idDig == 1 {
-										fmt.Println("Just updated elevator with")
-										fmt.Println(currentAllOrders[idDig])
 									}
 								}
 							}
