@@ -147,10 +147,10 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								if currentAllOrders != updatedLocalOrders {
 									esmChns.CurrentAllOrders <- updatedLocalOrders
 									currentAllOrders = updatedLocalOrders
-									if idDig == 1 {
+									if idDig == 1 {
 										fmt.Println("Just updated elevator with")
 										fmt.Println(currentAllOrders[idDig])
-									} 
+									}
 								}
 							}
 						}
