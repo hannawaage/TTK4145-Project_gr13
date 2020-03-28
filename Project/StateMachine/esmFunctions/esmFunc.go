@@ -123,3 +123,12 @@ func ordersBelow(elevator Elevator) bool {
 	}
 	return false
 }
+
+func OrdersInFloor(elevator Elevator) bool {
+	for btn := 0; btn < NumButtons; btn++ {
+		if elevator.Orders[elevator.Floor][btn] {
+			return true
+		}
+	}
+	return false
+}
