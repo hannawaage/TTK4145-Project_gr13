@@ -53,19 +53,21 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 		localIP = "DISCONNECTED"
 	}
 
+	go func() {
+		if currentAllOrders != updatedLocalOrders {
+			if !online {
+				updatedLocalOrders = mergeAllOrders(idDig, updatedLocalOrders)
+				esmChns.CurrentAllOrders <- updatedLocalOrders
+				currentAllOrders = updatedLocalOrders
+			}
+			time.Sleep(20 * time.Millisecond)
+		}
+	}()
+
 	msgTimer := time.NewTimer(5 * time.Second)
 	msgTimer.Stop()
-
 	go func() {
 		for {
-			if currentAllOrders != updatedLocalOrders {
-				if !online {
-					updatedLocalOrders = mergeAllOrders(idDig, updatedLocalOrders)
-					esmChns.CurrentAllOrders <- updatedLocalOrders
-					currentAllOrders = updatedLocalOrders
-				}
-			}
-			//time.Sleep(200 * time.Millisecond)
 			currentMsgID = rand.Intn(256)
 			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, localIP, id}
 			syncCh.SendChn <- msg
