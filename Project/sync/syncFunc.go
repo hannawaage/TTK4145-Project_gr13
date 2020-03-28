@@ -5,8 +5,9 @@ import (
 	"../driver-go/elevio"
 )
 
-// tar inn en allOrders, id, lage ny
-func CostFunction(allOrders [config.NumElevs]config.Elevator) [config.NumElevs]config.Elevator {
+// CostFunction tar inn en allOrders, id, lage ny
+func CostFunction(allOrders [config.NumElevs]config.Elevator) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
+	var allOrdersMat [config.NumElevs][config.NumFloors][config.NumButtons]bool
 	bestElevator := allOrders[0].Id
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
 		for floor := 0; floor < config.NumFloors; floor++ {
@@ -23,7 +24,10 @@ func CostFunction(allOrders [config.NumElevs]config.Elevator) [config.NumElevs]c
 			}
 		}
 	}
-	return allOrders
+	for elevator := 0; elevator < config.NumElevs; elevator++ {
+		allOrdersMat[elevator] = allOrders[elevator].Orders
+	}
+	return allOrdersMat
 }
 
 func costCalculator(order elevio.ButtonEvent, allOrders *[config.NumElevs]config.Elevator) int {
