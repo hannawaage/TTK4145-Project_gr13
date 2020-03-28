@@ -83,7 +83,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 			recID := incomming.LocalID
 			recIDDig, _ := strconv.Atoi(recID)
 			recIDDig--
-			if id != recID {
+			if id != recID { //Hvis det ikke er fra oss selv, BYTTES TIL IP VED KJØRING PÅ FORSKJELLIGE MASKINER
 				if !contains(onlineIPs, recID) {
 					onlineIPs = append(onlineIPs, recID)
 					if len(onlineIPs) == numPeers {
@@ -169,6 +169,19 @@ func mergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumBu
 					merged[id][floor][btn] = true
 					merged[elev][floor][btn] = false
 				}
+			}
+		}
+	}
+	return merged
+}
+
+func mergeLocalOrders(id int, inc [config.NumElevs][config.NumFloors][config.NumButtons]bool, local [config.NumFloors][config.NumButtons]bool) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
+	var merged [config.NumElevs][config.NumFloors][config.NumButtons]bool
+	merged = inc
+	for floor := 0; floor < config.NumFloors; floor++ {
+		for btn := 0; btn < config.NumButtons; btn++ {
+			if local[floor][btn] {
+				merged[id][floor][btn] = true
 			}
 		}
 	}
