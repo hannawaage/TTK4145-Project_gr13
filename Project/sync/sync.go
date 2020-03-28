@@ -133,7 +133,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					}
 					// Hvis det ikke er en kvittering, skal vi svare med kvittering
 					msg := config.Message{elev, updatedLocalOrders, incomming.MsgId, true, localIP, id}
-					//sender ut fem kvitteringer på femti millisekunder
+					// sender ut fem kvitteringer på femti millisekunder
 					for i := 0; i < 5; i++ {
 						syncCh.SendChn <- msg
 						time.Sleep(10 * time.Millisecond)
@@ -143,21 +143,16 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						if !contains(receivedReceipt, recID) {
 							receivedReceipt = append(receivedReceipt, recID)
 							if len(receivedReceipt) == numPeers {
-								//Hvis vi har fått bekreftelse fra de alle andre peers på meldingen
+								//Hvis vi har fått bekreftelse fra alle andre peers på meldingen
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
 								if masterID == idDig {
-									// Hvis jeg er master: oppdater ordrelisten vi skal sende ut med kostfunksjon
 									if currentAllOrders != updatedLocalOrders {
 										esmChns.CurrentAllOrders <- currentAllOrders
 										currentAllOrders = updatedLocalOrders
 									}
-									//CostFunction(allElevs)
 								}
-								/*esmChns.CurrentAllOrders <- updatedLocalOrders
-								currentAllOrders = updatedLocalOrders*/
-								// Har fått bekreftet fra resten at de har fått med seg mine nye bestillinger
 							}
 						}
 					}
