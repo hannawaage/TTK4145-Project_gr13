@@ -22,6 +22,7 @@ func CostFunction(allOrders [config.NumElevs]config.Elevator) [config.NumElevs][
 					// finding best elevator for that order
 					bestElevator = costCalculator(order, &allOrders)
 					fmt.Println(bestElevator)
+					allOrders[elevator].Orders[order.Floor][order.Button] = false
 					allOrders[bestElevator].Orders[order.Floor][order.Button] = true
 				}
 			}
@@ -43,9 +44,6 @@ func costCalculator(order elevio.ButtonEvent, allOrders *[config.NumElevs]config
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
 
 		cost := order.Floor - allOrders[elevator].Floor
-		// delete the order
-		allOrders[elevator].Orders[order.Floor][order.Button] = false
-
 		if cost == 0 && allOrders[elevator].State != config.Moving {
 			bestElevator = elevator
 			return bestElevator
