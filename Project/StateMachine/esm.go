@@ -92,7 +92,14 @@ func RunElevator(esmChns EsmChns, id int) {
 			case Idle:
 				elevator.Dir = SetDirection(elevator)
 				SetMotorDirection(elevator.Dir)
-				if elevator.Dir == MD_Stop { //if already at the correct floor
+				od := false
+				for i := 0; i < 3; i++ {
+					if elevator.Orders[elevator.Floor][i] {
+						od = true
+						break
+					}
+				}
+				if (elevator.Dir == MD_Stop) && od { //if already at the correct floor
 					elevator.State = DoorOpen
 					SetDoorOpenLamp(true)
 					doorTimedOut.Reset(3 * time.Second)
