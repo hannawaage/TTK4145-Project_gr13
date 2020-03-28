@@ -60,7 +60,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				esmChns.CurrentAllOrders <- updatedLocalOrders
 				currentAllOrders = updatedLocalOrders
 			}
-			time.Sleep(20 * time.Millisecond)
+			time.Sleep(200 * time.Millisecond)
 		}
 	}()
 
