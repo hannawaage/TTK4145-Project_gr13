@@ -40,7 +40,11 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 			case elev := <-esmChns.Elev:
 				if updatedLocalOrders[idDig] != elev.Orders {
-					updatedLocalOrders[idDig] = elev.Orders
+					if online {
+						mergeLocalOrders(updatedLocalOrders, elev.Orders)
+					} else {
+						updatedLocalOrders[idDig] = elev.Orders
+					}
 				}
 				allElevs[idDig] = elev
 			}
@@ -114,7 +118,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 							} else if recIDDig == masterID {
 								// Hvis det er melding fra master
 								if updatedLocalOrders != currentAllOrders {
-									updatedLocalOrders = mergeLocalOrders(idDig, incomming.AllOrders, updatedLocalOrders)
+									updatedLocalOrders = mergeLocalOrders(idDig, incomming.AllOrders, updatedLocalOrders[idDig])
 									// Hvis det er lokale endringer som har skjedd som vi ikke har
 									// fått bekreftelse på, skal vi ta inn beskjeden fra
 									// master og merge med de nye endringene
@@ -204,12 +208,12 @@ func mergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumBu
 	return merged
 }
 
-func mergeLocalOrders(id int, inc [config.NumElevs][config.NumFloors][config.NumButtons]bool, local [config.NumElevs][config.NumFloors][config.NumButtons]bool) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
+func mergeLocalOrders(id int, inc [config.NumElevs][config.NumFloors][config.NumButtons]bool, local [config.NumFloors][config.NumButtons]bool) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
 	var merged [config.NumElevs][config.NumFloors][config.NumButtons]bool
 	merged = inc
 	for floor := 0; floor < config.NumFloors; floor++ {
 		for btn := 0; btn < config.NumButtons; btn++ {
-			if local[id][floor][btn] {
+			if local[floor][btn] {
 				merged[id][floor][btn] = true
 			}
 		}
