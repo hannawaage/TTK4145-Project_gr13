@@ -38,8 +38,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					fmt.Println("Boo, we are offline.")
 				}
 			case elev := <-esmChns.Elev:
-				fmt.Println("Received in sync")
-				fmt.Println(elev.Orders)
 				if updatedLocalOrders[idDig] != elev.Orders {
 					if online {
 						updatedLocalOrders = mergeLocalOrders(idDig, updatedLocalOrders, elev.Orders)
@@ -108,13 +106,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					if online {
 						allElevs[recIDDig] = incomming.Elev
 						allElevs[recIDDig].Orders = incomming.AllOrders[recIDDig]
-						/*
-							if (idDig == 2) && !incomming.AllOrders[0][0][0] {
-								fmt.Println("Incomming for master er")
-								fmt.Println(incomming.AllOrders[0])
-								fmt.Println("Current for master er")
-								fmt.Println(currentAllOrders[0])
-							}*/
 						if currentAllOrders != incomming.AllOrders {
 							// Hvis vi mottar noe nytt
 							if idDig == masterID {
