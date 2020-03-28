@@ -25,6 +25,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		online             bool
 		allElevs           [config.NumElevs]config.Elevator
+		recFromMaster      bool
 	)
 	go func() {
 		for {
@@ -108,6 +109,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 							updatedLocalOrders = CostFunction(allElevs)
 						} else if masterID == recIDDig {
 							updatedLocalOrders = incomming.AllOrders
+							recFromMaster = true
 						}
 					}
 					msg := config.Message{elev, updatedLocalOrders, incomming.MsgId, true, localIP, id}
@@ -123,7 +125,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
-								if currentAllOrders != updatedLocalOrders {
+								if currentAllOrders != updatedLocalOrders && (masterID == idDig) || (recFromMaster) {
 									esmChns.CurrentAllOrders <- updatedLocalOrders
 									currentAllOrders = updatedLocalOrders
 								}
