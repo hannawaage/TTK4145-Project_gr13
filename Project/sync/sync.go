@@ -99,48 +99,29 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						}
 					}
 				}
-
 				if !incomming.Receipt {
 					if online {
 						allElevs[recIDDig] = incomming.Elev
 						allElevs[recIDDig].Orders = incomming.AllOrders[recIDDig]
-						if currentAllOrders[recIDDig] != incomming.AllOrders[recIDDig] {
+						/*if currentAllOrders[recIDDig] != incomming.AllOrders[recIDDig] {
 							// Hvis vi mottar noe nytt
-							if masterID == idDig {
-								// Hvis jeg er master: oppdater ordrelisten vi skal sende ut med kostfunksjon
-								updatedLocalOrders = CostFunction(allElevs)
-							} else if masterID == recIDDig {
-								// Hvis meldingen er fra Master: oppdater med en gang (masters word is law)
-								updatedLocalOrders = incomming.AllOrders
-								if currentAllOrders != updatedLocalOrders {
-									esmChns.CurrentAllOrders <- currentAllOrders
-									currentAllOrders = updatedLocalOrders
-								}
-							}
-						}
+						}*/
 					}
-					// Hvis det ikke er en kvittering, skal vi svare med kvittering
 					msg := config.Message{elev, updatedLocalOrders, incomming.MsgId, true, localIP, id}
-					// sender ut fem kvitteringer på femti millisekunder
 					for i := 0; i < 5; i++ {
 						syncCh.SendChn <- msg
 						time.Sleep(10 * time.Millisecond)
 					}
-				} else { // Hvis det er en kvittering
+				} else {
 					if incomming.MsgId == currentMsgID {
 						if !contains(receivedReceipt, recID) {
 							receivedReceipt = append(receivedReceipt, recID)
 							if len(receivedReceipt) == numPeers {
-								//Hvis vi har fått bekreftelse fra alle andre peers på meldingen
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
-								if masterID == idDig {
-									if currentAllOrders != updatedLocalOrders {
-										esmChns.CurrentAllOrders <- currentAllOrders
-										currentAllOrders = updatedLocalOrders
-									}
-								}
+								esmChns.CurrentAllOrders <- updatedLocalOrders
+								currentAllOrders = updatedLocalOrders
 							}
 						}
 					}
