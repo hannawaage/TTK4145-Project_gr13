@@ -36,7 +36,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				} else {
 					online = false
 					fmt.Println("Boo, we are offline.")
-
 				}
 			case elev := <-esmChns.Elev:
 				if updatedLocalOrders[idDig] != elev.Orders {
