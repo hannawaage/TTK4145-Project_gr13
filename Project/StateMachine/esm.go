@@ -121,6 +121,7 @@ func RunElevator(esmChns EsmChns, id int) {
 
 		case <-doorTimedOut.C:
 			SetDoorOpenLamp(false)
+			go ShareElev(elevator, esmChns)
 			elevator.Dir = SetDirection(elevator)
 			if elevator.Dir == MD_Stop {
 				elevator.State = Idle
