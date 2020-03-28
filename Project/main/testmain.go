@@ -26,6 +26,7 @@ func main() {
 		Buttons:          make(chan ButtonEvent),
 		Floors:           make(chan int),
 	}
+
 	var bcport string
 	var id string
 	flag.StringVar(&bcport, "bcport", "", "bcport of this peer")

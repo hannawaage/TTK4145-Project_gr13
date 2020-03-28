@@ -65,6 +65,7 @@ func SyncTest(CurrentAllOrders chan<- [NumElevs][NumFloors][NumButtons]bool, ele
 func RunElevator(esmChns EsmChns, id int) {
 
 	elevator := Elevator{
+		Id:     id,
 		State:  Idle,
 		Orders: [NumFloors][NumButtons]bool{},
 		Lights: [NumElevs][NumFloors][NumButtons]bool{},
