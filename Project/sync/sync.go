@@ -145,6 +145,12 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
+								if masterID == idDig {
+									// Hvis jeg er master: oppdater ordrelisten vi skal sende ut med kostfunksjon
+									esmChns.CurrentAllOrders <- currentAllOrders
+									currentAllOrders = updatedLocalOrders
+									//CostFunction(allElevs)
+								}
 								/*esmChns.CurrentAllOrders <- updatedLocalOrders
 								currentAllOrders = updatedLocalOrders*/
 								// Har fått bekreftet fra resten at de har fått med seg mine nye bestillinger
