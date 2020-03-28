@@ -65,7 +65,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					currentAllOrders = updatedLocalOrders
 				}
 			}
-			time.Sleep(200 * time.Millisecond)
+			//time.Sleep(200 * time.Millisecond)
 			currentMsgID = rand.Intn(256)
 			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, localIP, id}
 			syncCh.SendChn <- msg
