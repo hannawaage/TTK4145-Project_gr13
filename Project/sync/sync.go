@@ -73,7 +73,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, localIP, id}
 			syncCh.SendChn <- msg
 			msgTimer.Reset(800 * time.Millisecond)
-			//esmChns.CurrentAllOrders <- currentAllOrders
 			time.Sleep(1 * time.Second)
 		}
 	}()
@@ -84,9 +83,8 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 			recID := incomming.LocalID
 			recIDDig, _ := strconv.Atoi(recID)
 			recIDDig--
-			if id != recID { //Hvis det ikke er fra oss selv, BYTTES TIL IP VED KJØRING PÅ FORSKJELLIGE MASKINER
+			if id != recID {
 				if !contains(onlineIPs, recID) {
-					// Dersom heisen enda ikke er registrert, sjekker vi om vi nå er online og sjekker om vi er master
 					onlineIPs = append(onlineIPs, recID)
 					if len(onlineIPs) == numPeers {
 						syncCh.Online <- true
@@ -118,6 +116,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						time.Sleep(10 * time.Millisecond)
 					}
 				} else {
+					allElevs[recIDDig] = incomming.Elev
 					if incomming.MsgId == currentMsgID {
 						if !contains(receivedReceipt, recID) {
 							receivedReceipt = append(receivedReceipt, recID)
@@ -171,19 +170,6 @@ func mergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumBu
 					merged[id][floor][btn] = true
 					merged[elev][floor][btn] = false
 				}
-			}
-		}
-	}
-	return merged
-}
-
-func mergeLocalOrders(id int, inc [config.NumElevs][config.NumFloors][config.NumButtons]bool, local [config.NumFloors][config.NumButtons]bool) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
-	var merged [config.NumElevs][config.NumFloors][config.NumButtons]bool
-	merged = inc
-	for floor := 0; floor < config.NumFloors; floor++ {
-		for btn := 0; btn < config.NumButtons; btn++ {
-			if local[floor][btn] {
-				merged[id][floor][btn] = true
 			}
 		}
 	}
