@@ -146,9 +146,9 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								numTimeouts = 0
 								msgTimer.Stop()
 								// Har fått bekreftet fra resten at de har fått med seg mine nye bestillinger
-								receivedReceipt = receivedReceipt[:0]
+								/*receivedReceipt = receivedReceipt[:0]
 								esmChns.CurrentAllOrders <- updatedLocalOrders
-								currentAllOrders = updatedLocalOrders
+								currentAllOrders = updatedLocalOrders*/
 							}
 						}
 					}
