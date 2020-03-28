@@ -110,7 +110,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 							// Hvis vi mottar noe nytt
 							if masterID == idDig {
 								// Hvis jeg er master: oppdater ordrelisten vi skal sende ut med kostfunksjon
-								if updatedLocalOrders[1][0][0] {
+								if incomming.AllOrders[recIDDig][0][0] {
 									fmt.Println("Sant")
 								}
 								updatedLocalOrders = CostFunction(allElevs)
