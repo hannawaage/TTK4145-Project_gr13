@@ -110,10 +110,12 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					if online {
 						allElevs[recIDDig] = incomming.Elev
 						allElevs[recIDDig].Orders = incomming.AllOrders[recIDDig]
-						fmt.Println("Incomming for master er")
-						fmt.Println(incomming.AllOrders[0])
-						fmt.Println("Current for master er")
-						fmt.Println(currentAllOrders[0])
+						if (idDig == 2) && !incomming.AllOrders[0][0][0] {
+							fmt.Println("Incomming for master er")
+							fmt.Println(incomming.AllOrders[0])
+							fmt.Println("Current for master er")
+							fmt.Println(currentAllOrders[0])
+						}
 						if currentAllOrders != incomming.AllOrders {
 							// Hvis vi mottar noe nytt
 							if idDig == masterID {
@@ -122,8 +124,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								// Lokale endringer tas med i elev uansett
 							} else if recIDDig == masterID {
 								updatedLocalOrders = incomming.AllOrders
-								fmt.Println("Jeg tar inn master command")
-								fmt.Println(incomming.AllOrders[0])
 								if currentAllOrders != updatedLocalOrders {
 									esmChns.CurrentAllOrders <- updatedLocalOrders
 									currentAllOrders = updatedLocalOrders
