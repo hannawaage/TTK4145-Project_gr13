@@ -116,9 +116,10 @@ func RunElevator(esmChns EsmChns, id int) {
 				SetMotorDirection(MD_Stop)
 				doorTimedOut.Reset(DoorOpenTime)
 				elevator.Orders, elevator.Lights = ClearOrders(id, elevator)
-				go ShareElev(elevator, esmChns)
 			}
 			go ShareElev(elevator, esmChns)
+			fmt.Println("Shared from esm")
+			fmt.Println(elevator.Orders)
 
 		case <-doorTimedOut.C:
 			SetDoorOpenLamp(false)
