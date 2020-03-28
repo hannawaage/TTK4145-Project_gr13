@@ -110,6 +110,10 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 							if idDig == masterID {
 								// Hvis jeg er master
 								updatedLocalOrders = CostFunction(allElevs)
+								if currentAllOrders != updatedLocalOrders {
+									esmChns.CurrentAllOrders <- updatedLocalOrders
+									currentAllOrders = updatedLocalOrders
+								}
 								// Lokale endringer tas med i elev uansett
 							} else if recIDDig == masterID {
 								// Hvis det er melding fra master
@@ -120,6 +124,10 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								} else {
 									// Hvis alle er up to speed med mine lokale bestillinger
 									updatedLocalOrders = incomming.AllOrders
+									if currentAllOrders != updatedLocalOrders {
+										esmChns.CurrentAllOrders <- updatedLocalOrders
+										currentAllOrders = updatedLocalOrders
+									}
 								}
 							}
 						}

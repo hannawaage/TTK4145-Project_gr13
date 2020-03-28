@@ -31,9 +31,6 @@ func CostFunction(allOrders [config.NumElevs]config.Elevator) [config.NumElevs][
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
 		allOrdersMat[elevator] = allOrders[elevator].Orders
 	}
-	if allOrdersMat[2][0][0] {
-		fmt.Println("Etter kost har fortsatt heis 3 en ordre")
-	}
 	return allOrdersMat
 }
 
