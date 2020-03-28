@@ -40,9 +40,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 			case elev := <-esmChns.Elev:
 				/////////////////
 				if updatedLocalOrders[idDig] != elev.Orders {
-					if !online {
-						updatedLocalOrders[idDig] = elev.Orders
-					}
+					updatedLocalOrders[idDig] = elev.Orders
 				}
 				allElevs[idDig] = elev
 			}
