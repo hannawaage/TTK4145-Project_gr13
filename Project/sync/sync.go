@@ -126,7 +126,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
-								if currentAllOrders != updatedLocalOrders && masterDecision {
+								if (currentAllOrders != updatedLocalOrders) && masterDecision {
 									esmChns.CurrentAllOrders <- updatedLocalOrders
 									currentAllOrders = updatedLocalOrders
 									masterDecision = false
