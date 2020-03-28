@@ -110,24 +110,19 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 							if idDig == masterID {
 								// Hvis jeg er master
 								updatedLocalOrders = CostFunction(allElevs)
-								if currentAllOrders != updatedLocalOrders {
-									esmChns.CurrentAllOrders <- updatedLocalOrders
-									currentAllOrders = updatedLocalOrders
-								}
 								// Lokale endringer tas med i elev uansett
 							} else if recIDDig == masterID {
 								// Hvis det er melding fra master
 								if updatedLocalOrders != currentAllOrders {
 									updatedLocalOrders = mergeLocalOrders(idDig, incomming.AllOrders, updatedLocalOrders)
 									// Hvis det er lokale endringer som har skjedd som vi ikke har
-									// fått bekreftelse på
+									// fått bekreftelse på, skal vi ta inn beskjeden fra
+									// master og merge med de nye endringene
+									fmt.Println("Merger lokalt")
 								} else {
 									// Hvis alle er up to speed med mine lokale bestillinger
 									updatedLocalOrders = incomming.AllOrders
-									if currentAllOrders != updatedLocalOrders {
-										esmChns.CurrentAllOrders <- updatedLocalOrders
-										currentAllOrders = updatedLocalOrders
-									}
+									fmt.Println("Alle er up to speed med mitt, jeg tar inn master command")
 								}
 							}
 						}
