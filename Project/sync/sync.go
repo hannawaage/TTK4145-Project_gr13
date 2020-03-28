@@ -71,8 +71,9 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 	go func() {
 		for {
 			currentMsgID = rand.Intn(256)
-			fmt.Println("I JUST SENT")
-			fmt.Println(updatedLocalOrders[idDig])
+			if updatedLocalOrders[1][0][0] {
+				fmt.Println("Sant")
+			}
 			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, localIP, id}
 			syncCh.SendChn <- msg
 			msgTimer.Reset(800 * time.Millisecond)
@@ -110,9 +111,9 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 							if masterID == idDig {
 								// Hvis jeg er master: oppdater ordrelisten vi skal sende ut med kostfunksjon
 								updatedLocalOrders = CostFunction(allElevs)
-								fmt.Println("I am master and I JUST UPDATED")
-								fmt.Println(updatedLocalOrders)
-								time.Sleep(1 * time.Second)
+								if updatedLocalOrders[1][0][0] {
+									fmt.Println("Sant")
+								}
 								//updatedLocalOrders = costfcn(recIDDig, currentAllOrders, incomming.AllOrders[recIDDig])
 								//CostFunction(allElevs)
 							} else if masterID == recIDDig {
