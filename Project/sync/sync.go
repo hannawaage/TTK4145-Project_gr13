@@ -104,6 +104,11 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						allElevs[recIDDig] = incomming.Elev
 						allElevs[recIDDig].Orders = incomming.AllOrders[recIDDig]
 						///////////////////////
+						if masterID == idDig {
+							updatedLocalOrders = CostFunction(allElevs)
+						} else if masterID == recIDDig {
+							updatedLocalOrders = incomming.AllOrders
+						}
 					}
 					msg := config.Message{elev, updatedLocalOrders, incomming.MsgId, true, localIP, id}
 					for i := 0; i < 5; i++ {
