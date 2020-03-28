@@ -51,10 +51,10 @@ func SetCurrentOrders(id int, elevator Elevator, currentAllOrders [NumElevs][Num
 	return elevator.Orders, elevator.Lights
 }
 
-func ClearOrders(elevator Elevator) ([NumFloors][NumButtons]bool, [NumElevs][NumFloors][NumButtons]bool) {
+func ClearOrders(id int, elevator Elevator) ([NumFloors][NumButtons]bool, [NumElevs][NumFloors][NumButtons]bool) {
 	var b ButtonType
 	for b = 0; b < NumButtons; b++ {
-		elevator.Lights[1][elevator.Floor][b] = false //id
+		elevator.Lights[id][elevator.Floor][b] = false //id
 		SetButtonLamp(b, elevator.Floor, false)
 		elevator.Orders[elevator.Floor][b] = false
 	}
