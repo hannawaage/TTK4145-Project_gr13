@@ -47,18 +47,21 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 		}
 	}()
 
-	go func() {
-		for {
-			if currentAllOrders != updatedLocalOrders {
-				if !online {
-					updatedLocalOrders = mergeAllOrders(idDig, updatedLocalOrders)
-					esmChns.CurrentAllOrders <- updatedLocalOrders
+	/*
+		go func() {
+			for {
+				if currentAllOrders != updatedLocalOrders {
+					if !online {
+						updatedLocalOrders = mergeAllOrders(idDig, updatedLocalOrders)
+						esmChns.CurrentAllOrders <- updatedLocalOrders
+					} else {
+						esmChns.CurrentAllOrders <- currentAllOrders
+					}
 					currentAllOrders = updatedLocalOrders
 				}
+				time.Sleep(100 * time.Millisecond)
 			}
-			time.Sleep(100 * time.Millisecond)
-		}
-	}()
+		}()*/
 
 	localIP, err := localip.LocalIP()
 	if err != nil {
@@ -148,10 +151,8 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								//Hvis vi har fått bekreftelse fra alle andre peers på meldingen
 								numTimeouts = 0
 								msgTimer.Stop()
+								receivedReceipt = receivedReceipt[:0]
 								// Har fått bekreftet fra resten at de har fått med seg mine nye bestillinger
-								/*receivedReceipt = receivedReceipt[:0]
-								esmChns.CurrentAllOrders <- updatedLocalOrders
-								currentAllOrders = updatedLocalOrders*/
 							}
 						}
 					}
