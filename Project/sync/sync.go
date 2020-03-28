@@ -124,6 +124,9 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 									updatedLocalOrders = incomming.AllOrders
 									fmt.Println("Alle er up to speed med mitt, jeg tar inn master command")
 									fmt.Println(incomming.AllOrders[idDig])
+									// DENNE ER RETT! VISER INGEN BESTILLINGER NÅR
+									// BESTILLINGEN ER DELEGERT VEKK
+									// HVORFOR BEVEGER DEN SEG FORTSATT
 								}
 							}
 						}
@@ -144,6 +147,10 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								if currentAllOrders != updatedLocalOrders {
 									esmChns.CurrentAllOrders <- updatedLocalOrders
 									currentAllOrders = updatedLocalOrders
+									if idDig == 1 {
+										fmt.Println("Just updated elevator with")
+										fmt.Println(currentAllOrders[idDig])
+									} 
 								}
 							}
 						}
