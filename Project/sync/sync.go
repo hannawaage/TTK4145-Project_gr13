@@ -47,20 +47,21 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 		}
 	}()
 
-	go func() {
-		for {
-			if currentAllOrders != updatedLocalOrders {
-				if !online {
-					updatedLocalOrders = mergeAllOrders(idDig, updatedLocalOrders)
-					esmChns.CurrentAllOrders <- updatedLocalOrders
-				} else {
-					esmChns.CurrentAllOrders <- currentAllOrders
+	/*
+		go func() {
+			for {
+				if currentAllOrders != updatedLocalOrders {
+					if !online {
+						updatedLocalOrders = mergeAllOrders(idDig, updatedLocalOrders)
+						esmChns.CurrentAllOrders <- updatedLocalOrders
+					} else {
+						esmChns.CurrentAllOrders <- currentAllOrders
+					}
+					currentAllOrders = updatedLocalOrders
 				}
-				currentAllOrders = updatedLocalOrders
+				time.Sleep(100 * time.Millisecond)
 			}
-			time.Sleep(100 * time.Millisecond)
-		}
-	}()
+		}()*/
 
 	localIP, err := localip.LocalIP()
 	if err != nil {
