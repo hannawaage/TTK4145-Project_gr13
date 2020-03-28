@@ -95,10 +95,12 @@ func RunElevator(esmChns EsmChns, id int) {
 				at := OrdersInFloor(elevator)
 				fmt.Println(at)
 				if elevator.Dir == MD_Stop { //&& OrdersInFloor(elevator) { //if already at the correct floor
-					elevator.State = DoorOpen
-					SetDoorOpenLamp(true)
-					doorTimedOut.Reset(3 * time.Second)
-					elevator.Orders, elevator.Lights = ClearOrders(id, elevator)
+					if at {
+						elevator.State = DoorOpen
+						SetDoorOpenLamp(true)
+						doorTimedOut.Reset(3 * time.Second)
+						elevator.Orders, elevator.Lights = ClearOrders(id, elevator)
+					}
 				} else {
 					elevator.State = Moving
 				}
