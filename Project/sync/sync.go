@@ -25,7 +25,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		online             bool
 		allElevs           [config.NumElevs]config.Elevator
-		masterDecision     bool
 	)
 	go func() {
 		for {
@@ -44,7 +43,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					updatedLocalOrders[idDig] = elev.Orders
 				}
 				allElevs[idDig] = elev
-				masterDecision = false
 			}
 		}
 	}()
@@ -111,7 +109,11 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						} else if masterID == recIDDig {
 							updatedLocalOrders = incomming.AllOrders
 						}
-						masterDecision = true
+						if currentAllOrders != updatedLocalOrders {
+							// DETTE ER DET ENESTE STEDET NOE LEGGES UT NÅR ONLINE
+							esmChns.CurrentAllOrders <- updatedLocalOrders
+							currentAllOrders = updatedLocalOrders
+						}
 					}
 					msg := config.Message{elev, updatedLocalOrders, incomming.MsgId, true, localIP, id}
 					for i := 0; i < 5; i++ {
@@ -126,11 +128,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
-								if (currentAllOrders != updatedLocalOrders) && masterDecision {
-									esmChns.CurrentAllOrders <- updatedLocalOrders
-									currentAllOrders = updatedLocalOrders
-									masterDecision = false
-								}
 							}
 						}
 					}
