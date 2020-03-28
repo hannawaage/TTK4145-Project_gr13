@@ -105,10 +105,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					if online {
 						allElevs[recIDDig] = incomming.Elev
 						allElevs[recIDDig].Orders = incomming.AllOrders[recIDDig]
-						if currentAllOrders != incomming.AllOrders {
-							// Hvis vi mottar noe nytt
-
-						}
+						///////////////////////
 					}
 					msg := config.Message{elev, updatedLocalOrders, incomming.MsgId, true, localIP, id}
 					for i := 0; i < 5; i++ {
@@ -123,7 +120,10 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
-
+								if currentAllOrders != updatedLocalOrders {
+									esmChns.CurrentAllOrders <- updatedLocalOrders
+									currentAllOrders = updatedLocalOrders
+								}
 							}
 						}
 					}
