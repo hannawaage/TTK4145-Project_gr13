@@ -46,12 +46,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						updatedLocalOrders[idDig] = elev.Orders
 					}
 				}
-				if masterID == idDig && online {
-					if !updatedLocalOrders[0][0][0] {
-						fmt.Println("Slått av lys")
-						fmt.Println(updatedLocalOrders)
-					}
-				}
 				allElevs[idDig] = elev
 			}
 		}
@@ -81,12 +75,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 	go func() {
 		for {
 			currentMsgID = rand.Intn(256)
-			if masterID == idDig && online {
-				if !updatedLocalOrders[0][0][0] {
-					fmt.Println("Dette sendes fra master nå")
-					fmt.Println(updatedLocalOrders)
-				}
-			}
 			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, localIP, id}
 			syncCh.SendChn <- msg
 			msgTimer.Reset(800 * time.Millisecond)
