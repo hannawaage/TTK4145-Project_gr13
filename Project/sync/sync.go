@@ -119,7 +119,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 							} else if recIDDig == masterID {
 								updatedLocalOrders = incomming.AllOrders
 								fmt.Println("Jeg tar inn master command")
-								fmt.Println(incomming.AllOrders[idDig])
+								fmt.Println(incomming.AllOrders[0])
 								if currentAllOrders != updatedLocalOrders {
 									esmChns.CurrentAllOrders <- updatedLocalOrders
 									currentAllOrders = updatedLocalOrders
