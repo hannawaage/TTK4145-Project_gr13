@@ -123,6 +123,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 									// Hvis alle er up to speed med mine lokale bestillinger
 									updatedLocalOrders = incomming.AllOrders
 									fmt.Println("Alle er up to speed med mitt, jeg tar inn master command")
+									fmt.Println(incomming.AllOrders[idDig])
 								}
 							}
 						}
