@@ -47,19 +47,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 		}
 	}()
 
-	go func() {
-		for {
-			if currentAllOrders != updatedLocalOrders {
-				if !online {
-					updatedLocalOrders = mergeAllOrders(idDig, updatedLocalOrders)
-					esmChns.CurrentAllOrders <- updatedLocalOrders
-					currentAllOrders = updatedLocalOrders
-				}
-			}
-			time.Sleep(200 * time.Millisecond)
-		}
-	}()
-
 	localIP, err := localip.LocalIP()
 	if err != nil {
 		fmt.Println(err)
@@ -71,6 +58,14 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 	go func() {
 		for {
+			if currentAllOrders != updatedLocalOrders {
+				if !online {
+					updatedLocalOrders = mergeAllOrders(idDig, updatedLocalOrders)
+					esmChns.CurrentAllOrders <- updatedLocalOrders
+					currentAllOrders = updatedLocalOrders
+				}
+			}
+			time.Sleep(200 * time.Millisecond)
 			currentMsgID = rand.Intn(256)
 			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, localIP, id}
 			syncCh.SendChn <- msg
