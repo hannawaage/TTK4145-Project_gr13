@@ -106,6 +106,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				if !incomming.Receipt {
 					if online {
 						allElevs[recIDDig] = incomming.Elev
+						allElevs[recIDDig].Orders = incomming.AllOrders[recIDDig]
 						if currentAllOrders[recIDDig] != incomming.AllOrders[recIDDig] {
 							// Hvis vi mottar noe nytt
 							if masterID == idDig {
