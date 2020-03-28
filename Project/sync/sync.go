@@ -123,6 +123,8 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								updatedLocalOrders = costfcn(recIDDig, currentAllOrders, incomming.AllOrders[recIDDig])
 								//CostFunction(allElevs)
 								//costfcn(idDig, currentAllOrders, incomming.AllOrders[recIDDig])
+								esmChns.CurrentAllOrders <- currentAllOrders
+								currentAllOrders = updatedLocalOrders
 							} else if masterID == recIDDig {
 								// Hvis meldingen er fra Master: oppdater med en gang (masters word is law)
 								updatedLocalOrders = incomming.AllOrders
