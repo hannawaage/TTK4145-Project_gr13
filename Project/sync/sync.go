@@ -84,7 +84,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 			recID := incomming.LocalID
 			recIDDig, _ := strconv.Atoi(recID)
 			recIDDig--
-			if id != recID { //Hvis det ikke er fra oss selv, BYTTES TIL IP VED KJØRING PÅ FORSKJELLIGE MASKINER
+			if id != recID {
 				if !contains(onlineIPs, recID) {
 					onlineIPs = append(onlineIPs, recID)
 					if len(onlineIPs) == numPeers {
