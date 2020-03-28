@@ -38,7 +38,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					fmt.Println("Boo, we are offline.")
 				}
 			case elev := <-esmChns.Elev:
-				/////////////////
 				if updatedLocalOrders[idDig] != elev.Orders {
 					updatedLocalOrders[idDig] = elev.Orders
 				}
@@ -103,14 +102,12 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					if online {
 						allElevs[recIDDig] = incomming.Elev
 						allElevs[recIDDig].Orders = incomming.AllOrders[recIDDig]
-						///////////////////////
 						if masterID == idDig {
 							updatedLocalOrders = CostFunction(allElevs)
 						} else if masterID == recIDDig {
 							updatedLocalOrders = incomming.AllOrders
 						}
 						if currentAllOrders != updatedLocalOrders {
-							// DETTE ER DET ENESTE STEDET NOE LEGGES UT NÅR ONLINE
 							esmChns.CurrentAllOrders <- updatedLocalOrders
 							currentAllOrders = updatedLocalOrders
 						}
