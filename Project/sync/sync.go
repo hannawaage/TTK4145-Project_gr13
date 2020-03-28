@@ -97,18 +97,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								masterID = theID
 							}
 						}
-						/*
-							Dette er ved diff på IP:
-							localDig, _ := strconv.Atoi(localIP[len(localIP)-3:])
-							for i := 0; i <= numPeers; i++ {
-								theIP := onlineIPs[i]
-								lastDig, _ := strconv.Atoi(theIP[len(theIP)-3:])
-								if localDig < lastDig {
-									iAmMaster = false
-									break
-								}
-							}
-						*/
 					}
 				}
 
@@ -119,7 +107,8 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 							// Hvis vi mottar noe nytt
 							if masterID == idDig {
 								// Hvis jeg er master: oppdater ordrelisten vi skal sende ut med kostfunksjon
-								updatedLocalOrders = costfcn(recIDDig, currentAllOrders, incomming.AllOrders[recIDDig])
+								updatedLocalOrders = CostFunction(allElevs)
+								//updatedLocalOrders = costfcn(recIDDig, currentAllOrders, incomming.AllOrders[recIDDig])
 								//CostFunction(allElevs)
 							} else if masterID == recIDDig {
 								// Hvis meldingen er fra Master: oppdater med en gang (masters word is law)
