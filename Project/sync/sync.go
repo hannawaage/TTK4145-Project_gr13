@@ -44,6 +44,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					updatedLocalOrders[idDig] = elev.Orders
 				}
 				allElevs[idDig] = elev
+				masterDecision = false
 			}
 		}
 	}()
