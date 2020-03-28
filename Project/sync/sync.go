@@ -38,14 +38,9 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					fmt.Println("Boo, we are offline.")
 				}
 			case elev := <-esmChns.Elev:
+				/////////////////
 				if updatedLocalOrders[idDig] != elev.Orders {
-					if online {
-						if masterID == idDig {
-							updatedLocalOrders = CostFunction(allElevs)
-						} else {
-							updatedLocalOrders = mergeLocalOrders(idDig, updatedLocalOrders, elev.Orders)
-						}
-					} else {
+					if !online {
 						updatedLocalOrders[idDig] = elev.Orders
 					}
 				}
@@ -112,17 +107,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						allElevs[recIDDig].Orders = incomming.AllOrders[recIDDig]
 						if currentAllOrders != incomming.AllOrders {
 							// Hvis vi mottar noe nytt
-							if idDig == masterID {
-								// Hvis jeg er master
-								updatedLocalOrders = CostFunction(allElevs)
-								// Lokale endringer tas med i elev uansett
-							} else if recIDDig == masterID {
-								updatedLocalOrders = incomming.AllOrders
-								if currentAllOrders != updatedLocalOrders {
-									esmChns.CurrentAllOrders <- updatedLocalOrders
-									currentAllOrders = updatedLocalOrders
-								}
-							}
+
 						}
 					}
 					msg := config.Message{elev, updatedLocalOrders, incomming.MsgId, true, localIP, id}
@@ -138,12 +123,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
-								if currentAllOrders != updatedLocalOrders {
-									if masterID == idDig {
-										esmChns.CurrentAllOrders <- updatedLocalOrders
-										currentAllOrders = updatedLocalOrders
-									}
-								}
+
 							}
 						}
 					}
