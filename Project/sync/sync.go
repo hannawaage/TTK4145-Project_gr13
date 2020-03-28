@@ -54,13 +54,15 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 	}
 
 	go func() {
-		if currentAllOrders != updatedLocalOrders {
-			if !online {
-				updatedLocalOrders = mergeAllOrders(idDig, updatedLocalOrders)
-				esmChns.CurrentAllOrders <- updatedLocalOrders
-				currentAllOrders = updatedLocalOrders
+		for {
+			if currentAllOrders != updatedLocalOrders {
+				if !online {
+					updatedLocalOrders = mergeAllOrders(idDig, updatedLocalOrders)
+					esmChns.CurrentAllOrders <- updatedLocalOrders
+					currentAllOrders = updatedLocalOrders
+				}
 			}
-			time.Sleep(200 * time.Millisecond)
+			time.Sleep(20 * time.Millisecond)
 		}
 	}()
 
