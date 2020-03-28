@@ -56,7 +56,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					currentAllOrders = updatedLocalOrders
 				}
 			}
-			//time.Sleep(100 * time.Millisecond)
 		}
 	}()
 
@@ -123,8 +122,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								updatedLocalOrders = costfcn(recIDDig, currentAllOrders, incomming.AllOrders[recIDDig])
 								//CostFunction(allElevs)
 								//costfcn(idDig, currentAllOrders, incomming.AllOrders[recIDDig])
-								esmChns.CurrentAllOrders <- currentAllOrders
-								currentAllOrders = updatedLocalOrders
 							} else if masterID == recIDDig {
 								// Hvis meldingen er fra Master: oppdater med en gang (masters word is law)
 								updatedLocalOrders = incomming.AllOrders
@@ -148,8 +145,10 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								//Hvis vi har fått bekreftelse fra alle andre peers på meldingen
 								numTimeouts = 0
 								msgTimer.Stop()
-								receivedReceipt = receivedReceipt[:0]
 								// Har fått bekreftet fra resten at de har fått med seg mine nye bestillinger
+								receivedReceipt = receivedReceipt[:0]
+								esmChns.CurrentAllOrders <- updatedLocalOrders
+								currentAllOrders = updatedLocalOrders
 							}
 						}
 					}
