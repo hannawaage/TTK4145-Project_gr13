@@ -122,7 +122,8 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 							// Hvis vi mottar noe nytt
 							if masterID == idDig {
 								// Hvis jeg er master: oppdater ordrelisten vi skal sende ut med kostfunksjon
-								updatedLocalOrders = CostFunction(allElevs)
+								updatedLocalOrders = costfcn(recIDDig, currentAllOrders, incomming.AllOrders[recIDDig])
+								//CostFunction(allElevs)
 								//costfcn(idDig, currentAllOrders, incomming.AllOrders[recIDDig])
 								esmChns.CurrentAllOrders <- currentAllOrders
 								currentAllOrders = updatedLocalOrders
