@@ -103,8 +103,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						}
 					}
 				}
-				// OBS: CurrentAllOrders er alltid det samme som ligger på heisen. Når online er
-				// dette alltid de ordrene som er bekreftet at de andre har mottat.
 				if !incomming.Receipt {
 					if online {
 						allElevs[recIDDig] = incomming.Elev
@@ -123,18 +121,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 									esmChns.CurrentAllOrders <- updatedLocalOrders
 									currentAllOrders = updatedLocalOrders
 								}
-								/*
-									// Hvis det er melding fra master
-									if updatedLocalOrders != currentAllOrders {
-										updatedLocalOrders = mergeLocalOrders(idDig, incomming.AllOrders, updatedLocalOrders[idDig])
-										// Hvis det er lokale endringer som har skjedd som vi ikke har
-										// fått bekreftelse på, skal vi ta inn beskjeden fra
-										// master og merge med de nye endringene
-										fmt.Println("Merger lokalt med masterbestilling og sender ut på ny")
-									} else {
-										// Hvis alle er up to speed med mine lokale bestillinger
-
-									}*/
 							}
 						}
 					}
