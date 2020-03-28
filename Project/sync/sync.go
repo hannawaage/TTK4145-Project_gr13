@@ -107,6 +107,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						///////////////////////
 						if masterID == idDig {
 							updatedLocalOrders = CostFunction(allElevs)
+							recFromMaster = true
 						} else if masterID == recIDDig {
 							updatedLocalOrders = incomming.AllOrders
 							recFromMaster = true
@@ -125,7 +126,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
-								if currentAllOrders != updatedLocalOrders && (masterID == idDig) || (recFromMaster) {
+								if currentAllOrders != updatedLocalOrders && recFromMaster {
 									esmChns.CurrentAllOrders <- updatedLocalOrders
 									currentAllOrders = updatedLocalOrders
 								}
