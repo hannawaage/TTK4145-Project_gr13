@@ -108,7 +108,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 							updatedLocalOrders = incomming.AllOrders
 						}
 						if currentAllOrders != updatedLocalOrders {
-							esmChns.CurrentAllOrders <- currentAllOrders
+							esmChns.CurrentAllOrders <- updatedLocalOrders
 							currentAllOrders = updatedLocalOrders
 						}
 					}
