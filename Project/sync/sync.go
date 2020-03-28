@@ -86,7 +86,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 			recIDDig--
 			if id != recID { //Hvis det ikke er fra oss selv, BYTTES TIL IP VED KJØRING PÅ FORSKJELLIGE MASKINER
 				if !contains(onlineIPs, recID) {
-					// Dersom heisen enda ikke er registrert, sjekker vi om vi nå er online og sjekker om vi er master
 					onlineIPs = append(onlineIPs, recID)
 					if len(onlineIPs) == numPeers {
 						syncCh.Online <- true
