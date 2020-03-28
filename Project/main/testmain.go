@@ -27,8 +27,13 @@ func main() {
 		Floors:           make(chan int),
 	}
 	var bcport string
+	var id string
 	flag.StringVar(&bcport, "bcport", "", "bcport of this peer")
+	flag.StringVar(&id, "id", "", "id of this peer")
 	flag.Parse()
+
+	idDig, _ := strconv.Atoi(id)
+	idDig--
 
 	Init(bcport, NumFloors)
 
@@ -39,13 +44,6 @@ func main() {
 		Online:        make(chan bool),
 		OfflineUpdate: make(chan [NumElevs][NumFloors][NumButtons]bool),
 	}
-
-	var id string
-	flag.StringVar(&id, "id", "", "id of this peer")
-	flag.Parse()
-
-	idDig, _ := strconv.Atoi(id)
-	idDig--
 
 	bcastport := 16576
 
