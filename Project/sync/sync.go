@@ -110,6 +110,10 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					if online {
 						allElevs[recIDDig] = incomming.Elev
 						allElevs[recIDDig].Orders = incomming.AllOrders[recIDDig]
+						fmt.Println("Incomming for master er")
+						fmt.Println(incomming.AllOrders[0])
+						fmt.Println("Current for master er")
+						fmt.Println(currentAllOrders[0])
 						if currentAllOrders != incomming.AllOrders {
 							// Hvis vi mottar noe nytt
 							if idDig == masterID {
