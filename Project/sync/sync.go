@@ -118,7 +118,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 									// Hvis det er lokale endringer som har skjedd som vi ikke har
 									// fått bekreftelse på
 								} else {
-									// Hvis alle er up to date med mine lokale bestillinger
+									// Hvis alle er up to speed med mine lokale bestillinger
 									updatedLocalOrders = incomming.AllOrders
 								}
 							}
