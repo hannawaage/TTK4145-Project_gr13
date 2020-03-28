@@ -42,6 +42,9 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				if updatedLocalOrders[idDig] != elev.Orders {
 					if online {
 						updatedLocalOrders = mergeLocalOrders(idDig, updatedLocalOrders, elev.Orders)
+						if masterID == idDig && !elev.Orders[1][1] {
+							fmt.Println("Slo av lyset")
+						}
 					} else {
 						updatedLocalOrders[idDig] = elev.Orders
 					}
