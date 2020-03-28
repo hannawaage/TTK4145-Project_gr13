@@ -26,8 +26,11 @@ func main() {
 		Buttons:          make(chan ButtonEvent),
 		Floors:           make(chan int),
 	}
+	var bcport string
+	flag.StringVar(&bcport, "bcport", "", "bcport of this peer")
+	flag.Parse()
 
-	Init("localhost:12347", NumFloors)
+	Init(bcport, NumFloors)
 
 	/////// DETTE ER FRA SYNC ////////////
 	syncChns := config.SyncChns{
@@ -40,6 +43,7 @@ func main() {
 	var id string
 	flag.StringVar(&id, "id", "", "id of this peer")
 	flag.Parse()
+
 	idDig, _ := strconv.Atoi(id)
 	idDig--
 
