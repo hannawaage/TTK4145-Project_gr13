@@ -46,6 +46,12 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						updatedLocalOrders[idDig] = elev.Orders
 					}
 				}
+				if masterID == idDig && online {
+					if !updatedLocalOrders[0][0][0] {
+						fmt.Println("Slått av lys")
+						fmt.Println(updatedLocalOrders)
+					}
+				}
 				allElevs[idDig] = elev
 			}
 		}
