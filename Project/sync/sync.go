@@ -42,9 +42,6 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				if updatedLocalOrders[idDig] != elev.Orders {
 					if online {
 						updatedLocalOrders = mergeLocalOrders(idDig, updatedLocalOrders, elev.Orders)
-						if masterID == idDig && !elev.Orders[1][1] {
-							fmt.Println("Slo av lyset")
-						}
 					} else {
 						updatedLocalOrders[idDig] = elev.Orders
 					}
@@ -78,6 +75,12 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 	go func() {
 		for {
 			currentMsgID = rand.Intn(256)
+			if masterID == idDig && online {
+				if !updatedLocalOrders[0][0][0] {
+					fmt.Println("Dette sendes fra master nå")
+					fmt.Println(updatedLocalOrders)
+				}
+			}
 			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, localIP, id}
 			syncCh.SendChn <- msg
 			msgTimer.Reset(800 * time.Millisecond)
@@ -110,12 +113,13 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					if online {
 						allElevs[recIDDig] = incomming.Elev
 						allElevs[recIDDig].Orders = incomming.AllOrders[recIDDig]
-						if (idDig == 2) && !incomming.AllOrders[0][0][0] {
-							fmt.Println("Incomming for master er")
-							fmt.Println(incomming.AllOrders[0])
-							fmt.Println("Current for master er")
-							fmt.Println(currentAllOrders[0])
-						}
+						/*
+							if (idDig == 2) && !incomming.AllOrders[0][0][0] {
+								fmt.Println("Incomming for master er")
+								fmt.Println(incomming.AllOrders[0])
+								fmt.Println("Current for master er")
+								fmt.Println(currentAllOrders[0])
+							}*/
 						if currentAllOrders != incomming.AllOrders {
 							// Hvis vi mottar noe nytt
 							if idDig == masterID {
