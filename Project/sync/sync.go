@@ -119,6 +119,10 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				} else {
 					if incomming.MsgId == currentMsgID {
 						allElevs[recIDDig] = incomming.Elev
+						if updatedLocalOrders[recIDDig] != incomming.Elev {
+							updatedLocalOrders[recIDDig] = incomming.Elevator
+							// RESUME HERE
+						}
 						if !contains(receivedReceipt, recID) {
 							receivedReceipt = append(receivedReceipt, recID)
 							if len(receivedReceipt) == numPeers {
