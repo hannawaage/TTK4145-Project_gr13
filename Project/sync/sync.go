@@ -11,7 +11,7 @@ import (
 
 func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	const numPeers = config.NumElevs - 1
-	masterID := idDig
+	masterID := id
 	var (
 		elev               config.Elevator
 		onlineIPs          []int
