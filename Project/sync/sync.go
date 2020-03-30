@@ -52,14 +52,15 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	go func() {
 		for {
 			if currentAllOrders != updatedLocalOrders {
-				if newCabOrdersOnly(id, &currentAllOrders, &updatedLocalOrders) {
+				if !online {
+					updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
 					esmChns.CurrentAllOrders <- updatedLocalOrders
 					currentAllOrders = updatedLocalOrders
 				} else {
-					if !online {
-						updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
+					if newCabOrdersOnly(id, &currentAllOrders, &updatedLocalOrders) {
 						esmChns.CurrentAllOrders <- updatedLocalOrders
 						currentAllOrders = updatedLocalOrders
+						fmt.Println("Online and only caborders")
 					}
 				}
 			}
