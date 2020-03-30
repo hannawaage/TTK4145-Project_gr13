@@ -37,7 +37,7 @@ type Message struct {
 	MsgId     int
 	Receipt   bool
 	LocalIP   string
-	LocalID   string
+	LocalID   int
 }
 
 type EsmChns struct {

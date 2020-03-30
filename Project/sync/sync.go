@@ -3,22 +3,19 @@ package sync
 import (
 	"fmt"
 	"math/rand"
-	"strconv"
 	"time"
 
 	"../config"
 	"../network/localip"
 )
 
-func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
+func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	const numPeers = config.NumElevs - 1
-	idDig, _ := strconv.Atoi(id)
-	idDig--
 	masterID := idDig
 	var (
 		elev               config.Elevator
-		onlineIPs          []string
-		receivedReceipt    []string
+		onlineIPs          []int
+		receivedReceipt    []int
 		currentMsgID       int
 		numTimeouts        int
 		updatedLocalOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
@@ -38,10 +35,10 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 					fmt.Println("Boo, we are offline.")
 				}
 			case elev := <-esmChns.Elev:
-				if updatedLocalOrders[idDig] != elev.Orders {
-					updatedLocalOrders[idDig] = elev.Orders
+				if updatedLocalOrders[id] != elev.Orders {
+					updatedLocalOrders[id] = elev.Orders
 				}
-				allElevs[idDig] = elev
+				allElevs[id] = elev
 			}
 		}
 	}()
@@ -56,7 +53,7 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 		for {
 			if currentAllOrders != updatedLocalOrders {
 				if !online {
-					updatedLocalOrders = mergeAllOrders(idDig, updatedLocalOrders)
+					updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
 					esmChns.CurrentAllOrders <- updatedLocalOrders
 					currentAllOrders = updatedLocalOrders
 				}
@@ -82,16 +79,13 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 		select {
 		case incomming := <-syncCh.RecChn:
 			recID := incomming.LocalID
-			recIDDig, _ := strconv.Atoi(recID)
-			recIDDig--
 			if id != recID {
 				if !contains(onlineIPs, recID) {
 					onlineIPs = append(onlineIPs, recID)
 					if len(onlineIPs) == numPeers {
 						syncCh.Online <- true
 						for i := 0; i < numPeers; i++ {
-							theID, _ := strconv.Atoi(onlineIPs[i])
-							theID--
+							theID := onlineIPs[i]
 							if theID < masterID {
 								masterID = theID
 							}
@@ -100,11 +94,11 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 				if !incomming.Receipt {
 					if online {
-						allElevs[recIDDig] = incomming.Elev
-						allElevs[recIDDig].Orders = incomming.AllOrders[recIDDig]
-						if masterID == idDig {
+						allElevs[recID] = incomming.Elev
+						allElevs[recID].Orders = incomming.AllOrders[recID]
+						if masterID == id {
 							updatedLocalOrders = CostFunction(allElevs)
-						} else if masterID == recIDDig {
+						} else if masterID == recID {
 							updatedLocalOrders = incomming.AllOrders
 						}
 						if currentAllOrders != updatedLocalOrders {
@@ -136,15 +130,15 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 				fmt.Println("Three timeouts in a row")
 				numTimeouts = 0
 				onlineIPs = onlineIPs[:0]
-				masterID = idDig
+				masterID = id
 			}
 		}
 	}
 }
 
-func contains(elevs []string, str string) bool {
+func contains(elevs []int, new int) bool {
 	for _, a := range elevs {
-		if a == str {
+		if a == new {
 			return true
 		}
 	}
