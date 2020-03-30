@@ -52,6 +52,10 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	go func() {
 		for {
 			if currentAllOrders != updatedLocalOrders {
+				if newCabOrdersOnly(id, &currentAllOrders, &updatedLocalOrders) {
+					esmChns.CurrentAllOrders <- updatedLocalOrders
+					currentAllOrders = updatedLocalOrders
+				}
 				if !online {
 					updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
 					esmChns.CurrentAllOrders <- updatedLocalOrders
@@ -162,4 +166,19 @@ func mergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumBu
 		}
 	}
 	return merged
+}
+
+func newCabOrdersOnly(id int, current *[config.NumElevs][config.NumFloors][config.NumButtons]bool, updated *[config.NumElevs][config.NumFloors][config.NumButtons]bool) bool {
+	var newCab bool
+	for floor := 0; floor < config.NumFloors; floor++ {
+		for btn := 0; btn < config.NumButtons-1; btn++ {
+			if current[id][floor][btn] != updated[id][floor][btn] {
+				return false
+			}
+		}
+		if current[id][floor][2] != updated[id][floor][2] {
+			newCab = true
+		}
+	}
+	return newCab
 }
