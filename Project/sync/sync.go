@@ -121,7 +121,8 @@ func Sync(id string, syncCh config.SyncChns, esmChns config.EsmChns) {
 						allElevs[recIDDig] = incomming.Elev
 						if updatedLocalOrders[recIDDig] != incomming.Elev.Orders {
 							updatedLocalOrders[recIDDig] = incomming.Elev.Orders
-							// RESUME HERE
+							esmChns.CurrentAllOrders <- updatedLocalOrders
+							currentAllOrders = updatedLocalOrders
 						}
 						if !contains(receivedReceipt, recID) {
 							receivedReceipt = append(receivedReceipt, recID)
