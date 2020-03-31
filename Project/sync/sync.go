@@ -202,6 +202,7 @@ func mergeLocalOrders(id int, local *[config.NumFloors][config.NumButtons]bool, 
 	var merged [config.NumElevs][config.NumFloors][config.NumButtons]bool
 	merged = incomming
 	for floor := 0; floor < config.NumFloors; floor++ {
+		merged[id][floor][2] = local[floor][2]
 		for btn := 0; btn < config.NumButtons-1; btn++ {
 			if local[floor][btn] {
 				merged[id][floor][btn] = true
