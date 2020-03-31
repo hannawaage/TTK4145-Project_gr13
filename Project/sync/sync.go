@@ -139,6 +139,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 								if (currentAllOrders != updatedLocalOrders) && updateElev {
 									esmChns.CurrentAllOrders <- updatedLocalOrders
 									currentAllOrders = updatedLocalOrders
+									updateElev = false
 								}
 							}
 						}
