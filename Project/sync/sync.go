@@ -22,6 +22,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		online             bool
 		allElevs           [config.NumElevs]config.Elevator
+		updateElev         bool
 	)
 	go func() {
 		for {
@@ -102,19 +103,22 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					allElevs[recID].Orders = incomming.AllOrders[recID]
 					if masterID == id {
 						updatedLocalOrders = CostFunction(allElevs)
+						updateElev = true
 					} else if masterID == recID {
 						if currentAllOrders == updatedLocalOrders {
 							// Ikke noe nytt lokalt - ta inn det vi får fra master
 							updatedLocalOrders = incomming.AllOrders
+							updateElev = true
 						} else {
 							// nytt lokalt - merge med det nye
 							//fmt.Println("Lokale endringer, merger med masterbeskjed")
 							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, incomming.AllOrders)
 						}
 					}
-					if currentAllOrders != updatedLocalOrders {
+					if (currentAllOrders != updatedLocalOrders) && updateElev {
 						esmChns.CurrentAllOrders <- updatedLocalOrders
 						currentAllOrders = updatedLocalOrders
+						updateElev = false
 					}
 				}
 				if !incomming.Receipt {
