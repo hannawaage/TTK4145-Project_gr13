@@ -74,8 +74,6 @@ func RunElevator(esmChns EsmChns, id int) {
 	doorTimedOut.Stop()
 	elevator.Floor = InitElev(elevator, esmChns)
 	go ShareElev(elevator, esmChns)
-	fmt.Println("Min id er: ")
-	fmt.Println(elevator.Id)
 
 	for {
 		select {
