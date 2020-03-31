@@ -1,8 +1,6 @@
 package sync
 
 import (
-	"fmt"
-
 	"../config"
 	"../driver-go/elevio"
 )
@@ -21,7 +19,7 @@ func CostFunction(allOrders [config.NumElevs]config.Elevator) [config.NumElevs][
 					}
 					// finding best elevator for that order
 					bestElevator = costCalculator(order, &allOrders)
-					fmt.Println(bestElevator)
+					//fmt.Println(bestElevator)
 					allOrders[elevator].Orders[order.Floor][order.Button] = false
 					allOrders[bestElevator].Orders[order.Floor][order.Button] = true
 				}

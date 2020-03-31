@@ -108,7 +108,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 							updatedLocalOrders = incomming.AllOrders
 						} else {
 							// nytt lokalt - merge med det nye
-							fmt.Println("Lokale endringer, merger med masterbeskjed")
+							//fmt.Println("Lokale endringer, merger med masterbeskjed")
 							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, incomming.AllOrders)
 						}
 					}
