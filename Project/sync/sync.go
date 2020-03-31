@@ -103,14 +103,15 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					allElevs[recID].Orders = incomming.AllOrders[recID]
 					if masterID == id {
 						updatedLocalOrders = CostFunction(allElevs)
+						localChanges = false
 					} else if masterID == recID {
 						if currentAllOrders == updatedLocalOrders {
 							// Ikke noe nytt lokalt -
 							updatedLocalOrders = incomming.AllOrders
 							localChanges = false
 						} else {
-							localChanges = true
 							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, incomming.AllOrders)
+							localChanges = true
 						}
 					}
 					if (currentAllOrders != updatedLocalOrders) && !localChanges {
