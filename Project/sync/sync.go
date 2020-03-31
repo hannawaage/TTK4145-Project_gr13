@@ -107,8 +107,11 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					} else if masterID == recID {
 						if currentAllOrders[id] == elev.Orders {
 							updatedLocalOrders = incomming.AllOrders
-							esmChns.CurrentAllOrders <- updatedLocalOrders
-							currentAllOrders = updatedLocalOrders
+							if currentAllOrders != updatedLocalOrders {
+								esmChns.CurrentAllOrders <- updatedLocalOrders
+								currentAllOrders = updatedLocalOrders
+							}
+
 						} else {
 							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, incomming.AllOrders)
 						}
@@ -128,7 +131,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
-								if id == masterID {
+								if (id == masterID) && (currentAllOrders != updatedLocalOrders) {
 									esmChns.CurrentAllOrders <- updatedLocalOrders
 									currentAllOrders = updatedLocalOrders
 								}
