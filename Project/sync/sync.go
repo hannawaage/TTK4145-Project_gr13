@@ -61,7 +61,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					if newCabOrdersOnly(id, &currentAllOrders, &updatedLocalOrders) {
 						esmChns.CurrentAllOrders <- updatedLocalOrders
 						currentAllOrders = updatedLocalOrders
-						fmt.Println("Online and only caborders")
 					}
 				}
 			}
@@ -76,7 +75,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			currentMsgID = rand.Intn(256)
 			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, localIP, id}
 			syncCh.SendChn <- msg
-			localConfirmed = false
 			msgTimer.Reset(800 * time.Millisecond)
 			esmChns.CurrentAllOrders <- currentAllOrders
 			time.Sleep(1 * time.Second)
@@ -106,11 +104,12 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					if masterID == id {
 						updatedLocalOrders = CostFunction(allElevs)
 					} else if masterID == recID {
-						// Hvis lokale endringer ikke er brekreftet, skal disse merges med master-beskjeden før
-						// de sendes ut igjen
-						if localConfirmed {
+						if currentAllOrders == updatedLocalOrders {
+							// Ikke noe nytt lokalt - ta inn det vi får fra master
 							updatedLocalOrders = incomming.AllOrders
 						} else {
+							// nytt lokalt - merge med det nye
+							fmt.Println("Lokale endringer, merger med masterbeskjed")
 							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, incomming.AllOrders)
 						}
 					}
@@ -132,7 +131,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
-								localConfirmed = true
 							}
 						}
 					}
