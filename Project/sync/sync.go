@@ -10,9 +10,9 @@ import (
 )
 
 func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
-	const numPeers = config.NumElevs - 1
 	masterID := id
 	var (
+		numPeers           int
 		elev               config.Elevator
 		onlineIPs          []int
 		receivedReceipt    []int
@@ -22,7 +22,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		online             bool
 		allElevs           [config.NumElevs]config.Elevator
-		localChanges       bool
 	)
 	go func() {
 		for {
@@ -76,7 +75,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, localIP, id}
 			syncCh.SendChn <- msg
 			msgTimer.Reset(800 * time.Millisecond)
-			//esmChns.CurrentAllOrders <- currentAllOrders
 			time.Sleep(1 * time.Second)
 		}
 	}()
@@ -88,36 +86,37 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			if id != recID {
 				if !contains(onlineIPs, recID) {
 					onlineIPs = append(onlineIPs, recID)
-					if len(onlineIPs) == numPeers {
-						syncCh.Online <- true
-						for i := 0; i < numPeers; i++ {
-							theID := onlineIPs[i]
-							if theID < masterID {
-								masterID = theID
-							}
+					numPeers = len(onlineIPs)
+					syncCh.Online <- true
+					for i := 0; i < numPeers; i++ {
+						theID := onlineIPs[i]
+						if theID < masterID {
+							masterID = theID
 						}
 					}
 				}
-				if online {
-					allElevs[recID] = incomming.Elev
-					allElevs[recID].Orders = incomming.AllOrders[recID]
-					if masterID == id {
+				if len(onlineIPs) == numPeers {
+					if id == masterID {
+						allElevs[recID] = incomming.Elev
+						allElevs[recID].Orders = incomming.AllOrders[recID]
 						updatedLocalOrders = CostFunction(allElevs)
-					} else if masterID == recID {
-						if currentAllOrders == updatedLocalOrders {
-							// Ikke noe nytt lokalt - ta inn det vi får fra master
-							updatedLocalOrders = incomming.AllOrders
-							localChanges = false
-						} else {
-							// nytt lokalt - merge med det nye
-							//fmt.Println("Lokale endringer, merger med masterbeskjed")
-							localChanges = true
-							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, incomming.AllOrders)
+						if currentAllOrders != updatedLocalOrders {
+							esmChns.CurrentAllOrders <- updatedLocalOrders
+							currentAllOrders = updatedLocalOrders
 						}
-					}
-					if (currentAllOrders != updatedLocalOrders) && !localChanges {
-						esmChns.CurrentAllOrders <- updatedLocalOrders
-						currentAllOrders = updatedLocalOrders
+					} else if recID == masterID {
+						if currentAllOrders != updatedLocalOrders {
+							// Hvis det er lokale endringer
+							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, updatedLocalOrders)
+							// Da sendes oppdatert liste til Master.
+						} else {
+							// Hvis det ikke er lokale endringer
+							updatedLocalOrders = incomming.AllOrders
+							if currentAllOrders != updatedLocalOrders {
+								esmChns.CurrentAllOrders <- updatedLocalOrders
+								currentAllOrders = updatedLocalOrders
+							}
+						}
 					}
 				}
 				if !incomming.Receipt {

@@ -17,9 +17,7 @@ func CostFunction(allOrders [config.NumElevs]config.Elevator) [config.NumElevs][
 						Floor:  floor,
 						Button: button,
 					}
-					// finding best elevator for that order
 					bestElevator = costCalculator(order, &allOrders)
-					//fmt.Println(bestElevator)
 					allOrders[elevator].Orders[order.Floor][order.Button] = false
 					allOrders[bestElevator].Orders[order.Floor][order.Button] = true
 				}
