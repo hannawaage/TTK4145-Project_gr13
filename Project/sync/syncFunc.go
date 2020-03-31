@@ -6,7 +6,7 @@ import (
 )
 
 // CostFunction tar inn en allOrders, id, lage ny
-func CostFunction(allOrders [config.NumElevs]config.Elevator, onlineIPs []int) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
+func CostFunction(id int, allOrders [config.NumElevs]config.Elevator, onlineIPs []int) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
 	var allOrdersMat [config.NumElevs][config.NumFloors][config.NumButtons]bool
 	bestElevator := allOrders[0].Id
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
@@ -17,7 +17,7 @@ func CostFunction(allOrders [config.NumElevs]config.Elevator, onlineIPs []int) [
 						Floor:  floor,
 						Button: button,
 					}
-					bestElevator = costCalculator(order, &allOrders, onlineIPs)
+					bestElevator = costCalculator(id, order, &allOrders, onlineIPs)
 					allOrders[elevator].Orders[order.Floor][order.Button] = false
 					allOrders[bestElevator].Orders[order.Floor][order.Button] = true
 				}
@@ -30,11 +30,11 @@ func CostFunction(allOrders [config.NumElevs]config.Elevator, onlineIPs []int) [
 	return allOrdersMat
 }
 
-func costCalculator(order elevio.ButtonEvent, allOrders *[config.NumElevs]config.Elevator, onlineIPs []int) int {
+func costCalculator(id int, order elevio.ButtonEvent, allOrders *[config.NumElevs]config.Elevator, onlineIPs []int) int {
 	minCost := (config.NumButtons * config.NumFloors) * config.NumElevs
 	bestElevator := onlineIPs[0]
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
-		if !contains(onlineIPs, allOrders[elevator].Id) {
+		if !contains(onlineIPs, allOrders[elevator].Id) && (elevator != id) {
 			continue
 		}
 		cost := order.Floor - allOrders[elevator].Floor
