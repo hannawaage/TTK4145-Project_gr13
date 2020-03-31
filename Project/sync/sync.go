@@ -101,7 +101,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					if id == masterID {
 						allElevs[recID] = incomming.Elev
 						allElevs[recID].Orders = incomming.AllOrders[recID]
-						updatedLocalOrders = CostFunction(allElevs)
+						updatedLocalOrders = CostFunction(allElevs, onlineIPs)
 						if currentAllOrders != updatedLocalOrders {
 							esmChns.CurrentAllOrders <- updatedLocalOrders
 							currentAllOrders = updatedLocalOrders

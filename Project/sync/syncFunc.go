@@ -6,7 +6,7 @@ import (
 )
 
 // CostFunction tar inn en allOrders, id, lage ny
-func CostFunction(allOrders [config.NumElevs]config.Elevator) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
+func CostFunction(allOrders [config.NumElevs]config.Elevator, onlineIPs []int) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
 	var allOrdersMat [config.NumElevs][config.NumFloors][config.NumButtons]bool
 	bestElevator := allOrders[0].Id
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
@@ -30,10 +30,13 @@ func CostFunction(allOrders [config.NumElevs]config.Elevator) [config.NumElevs][
 	return allOrdersMat
 }
 
-func costCalculator(order elevio.ButtonEvent, allOrders *[config.NumElevs]config.Elevator) int {
+func costCalculator(order elevio.ButtonEvent, allOrders *[config.NumElevs]config.Elevator, onlineIPs []int) int {
 	minCost := (config.NumButtons * config.NumFloors) * config.NumElevs
-	bestElevator := allOrders[0].Id
+	bestElevator := onlineIPs[0]
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
+		if !contains(onlineIPs, allOrders[elevator].Id) {
+			continue
+		}
 		cost := order.Floor - allOrders[elevator].Floor
 		if (cost == 0) && (allOrders[elevator].State != config.Moving) {
 			bestElevator = elevator
