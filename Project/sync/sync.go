@@ -151,6 +151,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				numTimeouts = 0
 				onlineIPs = onlineIPs[:0]
 				masterID = id
+				receivedReceipt = receivedReceipt[:0]
 				numPeers = 0
 			}
 		}
