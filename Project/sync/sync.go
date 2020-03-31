@@ -21,6 +21,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		updatedLocalOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		online             bool
+		localConfirmed     bool
 		allElevs           [config.NumElevs]config.Elevator
 	)
 	go func() {
@@ -75,6 +76,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			currentMsgID = rand.Intn(256)
 			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, localIP, id}
 			syncCh.SendChn <- msg
+			localConfirmed = false
 			msgTimer.Reset(800 * time.Millisecond)
 			esmChns.CurrentAllOrders <- currentAllOrders
 			time.Sleep(1 * time.Second)
@@ -104,7 +106,13 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					if masterID == id {
 						updatedLocalOrders = CostFunction(allElevs)
 					} else if masterID == recID {
-						updatedLocalOrders = incomming.AllOrders
+						// Hvis lokale endringer ikke er brekreftet, skal disse merges med master-beskjeden før
+						// de sendes ut igjen
+						if localConfirmed {
+							updatedLocalOrders = incomming.AllOrders
+						} else {
+							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, incomming.AllOrders)
+						}
 					}
 					if currentAllOrders != updatedLocalOrders {
 						currentAllOrders = updatedLocalOrders
@@ -124,6 +132,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
+								localConfirmed = true
 							}
 						}
 					}
@@ -183,4 +192,17 @@ func newCabOrdersOnly(id int, current *[config.NumElevs][config.NumFloors][confi
 		}
 	}
 	return newCab
+}
+
+func mergeLocalOrders(id int, local *[config.NumFloors][config.NumButtons]bool, incomming [config.NumElevs][config.NumFloors][config.NumButtons]bool) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
+	var merged [config.NumElevs][config.NumFloors][config.NumButtons]bool
+	merged = incomming
+	for floor := 0; floor < config.NumFloors; floor++ {
+		for btn := 0; btn < config.NumButtons-1; btn++ {
+			if local[floor][btn] {
+				merged[id][floor][btn] = true
+			}
+		}
+	}
+	return merged
 }
