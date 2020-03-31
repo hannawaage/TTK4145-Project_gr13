@@ -37,6 +37,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			case elev = <-esmChns.Elev:
 				if updatedLocalOrders[id] != elev.Orders {
 					updatedLocalOrders[id] = elev.Orders
+					localOrdersConfirmed = false
 				}
 				allElevs[id] = elev
 			}
@@ -75,7 +76,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, localIP, id}
 			syncCh.SendChn <- msg
 			msgTimer.Reset(800 * time.Millisecond)
-			//esmChns.CurrentAllOrders <- currentAllOrders
 			time.Sleep(1 * time.Second)
 		}
 	}()
@@ -101,20 +101,28 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					allElevs[recID] = incomming.Elev
 					allElevs[recID].Orders = incomming.AllOrders[recID]
 					if masterID == id {
-						updatedLocalOrders = CostFunction(allElevs)
-					} else if masterID == recID {
-						if currentAllOrders == updatedLocalOrders {
-							// Ikke noe nytt lokalt -
-							updatedLocalOrders = incomming.AllOrders
-							if currentAllOrders != updatedLocalOrders {
-								esmChns.CurrentAllOrders <- updatedLocalOrders
-								currentAllOrders = updatedLocalOrders
-							}
+						if currentAllOrders[id] == elev.Orders {
+							// Hvis alle er up to speed med mitt lokale
+							updatedLocalOrders = CostFunction(allElevs)
+							esmChns.CurrentAllOrders <- updatedLocalOrders
+							currentAllOrders = updatedLocalOrders
 						} else {
-							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, incomming.AllOrders)
+							// Hvis jeg har lokale endringer
+							updatedLocalOrders = CostFunction(allElevs)
+							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, updatedLocalOrders)
+						}
+					} else if recID == masterID {
+						if currentAllOrders[id] == elev.Orders {
+							// Hvis alle er up to speed med mitt lokale
+							updatedLocalOrders = incomming.AllOrders
+							esmChns.CurrentAllOrders <- updatedLocalOrders
+							currentAllOrders = updatedLocalOrders
+						} else {
+							// Hvis jeg har lokale endringer
+							updatedLocalOrders = incomming.AllOrders
+							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, updatedLocalOrders)
 						}
 					}
-
 				}
 				if !incomming.Receipt {
 					msg := config.Message{elev, updatedLocalOrders, incomming.MsgId, true, localIP, id}
