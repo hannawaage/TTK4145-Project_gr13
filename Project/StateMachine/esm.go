@@ -82,7 +82,7 @@ func RunElevator(esmChns EsmChns, id int) {
 			if elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] == false { //Hvis ikke allerede en ordre
 				elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] = true
 				go ShareElev(elevator, esmChns)
-				elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] = false //Så ordren ikke påvirker esm før kostfunksjonen har evaluert den
+				//elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] = false //Så ordren ikke påvirker esm før kostfunksjonen har evaluert den
 			}
 
 		case currentAllOrders := <-esmChns.CurrentAllOrders:
