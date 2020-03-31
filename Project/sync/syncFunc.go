@@ -35,10 +35,10 @@ func CostFunction(allOrders [config.NumElevs]config.Elevator) [config.NumElevs][
 }
 
 func costCalculator(order elevio.ButtonEvent, allOrders *[config.NumElevs]config.Elevator) int {
-	//ButtonInside??
 	minCost := (config.NumButtons * config.NumFloors) * config.NumElevs
 	bestElevator := allOrders[0].Id
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
+		fmt.Println("Current evaluated elev is: ")
 		fmt.Println(allOrders[elevator].Id)
 
 		cost := order.Floor - allOrders[elevator].Floor
