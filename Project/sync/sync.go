@@ -34,7 +34,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					online = false
 					fmt.Println("Boo, we are offline.")
 				}
-			case elev := <-esmChns.Elev:
+			case elev = <-esmChns.Elev:
 				if updatedLocalOrders[id] != elev.Orders {
 					updatedLocalOrders[id] = elev.Orders
 				}
