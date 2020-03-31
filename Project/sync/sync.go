@@ -21,7 +21,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		updatedLocalOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		online             bool
-		localConfirmed     bool
 		allElevs           [config.NumElevs]config.Elevator
 	)
 	go func() {
