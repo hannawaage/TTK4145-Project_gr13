@@ -40,8 +40,10 @@ func costCalculator(order elevio.ButtonEvent, allOrders *[config.NumElevs]config
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
 		fmt.Println("Current evaluated elev is: ")
 		fmt.Println(allOrders[elevator].Id)
+		fmt.Println("Difference is:")
 
 		cost := order.Floor - allOrders[elevator].Floor
+		fmt.Println(cost)
 		if cost == 0 && allOrders[elevator].State != config.Moving {
 			bestElevator = elevator
 			return bestElevator
