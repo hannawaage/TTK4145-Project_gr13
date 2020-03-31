@@ -17,7 +17,7 @@ func CostFunction(allOrders [config.NumElevs]config.Elevator, onlineIPs []int) [
 						Floor:  floor,
 						Button: button,
 					}
-					bestElevator = costCalculator(order, &allOrders)
+					bestElevator = costCalculator(order, &allOrders, onlineIPs)
 					allOrders[elevator].Orders[order.Floor][order.Button] = false
 					allOrders[bestElevator].Orders[order.Floor][order.Button] = true
 				}
