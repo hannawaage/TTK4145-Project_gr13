@@ -22,7 +22,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		online             bool
 		allElevs           [config.NumElevs]config.Elevator
-		updateElev         bool
 	)
 	go func() {
 		for {
@@ -40,7 +39,9 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					updatedLocalOrders[id] = elev.Orders
 				}
 				allElevs[id] = elev
-				updateElev = false
+				if id == masterID {
+					updatedLocalOrders = CostFunction(allElevs)
+				}
 			}
 		}
 	}()
@@ -77,7 +78,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, localIP, id}
 			syncCh.SendChn <- msg
 			msgTimer.Reset(800 * time.Millisecond)
-			//esmChns.CurrentAllOrders <- currentAllOrders
 			time.Sleep(1 * time.Second)
 		}
 	}()
@@ -104,22 +104,14 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					allElevs[recID].Orders = incomming.AllOrders[recID]
 					if masterID == id {
 						updatedLocalOrders = CostFunction(allElevs)
-						updateElev = true
 					} else if masterID == recID {
 						if currentAllOrders[id] == elev.Orders {
-							// Ikke noe nytt lokalt - ta inn det vi får fra master
 							updatedLocalOrders = incomming.AllOrders
-							updateElev = true
+							esmChns.CurrentAllOrders <- updatedLocalOrders
+							currentAllOrders = updatedLocalOrders
 						} else {
-							// nytt lokalt - merge med det nye
-							//fmt.Println("Lokale endringer, merger med masterbeskjed")
 							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, incomming.AllOrders)
 						}
-					}
-					if (currentAllOrders != updatedLocalOrders) && updateElev {
-						esmChns.CurrentAllOrders <- updatedLocalOrders
-						currentAllOrders = updatedLocalOrders
-						updateElev = false
 					}
 				}
 				if !incomming.Receipt {
@@ -136,6 +128,10 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
+								if id == masterID {
+									esmChns.CurrentAllOrders <- updatedLocalOrders
+									currentAllOrders = updatedLocalOrders
+								}
 							}
 						}
 					}
