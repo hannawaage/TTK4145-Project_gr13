@@ -98,19 +98,19 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						}
 					}
 				}
-				if !incomming.Receipt {
-					if online {
-						allElevs[recID] = incomming.Elev
-						allElevs[recID].Orders = incomming.AllOrders[recID]
-						if masterID == id {
-							updatedLocalOrders = CostFunction(allElevs)
-						} else if masterID == recID {
-							updatedLocalOrders = incomming.AllOrders
-						}
-						if currentAllOrders != updatedLocalOrders {
-							currentAllOrders = updatedLocalOrders
-						}
+				if online {
+					allElevs[recID] = incomming.Elev
+					allElevs[recID].Orders = incomming.AllOrders[recID]
+					if masterID == id {
+						updatedLocalOrders = CostFunction(allElevs)
+					} else if masterID == recID {
+						updatedLocalOrders = incomming.AllOrders
 					}
+					if currentAllOrders != updatedLocalOrders {
+						currentAllOrders = updatedLocalOrders
+					}
+				}
+				if !incomming.Receipt {
 					msg := config.Message{elev, updatedLocalOrders, incomming.MsgId, true, localIP, id}
 					for i := 0; i < 5; i++ {
 						syncCh.SendChn <- msg
