@@ -22,6 +22,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		online             bool
 		allElevs           [config.NumElevs]config.Elevator
+		masterAck          bool
 	)
 	go func() {
 		for {
@@ -39,6 +40,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					updatedLocalOrders[id] = elev.Orders
 				}
 				allElevs[id] = elev
+				masterAck = false
 			}
 		}
 	}()
@@ -105,12 +107,12 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 							currentAllOrders = updatedLocalOrders
 						}
 					} else if recID == masterID {
-						if currentAllOrders != updatedLocalOrders {
+						if (currentAllOrders != updatedLocalOrders) && !masterAck {
 							// Hvis det er lokale endringer
 							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, updatedLocalOrders)
 							// Da sendes oppdatert liste til Master.
 						} else {
-							// Hvis det ikke er lokale endringer
+							// Hvis det ikke er lokale endringer eller vi har sendt de lokale endringene og fått masterAck
 							updatedLocalOrders = incomming.AllOrders
 							if currentAllOrders != updatedLocalOrders {
 								esmChns.CurrentAllOrders <- updatedLocalOrders
@@ -127,6 +129,9 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					}
 				} else {
 					if incomming.MsgId == currentMsgID {
+						if recID == masterID {
+							masterAck = true
+						}
 						if !contains(receivedReceipt, recID) {
 							receivedReceipt = append(receivedReceipt, recID)
 							if len(receivedReceipt) == numPeers {
