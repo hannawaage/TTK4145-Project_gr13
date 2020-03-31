@@ -104,22 +104,22 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						if currentAllOrders[id] == elev.Orders {
 							// Hvis alle er up to speed med mitt lokale
 							updatedLocalOrders = CostFunction(allElevs)
+							updateElev = true
 						} else {
 							// Hvis jeg har lokale endringer
 							updatedLocalOrders = CostFunction(allElevs)
 							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, updatedLocalOrders)
 						}
-						updateElev = true
 					} else if recID == masterID {
 						if currentAllOrders[id] == elev.Orders {
 							// Hvis alle er up to speed med mitt lokale
 							updatedLocalOrders = incomming.AllOrders
+							updateElev = true
 						} else {
 							// Hvis jeg har lokale endringer
 							updatedLocalOrders = incomming.AllOrders
 							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, updatedLocalOrders)
 						}
-						updateElev = true
 					}
 				}
 				if !incomming.Receipt {
