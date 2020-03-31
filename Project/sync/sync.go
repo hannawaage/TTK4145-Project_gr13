@@ -22,6 +22,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		online             bool
 		allElevs           [config.NumElevs]config.Elevator
+		updateElev         bool
 	)
 	go func() {
 		for {
@@ -103,24 +104,22 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						if currentAllOrders[id] == elev.Orders {
 							// Hvis alle er up to speed med mitt lokale
 							updatedLocalOrders = CostFunction(allElevs)
-							esmChns.CurrentAllOrders <- updatedLocalOrders
-							currentAllOrders = updatedLocalOrders
 						} else {
 							// Hvis jeg har lokale endringer
 							updatedLocalOrders = CostFunction(allElevs)
 							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, updatedLocalOrders)
 						}
+						updateElev = true
 					} else if recID == masterID {
 						if currentAllOrders[id] == elev.Orders {
 							// Hvis alle er up to speed med mitt lokale
 							updatedLocalOrders = incomming.AllOrders
-							esmChns.CurrentAllOrders <- updatedLocalOrders
-							currentAllOrders = updatedLocalOrders
 						} else {
 							// Hvis jeg har lokale endringer
 							updatedLocalOrders = incomming.AllOrders
 							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, updatedLocalOrders)
 						}
+						updateElev = true
 					}
 				}
 				if !incomming.Receipt {
@@ -137,8 +136,10 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
-								esmChns.CurrentAllOrders <- updatedLocalOrders
-								currentAllOrders = updatedLocalOrders
+								if (currentAllOrders != updatedLocalOrders) && updateElev {
+									esmChns.CurrentAllOrders <- updatedLocalOrders
+									currentAllOrders = updatedLocalOrders
+								}
 							}
 						}
 					}
