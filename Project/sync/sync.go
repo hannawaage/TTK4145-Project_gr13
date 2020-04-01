@@ -36,9 +36,11 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			case elev = <-esmChns.Elev:
 				allElevs[id] = elev
 				if !online {
-					updatedLocalOrders[id] = elev.Orders
-					esmChns.CurrentAllOrders <- updatedLocalOrders
-					currentAllOrders = updatedLocalOrders
+					if updatedLocalOrders != currentAllOrders {
+						updatedLocalOrders[id] = elev.Orders
+						esmChns.CurrentAllOrders <- updatedLocalOrders
+						currentAllOrders = updatedLocalOrders
+					}
 				}
 			}
 		}
