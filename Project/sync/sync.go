@@ -16,7 +16,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		fmt.Println(err)
 		localIP = "DISCONNECTED"
 	}
-	// Heihei
 	var (
 		numPeers           int
 		currentMsgID       int
@@ -26,15 +25,10 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		receivedReceipt    []int
 		updatedLocalOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
-		timeStamps         [config.NumFloors]*time.Timer
+		orderTimeStamps    [config.NumFloors]int
 		allElevs           [config.NumElevs]config.Elevator
 		online             bool
 	)
-
-	for i := 0; i < config.NumFloors; i++ {
-		timeStamps[i] = time.NewTimer(5 * time.Second)
-		timeStamps[i].Stop()
-	}
 
 	go func() {
 		for {
@@ -45,7 +39,10 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					if currentAllOrders[id] != elev.Orders {
 						updatedLocalOrders[id] = elev.Orders
 						esmChns.CurrentAllOrders <- updatedLocalOrders
-						setTimeStamps(&timeStamps, &currentAllOrders, &updatedLocalOrders)
+						updateTimeStamp(&orderTimeStamps, &currentAllOrders, &updatedLocalOrders)
+						if TimeStampTimeout(&orderTimeStamps) {
+							go func() { syncCh.OrderTimeout <- true }()
+						}
 						currentAllOrders = updatedLocalOrders
 					}
 				}
@@ -63,19 +60,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			syncCh.SendChn <- msg
 			msgTimer.Reset(800 * time.Millisecond)
 			time.Sleep(1 * time.Second)
-		}
-	}()
-	go func() {
-		i := 0
-		for {
-			select {
-			case <-timeStamps[i].C:
-				go func() { syncCh.OrderTimeout <- true }()
-			}
-			i++
-			if i == config.NumFloors {
-				i = 0
-			}
 		}
 	}()
 
@@ -103,7 +87,10 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 				if currentAllOrders != updatedLocalOrders {
 					esmChns.CurrentAllOrders <- updatedLocalOrders
-					setTimeStamps(&timeStamps, &currentAllOrders, &updatedLocalOrders)
+					updateTimeStamp(&orderTimeStamps, &currentAllOrders, &updatedLocalOrders)
+					if TimeStampTimeout(&orderTimeStamps) {
+						go func() { syncCh.OrderTimeout <- true }()
+					}
 					currentAllOrders = updatedLocalOrders
 				}
 				if incomming.IsReceipt {
@@ -139,12 +126,14 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				esmChns.CurrentAllOrders <- updatedLocalOrders
 				currentAllOrders = updatedLocalOrders
 			}
-		case <-syncCh.OrderTimeout:
-			updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
-			esmChns.CurrentAllOrders <- updatedLocalOrders
-			currentAllOrders = updatedLocalOrders
-			elev.Orders = currentAllOrders[id]
-			fmt.Println("Order timeout")
+		case timeout := <-syncCh.OrderTimeout:
+			if timeout {
+				updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
+				esmChns.CurrentAllOrders <- updatedLocalOrders
+				currentAllOrders = updatedLocalOrders
+				elev.Orders = currentAllOrders[id]
+				fmt.Println("Order timeout")
+			}
 		}
 	}
 }
