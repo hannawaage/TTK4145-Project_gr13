@@ -27,7 +27,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		updatedLocalOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		allElevs           [config.NumElevs]config.Elevator
-		online             bool
+		//online             bool
 	)
 
 	go func() {
@@ -39,7 +39,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		}
 	}()
 
-	go func() {
+	/*go func() {
 		for {
 			if currentAllOrders[id] != elev.Orders {
 				if !online {
@@ -50,7 +50,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			}
 			time.Sleep(10 * time.Millisecond)
 		}
-	}()
+	}()*/
 
 	msgTimer := time.NewTimer(5 * time.Second)
 	msgTimer.Stop()
