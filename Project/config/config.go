@@ -35,7 +35,7 @@ type Message struct {
 	Elev      Elevator
 	AllOrders [NumElevs][NumFloors][NumButtons]bool
 	MsgId     int
-	Receipt   bool
+	IsReceipt bool
 	LocalIP   string
 	LocalID   int
 }

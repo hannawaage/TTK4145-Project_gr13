@@ -28,6 +28,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		allElevs           [config.NumElevs]config.Elevator
 		masterAck          bool
+		online             bool
 	)
 
 	go func() {
@@ -35,14 +36,14 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			select {
 			case elev = <-esmChns.Elev:
 				if updatedLocalOrders[id] != elev.Orders {
-					if !(len(onlineIDs) > 0) {
-						updatedLocalOrders[id] = elev.Orders
-					} else {
+					if online {
 						if masterAck {
 							updatedLocalOrders[id] = elev.Orders
 						} else {
 							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, updatedLocalOrders)
 						}
+					} else {
+						updatedLocalOrders[id] = elev.Orders
 					}
 				}
 				allElevs[id].Orders = updatedLocalOrders[id]
@@ -54,15 +55,15 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	go func() {
 		for {
 			if currentAllOrders != updatedLocalOrders {
-				if !(len(onlineIDs) > 0) {
-					updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
-					esmChns.CurrentAllOrders <- updatedLocalOrders
-					currentAllOrders = updatedLocalOrders
-				} else {
+				if online {
 					if newCabOrdersOnly(id, &currentAllOrders, &updatedLocalOrders) {
 						esmChns.CurrentAllOrders <- updatedLocalOrders
 						currentAllOrders = updatedLocalOrders
 					}
+				} else {
+					updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
+					esmChns.CurrentAllOrders <- updatedLocalOrders
+					currentAllOrders = updatedLocalOrders
 				}
 			}
 			time.Sleep(10 * time.Millisecond)
@@ -90,6 +91,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				if !contains(onlineIDs, recID) {
 					onlineIDs = append(onlineIDs, recID)
 					numPeers = len(onlineIDs)
+					online = true
 					for i := 0; i < numPeers; i++ {
 						theID := onlineIDs[i]
 						if theID < masterID {
@@ -97,34 +99,26 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						}
 					}
 				}
-				if len(onlineIDs) == numPeers {
-					if id == masterID {
-						allElevs[recID] = incomming.Elev
-						allElevs[recID].Orders = incomming.AllOrders[recID]
-						updatedLocalOrders = CostFunction(id, allElevs, onlineIDs)
+				if id == masterID {
+					allElevs[recID] = incomming.Elev
+					allElevs[recID].Orders = incomming.AllOrders[recID]
+					updatedLocalOrders = CostFunction(id, allElevs, onlineIDs)
+					if currentAllOrders != updatedLocalOrders {
+						esmChns.CurrentAllOrders <- updatedLocalOrders
+						currentAllOrders = updatedLocalOrders
+					}
+				} else if recID == masterID {
+					if (currentAllOrders != updatedLocalOrders) && !masterAck {
+						updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, updatedLocalOrders)
+					} else {
+						updatedLocalOrders = incomming.AllOrders
 						if currentAllOrders != updatedLocalOrders {
 							esmChns.CurrentAllOrders <- updatedLocalOrders
 							currentAllOrders = updatedLocalOrders
 						}
-					} else if recID == masterID {
-						if (currentAllOrders != updatedLocalOrders) && !masterAck {
-							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, updatedLocalOrders)
-						} else {
-							updatedLocalOrders = incomming.AllOrders
-							if currentAllOrders != updatedLocalOrders {
-								esmChns.CurrentAllOrders <- updatedLocalOrders
-								currentAllOrders = updatedLocalOrders
-							}
-						}
 					}
 				}
-				if !incomming.Receipt {
-					msg := config.Message{elev, updatedLocalOrders, incomming.MsgId, true, localIP, id}
-					for i := 0; i < 5; i++ {
-						syncCh.SendChn <- msg
-						time.Sleep(10 * time.Millisecond)
-					}
-				} else {
+				if incomming.IsReceipt {
 					if incomming.MsgId == currentMsgID {
 						if recID == masterID {
 							masterAck = true
@@ -135,11 +129,14 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
-								if id == masterID {
-									masterAck = true
-								}
 							}
 						}
+					}
+				} else {
+					msg := config.Message{elev, updatedLocalOrders, incomming.MsgId, true, localIP, id}
+					for i := 0; i < 5; i++ {
+						syncCh.SendChn <- msg
+						time.Sleep(10 * time.Millisecond)
 					}
 				}
 			}
@@ -152,6 +149,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				onlineIDs = onlineIDs[:0]
 				receivedReceipt = receivedReceipt[:0]
 				masterID = id
+				online = false
 				updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
 				esmChns.CurrentAllOrders <- updatedLocalOrders
 				currentAllOrders = updatedLocalOrders
