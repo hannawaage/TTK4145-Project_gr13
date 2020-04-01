@@ -16,7 +16,6 @@ const (
 	Idle         = config.Idle
 	Moving       = config.Moving
 	DoorOpen     = config.DoorOpen
-	MD_Stop      = elevio.MD_Stop
 )
 
 func RunElevator(esmChns config.EsmChns, id int) {
@@ -49,7 +48,7 @@ func RunElevator(esmChns config.EsmChns, id int) {
 			case Idle:
 				elevator.Dir = SetDirection(elevator)
 				elevio.SetMotorDirection(elevator.Dir)
-				if elevator.Dir == MD_Stop {
+				if elevator.Dir == elevio.MD_Stop {
 					if OrdersInFloor(elevator) {
 						elevator.State = DoorOpen
 						elevio.SetDoorOpenLamp(true)
@@ -72,7 +71,7 @@ func RunElevator(esmChns config.EsmChns, id int) {
 			if ShouldStop(elevator) || (!ShouldStop(elevator) && elevator.Orders == [NumFloors][NumButtons]bool{}) {
 				elevio.SetDoorOpenLamp(true)
 				elevator.State = DoorOpen
-				elevio.SetMotorDirection(MD_Stop)
+				elevio.SetMotorDirection(elevio.MD_Stop)
 				doorTimedOut.Reset(DoorOpenTime)
 				elevator.Orders, elevator.Lights = ClearOrders(id, elevator)
 			}
@@ -81,7 +80,7 @@ func RunElevator(esmChns config.EsmChns, id int) {
 		case <-doorTimedOut.C:
 			elevio.SetDoorOpenLamp(false)
 			elevator.Dir = SetDirection(elevator)
-			if elevator.Dir == MD_Stop {
+			if elevator.Dir == elevio.MD_Stop {
 				elevator.State = Idle
 			} else {
 				elevator.State = Moving
