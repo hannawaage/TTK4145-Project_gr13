@@ -53,7 +53,7 @@ func RunElevator(esmChns config.EsmChns, id int) {
 						elevator.State = DoorOpen
 						elevio.SetDoorOpenLamp(true)
 						doorTimedOut.Reset(3 * time.Second)
-						elevator.Orders = ClearOrders(id, elevator)
+						//elevator.Orders = ClearOrders(id, elevator)
 					}
 				} else {
 					elevator.State = Moving
