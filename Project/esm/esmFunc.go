@@ -39,9 +39,9 @@ func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config
 					elevio.SetButtonLamp(btn, floor, true)
 				}
 				if elev == id {
-					fmt.Println("Current sier at jeg skal ta ordre i etasje ", floor)
 					if currentAllOrders[id][floor][btn] {
 						elevator.Orders[floor][btn] = true
+						fmt.Println("Current sier at jeg skal ta ordre i etasje ", floor)
 					}
 				}
 			}
