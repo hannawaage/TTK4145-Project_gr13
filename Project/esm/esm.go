@@ -42,7 +42,7 @@ func RunElevator(esmChns config.EsmChns, id int) {
 			}
 
 		case currentAllOrders := <-esmChns.CurrentAllOrders:
-			elevator.Orders, elevator.Lights = SetCurrentOrders(id, elevator, currentAllOrders)
+			elevator.Orders = SetCurrentOrders(id, elevator, currentAllOrders)
 			switch elevator.State {
 			case Undefined:
 			case Idle:
@@ -53,14 +53,14 @@ func RunElevator(esmChns config.EsmChns, id int) {
 						elevator.State = DoorOpen
 						elevio.SetDoorOpenLamp(true)
 						doorTimedOut.Reset(3 * time.Second)
-						elevator.Orders, elevator.Lights = ClearOrders(id, elevator)
+						elevator.Orders = ClearOrders(id, elevator)
 					}
 				} else {
 					elevator.State = Moving
 				}
 			case Moving:
 			case DoorOpen:
-				elevator.Orders, elevator.Lights = ClearOrders(id, elevator)
+				elevator.Orders = ClearOrders(id, elevator)
 			default:
 			}
 			go ShareElev(elevator, esmChns)
@@ -73,7 +73,7 @@ func RunElevator(esmChns config.EsmChns, id int) {
 				elevator.State = DoorOpen
 				elevio.SetMotorDirection(elevio.MD_Stop)
 				doorTimedOut.Reset(DoorOpenTime)
-				elevator.Orders, elevator.Lights = ClearOrders(id, elevator)
+				elevator.Orders = ClearOrders(id, elevator)
 			}
 			go ShareElev(elevator, esmChns)
 
