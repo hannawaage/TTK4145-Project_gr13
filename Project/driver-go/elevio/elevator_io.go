@@ -57,9 +57,6 @@ func SetMotorDirection(dir MotorDirection) {
 }
 
 func SetButtonLamp(button ButtonType, floor int, value bool) {
-	if !value {
-		fmt.Println("Slår av lys")
-	}
 	_mtx.Lock()
 	defer _mtx.Unlock()
 	_conn.Write([]byte{2, byte(button), byte(floor), toByte(value)})

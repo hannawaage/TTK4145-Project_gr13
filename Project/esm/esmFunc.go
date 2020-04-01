@@ -23,61 +23,41 @@ func ShareElev(elevator config.Elevator, esmChns config.EsmChns) {
 	esmChns.Elev <- elevator
 }
 
-func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool) [config.NumFloors][config.NumButtons]bool {
+func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool) ([config.NumFloors][config.NumButtons]bool, [config.NumElevs][config.NumFloors][config.NumButtons]bool) {
 	var btn elevio.ButtonType
-	/*
-		for elev := 0; elev < config.NumElevs; elev++ {
-			for floor := 0; floor < config.NumFloors; floor++ {
-				for btn = 0; btn < config.NumButtons; btn++ {
-					if !currentAllOrders[elev][floor][btn] {
-						if !elevator.Orders[floor][btn] {
-							elevio.SetButtonLamp(btn, floor, false)
-						}
-					}
-					if currentAllOrders[elev][floor][btn] && (btn == config.NumButtons-1) {
-						elevio.SetButtonLamp(btn, floor, true)
-						if elev == id {
-							elevator.Orders[floor][btn] = true
-						}
-					}
-				}
-			}
-		}*/
-
 	for elev := 0; elev < config.NumElevs; elev++ {
 		for floor := 0; floor < config.NumFloors; floor++ {
 			for btn = 0; btn < config.NumButtons; btn++ {
-				if !currentAllOrders[elev][floor][btn] {
+
+				if !currentAllOrders[elev][floor][btn] && elevator.Lights[elev][floor][btn] {
+					elevator.Lights[elev][floor][btn] = false
 					if !elevator.Orders[floor][btn] {
 						elevio.SetButtonLamp(btn, floor, false)
 					}
 				}
+				if currentAllOrders[elev][floor][btn] && !(elev != id && btn == config.NumButtons-1) {
+					elevator.Lights[elev][floor][btn] = true
+					elevio.SetButtonLamp(btn, floor, true)
+				}
 				if elev == id {
 					if currentAllOrders[id][floor][btn] {
-						fmt.Println("Setter på lys")
-						elevio.SetButtonLamp(btn, floor, true)
-						//elevator.Orders[floor][btn] = true
-					}
-				} else {
-					if currentAllOrders[elev][floor][btn] && (btn != elevio.BT_Cab) {
-						elevio.SetButtonLamp(btn, floor, true)
+						elevator.Orders[floor][btn] = true
 					}
 				}
-
 			}
 		}
 	}
-	return elevator.Orders
+	return elevator.Orders, elevator.Lights
 }
 
-func ClearOrders(id int, elevator config.Elevator) [config.NumFloors][config.NumButtons]bool {
-	var btn elevio.ButtonType
-	for btn = 0; btn < config.NumButtons; btn++ {
-		elevio.SetButtonLamp(btn, elevator.Floor, false)
-		fmt.Println("Slår av lys")
-		elevator.Orders[elevator.Floor][btn] = false
+func ClearOrders(id int, elevator config.Elevator) ([config.NumFloors][config.NumButtons]bool, [config.NumElevs][config.NumFloors][config.NumButtons]bool) {
+	var b elevio.ButtonType
+	for b = 0; b < config.NumButtons; b++ {
+		elevator.Lights[id][elevator.Floor][b] = false
+		elevio.SetButtonLamp(b, elevator.Floor, false)
+		elevator.Orders[elevator.Floor][b] = false
 	}
-	return elevator.Orders
+	return elevator.Orders, elevator.Lights
 }
 
 func SetDirection(elevator config.Elevator) elevio.MotorDirection {
