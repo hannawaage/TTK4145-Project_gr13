@@ -25,30 +25,47 @@ func ShareElev(elevator config.Elevator, esmChns config.EsmChns) {
 
 func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool) [config.NumFloors][config.NumButtons]bool {
 	var btn elevio.ButtonType
-	fmt.Println("Lokal liste er: ")
-	fmt.Println(currentAllOrders[id])
+
 	for elev := 0; elev < config.NumElevs; elev++ {
 		for floor := 0; floor < config.NumFloors; floor++ {
 			for btn = 0; btn < config.NumButtons; btn++ {
-				if elev == id {
-					if currentAllOrders[elev][floor][btn] {
-						elevio.SetButtonLamp(btn, floor, true)
-						elevator.Orders[floor][btn] = true
-					} else {
-						elevio.SetButtonLamp(btn, floor, false)
-						elevator.Orders[floor][btn] = false
-					}
-				} else {
-					if currentAllOrders[elev][floor][btn] && (btn != elevio.BT_Cab) {
-						elevio.SetButtonLamp(btn, floor, true)
-					} else {
+				if !currentAllOrders[elev][floor][btn] {
+					if !elevator.Orders[floor][btn] {
 						elevio.SetButtonLamp(btn, floor, false)
 					}
 				}
-
+				if currentAllOrders[elev][floor][btn] && !(elev != id && btn == config.NumButtons-1) {
+					elevio.SetButtonLamp(btn, floor, true)
+					if elev == id {
+						elevator.Orders[floor][btn] = true
+					}
+				}
 			}
 		}
 	}
+	/*
+		for elev := 0; elev < config.NumElevs; elev++ {
+			for floor := 0; floor < config.NumFloors; floor++ {
+				for btn = 0; btn < config.NumButtons; btn++ {
+					if elev == id {
+						if currentAllOrders[elev][floor][btn] {
+							elevio.SetButtonLamp(btn, floor, true)
+							elevator.Orders[floor][btn] = true
+						} else {
+							elevio.SetButtonLamp(btn, floor, false)
+							elevator.Orders[floor][btn] = false
+						}
+					} else {
+						if currentAllOrders[elev][floor][btn] && (btn != elevio.BT_Cab) {
+							elevio.SetButtonLamp(btn, floor, true)
+						} else {
+							elevio.SetButtonLamp(btn, floor, false)
+						}
+					}
+
+				}
+			}
+		}*/
 	return elevator.Orders
 }
 
