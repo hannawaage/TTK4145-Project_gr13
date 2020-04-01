@@ -5,59 +5,59 @@ import (
 	"../driver-go/elevio"
 )
 
-// CostFunction tar inn en allOrders, id, lage ny
-func CostFunction(id int, allOrders [config.NumElevs]config.Elevator, onlineIPs []int) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
-	var allOrdersMat [config.NumElevs][config.NumFloors][config.NumButtons]bool
-	bestElevator := allOrders[0].Id
+// CostFunction tar inn en allElevs, id, lage ny
+func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIPs []int) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
+	var allElevsMat [config.NumElevs][config.NumFloors][config.NumButtons]bool
+	bestElevator := allElevs[0].Id
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
 		for floor := 0; floor < config.NumFloors; floor++ {
 			for button := elevio.BT_HallUp; button < elevio.BT_Cab; button++ {
-				if allOrders[elevator].Orders[floor][button] == true {
+				if allElevs[elevator].Orders[floor][button] == true {
 					order := elevio.ButtonEvent{
 						Floor:  floor,
 						Button: button,
 					}
-					bestElevator = costCalculator(id, order, &allOrders, onlineIPs)
-					allOrders[elevator].Orders[order.Floor][order.Button] = false
-					allOrders[bestElevator].Orders[order.Floor][order.Button] = true
+					bestElevator = costCalculator(id, order, &allElevs, onlineIPs)
+					allElevs[elevator].Orders[order.Floor][order.Button] = false
+					allElevs[bestElevator].Orders[order.Floor][order.Button] = true
 				}
 			}
 		}
 	}
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
-		allOrdersMat[elevator] = allOrders[elevator].Orders
+		allElevsMat[elevator] = allElevs[elevator].Orders
 	}
-	return allOrdersMat
+	return allElevsMat
 }
 
-func costCalculator(id int, order elevio.ButtonEvent, allOrders *[config.NumElevs]config.Elevator, onlineIPs []int) int {
+func costCalculator(id int, order elevio.ButtonEvent, allElevs *[config.NumElevs]config.Elevator, onlineIPs []int) int {
 	minCost := (config.NumButtons * config.NumFloors) * config.NumElevs
 	bestElevator := onlineIPs[0]
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
-		if !contains(onlineIPs, allOrders[elevator].Id) && (elevator != id) {
+		if !contains(onlineIPs, allElevs[elevator].Id) && (elevator != id) {
 			continue
 		}
-		cost := order.Floor - allOrders[elevator].Floor
-		if (cost == 0) && (allOrders[elevator].State != config.Moving) {
+		cost := order.Floor - allElevs[elevator].Floor
+		if (cost == 0) && (allElevs[elevator].State != config.Moving) {
 			bestElevator = elevator
 			return bestElevator
 		}
 
 		if cost < 0 {
 			cost = -cost
-			if allOrders[elevator].Dir == elevio.MD_Up {
+			if allElevs[elevator].Dir == elevio.MD_Up {
 				cost += 3
 			}
 		} else if cost > 0 {
-			if allOrders[elevator].Dir == elevio.MD_Down {
+			if allElevs[elevator].Dir == elevio.MD_Down {
 				cost += 3
 			}
 		}
-		if cost == 0 && allOrders[elevator].State == config.Moving {
+		if cost == 0 && allElevs[elevator].State == config.Moving {
 			cost += 4
 		}
 
-		if allOrders[elevator].State == config.DoorOpen {
+		if allElevs[elevator].State == config.DoorOpen {
 			cost++
 		}
 
