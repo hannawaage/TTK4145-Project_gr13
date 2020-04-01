@@ -41,7 +41,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 	go func() {
 		for {
-			if currentAllOrders != updatedLocalOrders {
+			if currentAllOrders[id] != elev.Orders {
 				if !online {
 					esmChns.CurrentAllOrders <- updatedLocalOrders
 					currentAllOrders = updatedLocalOrders
