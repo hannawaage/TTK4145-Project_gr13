@@ -155,8 +155,10 @@ func setTimeStamps(prevTime [config.NumFloors]time.Timer, current *[config.NumEl
 			for btn := 0; btn < config.NumButtons; btn++ {
 				if updated[elev][floor][btn] && !current[elev][floor][btn] {
 					prevTime[floor].Reset(5 * time.Second)
+					fmt.Println("Timer reset on floor", floor)
 				} else if !updated[elev][floor][btn] && current[elev][floor][btn] {
 					prevTime[floor].Stop()
+					fmt.Println("Timer stopped on floor", floor)
 				}
 			}
 		}
