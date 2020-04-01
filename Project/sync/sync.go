@@ -65,7 +65,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					}
 				}
 			}
-			time.Sleep(50 * time.Millisecond)
+			time.Sleep(10 * time.Millisecond)
 		}
 	}()
 
