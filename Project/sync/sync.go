@@ -56,6 +56,11 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	}
 
 	go func() {
+		fmt.Println(timeStamps)
+		time.Sleep(1 * time.Second)
+	}()
+
+	go func() {
 		for {
 			currentMsgID = rand.Intn(256)
 			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, localIP, id}
