@@ -7,9 +7,6 @@ import (
 	"../driver-go/elevio"
 )
 
-// Funksjoner som begynner med stor forbokstav kan kun brukes utenfor modulen, eks UpdateOrders, motsatt for funksjoner med liten forbokstav
-// . "../directory/example" gjør at man slipper example.Function, kan bare bruke Function
-
 func InitElev(elevator config.Elevator, esmChns config.EsmChns) int {
 	elevio.SetMotorDirection(elevio.MD_Down)
 	floor := <-esmChns.Floors

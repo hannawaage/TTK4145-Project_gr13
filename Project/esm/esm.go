@@ -3,15 +3,27 @@ package esm
 import (
 	"time"
 
-	. "../config"
-	. "../driver-go/elevio"
+	"../config"
+	"../driver-go/elevio"
 )
 
-func RunElevator(esmChns EsmChns, id int) {
+const (
+	NumElevs     = config.NumElevs
+	NumFloors    = config.NumFloors
+	NumButtons   = config.NumButtons
+	DoorOpenTime = config.DoorOpenTime
+	Undefined    = config.Undefined
+	Idle         = config.Idle
+	Moving       = config.Moving
+	DoorOpen     = config.DoorOpen
+	MD_Stop      = elevio.MD_Stop
+)
 
-	elevator := Elevator{
+func RunElevator(esmChns config.EsmChns, id int) {
+
+	elevator := config.Elevator{
 		Id:     id,
-		State:  Idle,
+		State:  config.Idle,
 		Orders: [NumFloors][NumButtons]bool{},
 		Lights: [NumElevs][NumFloors][NumButtons]bool{},
 	}
@@ -36,11 +48,11 @@ func RunElevator(esmChns EsmChns, id int) {
 			case Undefined:
 			case Idle:
 				elevator.Dir = SetDirection(elevator)
-				SetMotorDirection(elevator.Dir)
+				elevio.SetMotorDirection(elevator.Dir)
 				if elevator.Dir == MD_Stop {
 					if OrdersInFloor(elevator) {
 						elevator.State = DoorOpen
-						SetDoorOpenLamp(true)
+						elevio.SetDoorOpenLamp(true)
 						doorTimedOut.Reset(3 * time.Second)
 						elevator.Orders, elevator.Lights = ClearOrders(id, elevator)
 					}
@@ -56,24 +68,24 @@ func RunElevator(esmChns EsmChns, id int) {
 
 		case newFloor := <-esmChns.Floors:
 			elevator.Floor = newFloor
-			SetFloorIndicator(newFloor)
+			elevio.SetFloorIndicator(newFloor)
 			if ShouldStop(elevator) || (!ShouldStop(elevator) && elevator.Orders == [NumFloors][NumButtons]bool{}) {
-				SetDoorOpenLamp(true)
+				elevio.SetDoorOpenLamp(true)
 				elevator.State = DoorOpen
-				SetMotorDirection(MD_Stop)
+				elevio.SetMotorDirection(MD_Stop)
 				doorTimedOut.Reset(DoorOpenTime)
 				elevator.Orders, elevator.Lights = ClearOrders(id, elevator)
 			}
 			go ShareElev(elevator, esmChns)
 
 		case <-doorTimedOut.C:
-			SetDoorOpenLamp(false)
+			elevio.SetDoorOpenLamp(false)
 			elevator.Dir = SetDirection(elevator)
 			if elevator.Dir == MD_Stop {
 				elevator.State = Idle
 			} else {
 				elevator.State = Moving
-				SetMotorDirection(elevator.Dir)
+				elevio.SetMotorDirection(elevator.Dir)
 			}
 			go ShareElev(elevator, esmChns)
 		}
