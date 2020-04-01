@@ -51,15 +51,18 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	go func() {
 		for {
 			if currentAllOrders != updatedLocalOrders {
-				if online {
-					if newCabOrdersOnly(id, &currentAllOrders, &updatedLocalOrders) {
-						esmChns.CurrentAllOrders <- updatedLocalOrders
-						currentAllOrders = updatedLocalOrders
-					}
-				} else {
+				if !online {
 					esmChns.CurrentAllOrders <- updatedLocalOrders
 					currentAllOrders = updatedLocalOrders
-				}
+					/*
+						if newCabOrdersOnly(id, &currentAllOrders, &updatedLocalOrders) {
+							esmChns.CurrentAllOrders <- updatedLocalOrders
+							currentAllOrders = updatedLocalOrders
+						}*/
+				} /*else {
+					esmChns.CurrentAllOrders <- updatedLocalOrders
+					currentAllOrders = updatedLocalOrders
+				}*/
 			}
 			time.Sleep(10 * time.Millisecond)
 		}
