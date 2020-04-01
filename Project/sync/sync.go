@@ -36,12 +36,8 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			select {
 			case elev = <-esmChns.Elev:
 				if updatedLocalOrders[id] != elev.Orders {
-					if online {
-						if masterAck {
-							updatedLocalOrders[id] = elev.Orders
-						} else {
-							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, updatedLocalOrders)
-						}
+					if online && !masterAck {
+						updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, updatedLocalOrders)
 					} else {
 						updatedLocalOrders[id] = elev.Orders
 					}
@@ -61,7 +57,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						currentAllOrders = updatedLocalOrders
 					}
 				} else {
-					updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
 					esmChns.CurrentAllOrders <- updatedLocalOrders
 					currentAllOrders = updatedLocalOrders
 				}
