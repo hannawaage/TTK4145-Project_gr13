@@ -50,7 +50,7 @@ func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config
 				if elev == id {
 					if currentAllOrders[elev][floor][btn] {
 						elevio.SetButtonLamp(btn, floor, true)
-						elevator.Orders[floor][btn] = true
+						//elevator.Orders[floor][btn] = true
 					}
 				} else {
 					if currentAllOrders[elev][floor][btn] && (btn != elevio.BT_Cab) {
