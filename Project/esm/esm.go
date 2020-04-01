@@ -33,7 +33,6 @@ func RunElevator(esmChns config.EsmChns, id int) {
 
 	for {
 		select {
-
 		case newButtonOrder := <-esmChns.Buttons:
 			if elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] == false { //Hvis ikke allerede en ordre
 				elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] = true

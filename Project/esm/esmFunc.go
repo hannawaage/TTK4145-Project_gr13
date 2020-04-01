@@ -42,6 +42,8 @@ func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config
 					if currentAllOrders[id][floor][btn] {
 						elevator.Orders[floor][btn] = true
 						fmt.Println("Current sier at jeg skal ta ordre i etasje ", floor)
+					} else {
+						elevator.Orders[floor][btn] = false
 					}
 				}
 			}
