@@ -27,7 +27,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		updatedLocalOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		allElevs           [config.NumElevs]config.Elevator
-		//online             bool
+		online             bool
 	)
 
 	go func() {
@@ -39,7 +39,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		}
 	}()
 
-	/*go func() {
+	go func() {
 		for {
 			if currentAllOrders[id] != elev.Orders {
 				if !online {
@@ -50,7 +50,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			}
 			time.Sleep(10 * time.Millisecond)
 		}
-	}()*/
+	}()
 
 	msgTimer := time.NewTimer(5 * time.Second)
 	msgTimer.Stop()
@@ -73,7 +73,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				if !contains(onlineIDs, recID) {
 					onlineIDs = append(onlineIDs, recID)
 					numPeers = len(onlineIDs)
-					//online = true
+					online = true
 					for i := 0; i < numPeers; i++ {
 						theID := onlineIDs[i]
 						if theID < masterID {
@@ -127,7 +127,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				onlineIDs = onlineIDs[:0]
 				receivedReceipt = receivedReceipt[:0]
 				masterID = id
-				//online = false
+				online = false
 				updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
 				esmChns.CurrentAllOrders <- updatedLocalOrders
 				currentAllOrders = updatedLocalOrders
