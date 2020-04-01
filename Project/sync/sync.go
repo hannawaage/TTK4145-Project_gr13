@@ -127,7 +127,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				onlineIDs = onlineIDs[:0]
 				receivedReceipt = receivedReceipt[:0]
 				masterID = id
-				online = false
+				//online = false
 				updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
 				esmChns.CurrentAllOrders <- updatedLocalOrders
 				currentAllOrders = updatedLocalOrders
