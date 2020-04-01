@@ -37,6 +37,7 @@ func RunElevator(esmChns config.EsmChns, id int) {
 
 		case newButtonOrder := <-esmChns.Buttons:
 			if elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] == false { //Hvis ikke allerede en ordre
+				fmt.Println("Ny ordre registrert")
 				elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] = true
 				go ShareElev(elevator, esmChns)
 				//elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] = false //Så ordren ikke påvirker esm før kostfunksjonen har evaluert den
