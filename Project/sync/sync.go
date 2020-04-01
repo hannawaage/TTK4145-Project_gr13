@@ -16,7 +16,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		fmt.Println(err)
 		localIP = "DISCONNECTED"
 	}
-
+	// Heihei
 	var (
 		numPeers           int
 		currentMsgID       int
