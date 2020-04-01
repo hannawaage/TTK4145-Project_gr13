@@ -26,13 +26,13 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		receivedReceipt    []int
 		updatedLocalOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
-		timeStamps         [config.NumFloors]time.Timer
+		timeStamps         [config.NumFloors]*time.Timer
 		allElevs           [config.NumElevs]config.Elevator
 		online             bool
 	)
 
 	for i := 0; i < config.NumFloors; i++ {
-		timeStamps[i] = *time.NewTimer(5 * time.Second)
+		timeStamps[i] = time.NewTimer(5 * time.Second)
 		timeStamps[i].Stop()
 	}
 
@@ -162,7 +162,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 }
 
-func setTimeStamps(prevTime *[config.NumFloors]time.Timer, current *[config.NumElevs][config.NumFloors][config.NumButtons]bool, updated *[config.NumElevs][config.NumFloors][config.NumButtons]bool) int {
+func setTimeStamps(prevTime *[config.NumFloors]*time.Timer, current *[config.NumElevs][config.NumFloors][config.NumButtons]bool, updated *[config.NumElevs][config.NumFloors][config.NumButtons]bool) int {
 	new := -1
 	for elev := 0; elev < config.NumElevs; elev++ {
 		for floor := 0; floor < config.NumFloors; floor++ {
