@@ -38,10 +38,10 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					if !(len(onlineIDs) > 0) {
 						updatedLocalOrders[id] = elev.Orders
 					} else {
-						if (!masterAck) && (id != masterID) {
-							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, updatedLocalOrders)
-						} else {
+						if masterAck {
 							updatedLocalOrders[id] = elev.Orders
+						} else {
+							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, updatedLocalOrders)
 						}
 					}
 				}
@@ -135,6 +135,9 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
+								if id == masterID {
+									masterAck = true
+								}
 							}
 						}
 					}
