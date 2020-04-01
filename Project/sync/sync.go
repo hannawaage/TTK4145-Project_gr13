@@ -122,29 +122,21 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				currentAllOrders = updatedLocalOrders
 			}
 		case <-timeStamps[0].C:
-			if online && id == masterID {
-				faultyElev := findFaultyElev(0, &currentAllOrders)
-				allElevs[faultyElev].State = config.Undefined
-				updatedLocalOrders = CostFunction(id, allElevs, onlineIDs)
-			}
+			updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
+			esmChns.CurrentAllOrders <- updatedLocalOrders
+			currentAllOrders = updatedLocalOrders
 		case <-timeStamps[1].C:
-			if online && id == masterID {
-				faultyElev := findFaultyElev(1, &currentAllOrders)
-				allElevs[faultyElev].State = config.Undefined
-				updatedLocalOrders = CostFunction(id, allElevs, onlineIDs)
-			}
+			updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
+			esmChns.CurrentAllOrders <- updatedLocalOrders
+			currentAllOrders = updatedLocalOrders
 		case <-timeStamps[2].C:
-			if online && id == masterID {
-				faultyElev := findFaultyElev(2, &currentAllOrders)
-				allElevs[faultyElev].State = config.Undefined
-				updatedLocalOrders = CostFunction(id, allElevs, onlineIDs)
-			}
+			updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
+			esmChns.CurrentAllOrders <- updatedLocalOrders
+			currentAllOrders = updatedLocalOrders
 		case <-timeStamps[3].C:
-			if online && id == masterID {
-				faultyElev := findFaultyElev(3, &currentAllOrders)
-				allElevs[faultyElev].State = config.Undefined
-				updatedLocalOrders = CostFunction(id, allElevs, onlineIDs)
-			}
+			updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
+			esmChns.CurrentAllOrders <- updatedLocalOrders
+			currentAllOrders = updatedLocalOrders
 		}
 	}
 
