@@ -106,11 +106,8 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						}
 					} else if recID == masterID {
 						if (currentAllOrders != updatedLocalOrders) && !masterAck {
-							// Hvis det er lokale endringer
 							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, updatedLocalOrders)
-							// Da sendes oppdatert liste til Master.
 						} else {
-							// Hvis det ikke er lokale endringer eller vi har sendt de lokale endringene og fått masterAck
 							updatedLocalOrders = incomming.AllOrders
 							if currentAllOrders != updatedLocalOrders {
 								esmChns.CurrentAllOrders <- updatedLocalOrders
@@ -136,6 +133,9 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
+								if id == masterID {
+									masterAck = true
+								}
 							}
 						}
 					}
