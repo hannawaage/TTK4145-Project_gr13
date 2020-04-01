@@ -35,22 +35,27 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			select {
 			case elev = <-esmChns.Elev:
 				allElevs[id] = elev
-			}
-		}
-	}()
-
-	go func() {
-		for {
-			if currentAllOrders[id] != elev.Orders {
 				if !online {
 					updatedLocalOrders[id] = elev.Orders
 					esmChns.CurrentAllOrders <- updatedLocalOrders
 					currentAllOrders = updatedLocalOrders
 				}
 			}
-			time.Sleep(10 * time.Millisecond)
 		}
 	}()
+	/*
+		go func() {
+			for {
+				if currentAllOrders[id] != elev.Orders {
+					if !online {
+						updatedLocalOrders[id] = elev.Orders
+						esmChns.CurrentAllOrders <- updatedLocalOrders
+						currentAllOrders = updatedLocalOrders
+					}
+				}
+				time.Sleep(10 * time.Millisecond)
+			}
+		}()*/
 
 	msgTimer := time.NewTimer(5 * time.Second)
 	msgTimer.Stop()
