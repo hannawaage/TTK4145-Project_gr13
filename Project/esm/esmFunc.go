@@ -25,12 +25,15 @@ func ShareElev(elevator config.Elevator, esmChns config.EsmChns) {
 
 func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool) [config.NumFloors][config.NumButtons]bool {
 	var btn elevio.ButtonType
+	fmt.Println("Lokal liste er: ")
+	fmt.Println(currentAllOrders[id])
 	for elev := 0; elev < config.NumElevs; elev++ {
 		for floor := 0; floor < config.NumFloors; floor++ {
 			for btn = 0; btn < config.NumButtons; btn++ {
 				if elev == id {
 					if currentAllOrders[elev][floor][btn] {
 						elevio.SetButtonLamp(btn, floor, true)
+						fmt.Println("Slår på lyset")
 						elevator.Orders[floor][btn] = true
 					} else {
 						elevio.SetButtonLamp(btn, floor, false)
