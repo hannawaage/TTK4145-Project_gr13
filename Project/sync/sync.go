@@ -128,7 +128,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				esmChns.CurrentAllOrders <- updatedLocalOrders
 				currentAllOrders = updatedLocalOrders
 				elev.Orders = currentAllOrders[id]
-				fmt.Println("Order timeout")
+				fmt.Println("Order  timeout")
 				orderTimeStamps = [config.NumFloors]int{}
 			}
 		}
