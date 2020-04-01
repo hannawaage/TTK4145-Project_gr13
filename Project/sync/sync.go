@@ -39,10 +39,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					if currentAllOrders[id] != elev.Orders {
 						updatedLocalOrders[id] = elev.Orders
 						esmChns.CurrentAllOrders <- updatedLocalOrders
-						updateTimeStamp(&orderTimeStamps, &currentAllOrders, &updatedLocalOrders)
-						if TimeStampTimeout(&orderTimeStamps) {
-							go func() { syncCh.OrderTimeout <- true }()
-						}
 						currentAllOrders = updatedLocalOrders
 					}
 				}
@@ -55,6 +51,10 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 	go func() {
 		for {
+			updateTimeStamp(&orderTimeStamps, &currentAllOrders, &updatedLocalOrders)
+			if TimeStampTimeout(&orderTimeStamps) {
+				go func() { syncCh.OrderTimeout <- true }()
+			}
 			currentMsgID = rand.Intn(256)
 			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, localIP, id}
 			syncCh.SendChn <- msg
@@ -87,10 +87,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 				if currentAllOrders != updatedLocalOrders {
 					esmChns.CurrentAllOrders <- updatedLocalOrders
-					updateTimeStamp(&orderTimeStamps, &currentAllOrders, &updatedLocalOrders)
-					if TimeStampTimeout(&orderTimeStamps) {
-						go func() { syncCh.OrderTimeout <- true }()
-					}
 					currentAllOrders = updatedLocalOrders
 				}
 				if incomming.IsReceipt {
