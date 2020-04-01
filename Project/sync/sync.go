@@ -139,25 +139,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				esmChns.CurrentAllOrders <- updatedLocalOrders
 				currentAllOrders = updatedLocalOrders
 			}
-		case <-timeStamps[0].C:
-			updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
-			esmChns.CurrentAllOrders <- updatedLocalOrders
-			currentAllOrders = updatedLocalOrders
-			elev.Orders = currentAllOrders[id]
-			fmt.Println("Order timeout")
-		case <-timeStamps[1].C:
-			updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
-			esmChns.CurrentAllOrders <- updatedLocalOrders
-			currentAllOrders = updatedLocalOrders
-			elev.Orders = currentAllOrders[id]
-			fmt.Println("Order timeout")
-		case <-timeStamps[2].C:
-			updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
-			esmChns.CurrentAllOrders <- updatedLocalOrders
-			currentAllOrders = updatedLocalOrders
-			elev.Orders = currentAllOrders[id]
-			fmt.Println("Order timeout")
-		case <-timeStamps[3].C:
+		case <-syncCh.OrderTimeout:
 			updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
 			esmChns.CurrentAllOrders <- updatedLocalOrders
 			currentAllOrders = updatedLocalOrders
@@ -165,5 +147,4 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			fmt.Println("Order timeout")
 		}
 	}
-
 }
