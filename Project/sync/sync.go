@@ -42,7 +42,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						esmChns.CurrentAllOrders <- updatedLocalOrders
 						floor := setTimeStamps(&timeStamps, &currentAllOrders, &updatedLocalOrders)
 						if !(floor < 0) {
-							timeStamps[floor].Reset(5 * time.Second)
+							go func() { timeStamps[floor].Reset(5 * time.Second) }()
 							fmt.Println("timer set for floor", floor)
 						} else {
 							fmt.Println("no timer set for floor", floor)
@@ -97,7 +97,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					currentAllOrders = updatedLocalOrders
 					floor := setTimeStamps(&timeStamps, &currentAllOrders, &updatedLocalOrders)
 					if !(floor < 0) {
-						timeStamps[floor].Reset(5 * time.Second)
+						go func() { timeStamps[floor].Reset(5 * time.Second) }()
 						fmt.Println("timer set for floor", floor)
 					} else {
 						fmt.Println("no timer set for floor", floor)
