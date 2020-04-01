@@ -95,9 +95,10 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				} else if recID == masterID {
 					updatedLocalOrders = incomming.AllOrders
 				}
-				esmChns.CurrentAllOrders <- updatedLocalOrders
-				currentAllOrders = updatedLocalOrders
-
+				if currentAllOrders != updatedLocalOrders {
+					esmChns.CurrentAllOrders <- updatedLocalOrders
+					currentAllOrders = updatedLocalOrders
+				}
 				if incomming.IsReceipt {
 					if incomming.MsgId == currentMsgID {
 						if !contains(receivedReceipt, recID) {
