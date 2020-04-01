@@ -34,7 +34,7 @@ func RunElevator(esmChns config.EsmChns, id int) {
 	for {
 		select {
 		case newButtonOrder := <-esmChns.Buttons:
-			if elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] == false { //Hvis ikke allerede en ordre
+			if elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] == false {
 				elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] = true
 				go ShareElev(elevator, esmChns)
 			}
