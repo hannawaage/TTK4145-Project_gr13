@@ -41,6 +41,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						updatedLocalOrders[id] = elev.Orders
 						esmChns.CurrentAllOrders <- updatedLocalOrders
 						currentAllOrders = updatedLocalOrders
+						timeStamps = setTimeStamps(timeStamps, &currentAllOrders, &updatedLocalOrders)
 					}
 				}
 			}
@@ -84,9 +85,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				if currentAllOrders != updatedLocalOrders {
 					esmChns.CurrentAllOrders <- updatedLocalOrders
 					currentAllOrders = updatedLocalOrders
-					if id == masterID {
-						timeStamps = setTimeStamps(timeStamps, &currentAllOrders, &updatedLocalOrders)
-					}
+					timeStamps = setTimeStamps(timeStamps, &currentAllOrders, &updatedLocalOrders)
 				}
 				if incomming.IsReceipt {
 					if incomming.MsgId == currentMsgID {
