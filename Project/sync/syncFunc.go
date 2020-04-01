@@ -131,7 +131,7 @@ func setTimeStamps(prevTime *[config.NumFloors]*time.Timer, current *[config.Num
 		for floor := 0; floor < config.NumFloors; floor++ {
 			for btn := 0; btn < config.NumButtons; btn++ {
 				if updated[elev][floor][btn] && !current[elev][floor][btn] {
-					prevTime[floor].Reset(10 * time.Second)
+					prevTime[floor].Reset(3 * time.Second)
 				} else if !updated[elev][floor][btn] && current[elev][floor][btn] {
 					prevTime[floor].Stop()
 				}
