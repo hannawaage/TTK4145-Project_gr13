@@ -73,7 +73,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				if !contains(onlineIDs, recID) {
 					onlineIDs = append(onlineIDs, recID)
 					numPeers = len(onlineIDs)
-					online = true
+					//online = true
 					for i := 0; i < numPeers; i++ {
 						theID := onlineIDs[i]
 						if theID < masterID {
