@@ -44,7 +44,6 @@ func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config
 						elevator.Orders[floor][btn] = true
 					} else {
 						elevator.Orders[floor][btn] = false
-						fmt.Println("Slettet ordre i etasje ", floor)
 					}
 				}
 			}
