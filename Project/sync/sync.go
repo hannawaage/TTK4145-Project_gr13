@@ -149,6 +149,9 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				masterID = id
 				receivedReceipt = receivedReceipt[:0]
 				numPeers = 0
+				updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
+				esmChns.CurrentAllOrders <- updatedLocalOrders
+				currentAllOrders = updatedLocalOrders
 			}
 		}
 	}
