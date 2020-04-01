@@ -45,19 +45,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			}
 		}
 	}()
-	/*
-		go func() {
-			for {
-				if currentAllOrders[id] != elev.Orders {
-					if !online {
-						updatedLocalOrders[id] = elev.Orders
-						esmChns.CurrentAllOrders <- updatedLocalOrders
-						currentAllOrders = updatedLocalOrders
-					}
-				}
-				time.Sleep(10 * time.Millisecond)
-			}
-		}()*/
 
 	msgTimer := time.NewTimer(5 * time.Second)
 	msgTimer.Stop()
@@ -88,14 +75,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						}
 					}
 				}
-				//////////
-				/*
-					Hvis master:
-					Kjør kostfunksjon
-					Oppdater egen heis
-					Ellers:
-					Motta nye ordre og oppdater egen heis
-				*/
 				allElevs[recID] = incomming.Elev
 				if id == masterID {
 					updatedLocalOrders = CostFunction(id, allElevs, onlineIDs)
