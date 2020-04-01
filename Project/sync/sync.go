@@ -145,10 +145,10 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			if numTimeouts > 2 {
 				fmt.Println("Three timeouts in a row")
 				numTimeouts = 0
-				onlineIDs = onlineIDs[:0]
-				masterID = id
-				receivedReceipt = receivedReceipt[:0]
 				numPeers = 0
+				onlineIDs = onlineIDs[:0]
+				receivedReceipt = receivedReceipt[:0]
+				masterID = id
 				updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
 				esmChns.CurrentAllOrders <- updatedLocalOrders
 				currentAllOrders = updatedLocalOrders
