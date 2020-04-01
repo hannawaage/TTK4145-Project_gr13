@@ -53,11 +53,11 @@ func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config
 }
 
 func ClearOrders(id int, elevator config.Elevator) ([config.NumFloors][config.NumButtons]bool, [config.NumElevs][config.NumFloors][config.NumButtons]bool) {
-	var b elevio.ButtonType
-	for b = 0; b < config.NumButtons; b++ {
-		elevator.Lights[id][elevator.Floor][b] = false
-		elevio.SetButtonLamp(b, elevator.Floor, false)
-		elevator.Orders[elevator.Floor][b] = false
+	var btn elevio.ButtonType
+	for btn = 0; btn < config.NumButtons; btn++ {
+		elevator.Lights[id][elevator.Floor][btn] = false
+		elevio.SetButtonLamp(btn, elevator.Floor, false)
+		elevator.Orders[elevator.Floor][btn] = false
 	}
 	return elevator.Orders, elevator.Lights
 }
