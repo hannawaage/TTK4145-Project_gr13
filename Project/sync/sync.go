@@ -89,9 +89,8 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 				if currentAllOrders != updatedLocalOrders {
 					esmChns.CurrentAllOrders <- updatedLocalOrders
-					currentAllOrders = updatedLocalOrders
 					setTimeStamps(&timeStamps, &currentAllOrders, &updatedLocalOrders)
-
+					currentAllOrders = updatedLocalOrders
 				}
 				if incomming.IsReceipt {
 					if incomming.MsgId == currentMsgID {
