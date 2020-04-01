@@ -1,44 +1,59 @@
 package main
 
-imporg (
-  "./driver-go/elevio"
-  "./StateMachine"
-  "fmt"
-  "./orders"
+import (
+	//"flag"
+	//"strconv"
+
+	"flag"
+	"strconv"
+
+	"../config"
+	. "../driver-go/elevio"
+	. "../esm"
+	"../network/bcast"
+	"../sync"
+	//	"time"
+	//"fmt"
 )
 
-func main(){
+func main() {
+	const NumElevs = config.NumElevs
+	const NumFloors = config.NumFloors
+	const NumButtons = config.NumButtons
+	esmChns := config.EsmChns{
+		Elev:             make(chan config.Elevator),
+		CurrentAllOrders: make(chan [NumElevs][NumFloors][NumButtons]bool),
+		Buttons:          make(chan ButtonEvent),
+		Floors:           make(chan int),
+	}
 
-    //numFloors := 4
+	var bcport string
+	var id string
+	flag.StringVar(&bcport, "bcport", "", "bcport of this peer")
+	flag.StringVar(&id, "id", "", "id of this peer")
+	flag.Parse()
 
-    //Finne master og backups, lagre ID
-    Init, finn peers:
-    - send udp "Hei jeg lever"
-    - lytt etter udp melding, legg til peers som svarer
-    - lagre ID = ip adresse 5 siffer fra peers
-    - sammenlign siste siffer ID:
-      hvis lavest -> master
-      ellers -> backup 
-    
+	idDig, _ := strconv.Atoi(id)
+	idDig--
 
-    elevio.Init("localhost:15657", NumFloors)
+	Init(bcport, NumFloors)
 
-    var d elevio.MotorDirection = elevio.MD_Stop
-    elevio.SetMotorDirection(d)
-    var dest int
-    var last_floor int
-    //lamps := make([]elevio.ButtonType, 1)
+	syncChns := config.SyncChns{
+		SendChn: make(chan config.Message),
+		RecChn:  make(chan config.Message),
+	}
 
-    OrderSignalChns := orders.SignalChns {
-      drv_buttons:    make(chan elevio.ButtonEvent),
-      drv_floors:    make(chan int)
-    }
+	bcastport := 16576
 
+	go bcast.Transmitter(bcastport, syncChns.SendChn)
+	go bcast.Receiver(bcastport, syncChns.RecChn)
+	go sync.Sync(idDig, syncChns, esmChns)
 
-    go elevio.PollButtons(drv_buttons/*, drv_destination*/)
-    go elevio.PollFloorSensor(drv_floors)
-    //go elevio.PollObstructionSwitch(drv_obstr)
-    //go elevio.PollStopButton(drv_stop)
-    go orders.UpdateOrders(OrderSignalChns)
-    go esm.RunElevator()
+	go PollButtons(esmChns.Buttons)
+	go PollFloorSensor(esmChns.Floors)
+	go RunElevator(esmChns, idDig)
+
+	for {
+
+	}
 }
