@@ -62,8 +62,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			syncCh.SendChn <- msg
 			msgTimer.Reset(800 * time.Millisecond)
 			time.Sleep(1 * time.Second)
-			fmt.Println(timeStamps)
-			time.Sleep(1 * time.Second)
 		}
 	}()
 	for {
