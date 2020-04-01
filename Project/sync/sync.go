@@ -27,7 +27,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		updatedLocalOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		allElevs           [config.NumElevs]config.Elevator
-		masterAck          bool
 		online             bool
 	)
 
@@ -35,15 +34,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		for {
 			select {
 			case elev = <-esmChns.Elev:
-				if updatedLocalOrders[id] != elev.Orders {
-					if online && !masterAck {
-						updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, updatedLocalOrders)
-					} else {
-						updatedLocalOrders[id] = elev.Orders
-					}
-				}
-				allElevs[id].Orders = updatedLocalOrders[id]
-				masterAck = false
+				allElevs[id] = elev
 			}
 		}
 	}()
@@ -54,15 +45,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				if !online {
 					esmChns.CurrentAllOrders <- updatedLocalOrders
 					currentAllOrders = updatedLocalOrders
-					/*
-						if newCabOrdersOnly(id, &currentAllOrders, &updatedLocalOrders) {
-							esmChns.CurrentAllOrders <- updatedLocalOrders
-							currentAllOrders = updatedLocalOrders
-						}*/
-				} /*else {
-					esmChns.CurrentAllOrders <- updatedLocalOrders
-					currentAllOrders = updatedLocalOrders
-				}*/
+				}
 			}
 			time.Sleep(10 * time.Millisecond)
 		}
@@ -97,30 +80,25 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						}
 					}
 				}
+				//////////
+				/*
+					Hvis master:
+					Kjør kostfunksjon
+					Oppdater egen heis
+					Ellers:
+					Motta nye ordre og oppdater egen heis
+				*/
+				allElevs[recID] = incomming.Elev
 				if id == masterID {
-					allElevs[recID] = incomming.Elev
-					allElevs[recID].Orders = incomming.AllOrders[recID]
 					updatedLocalOrders = CostFunction(id, allElevs, onlineIDs)
-					if currentAllOrders != updatedLocalOrders {
-						esmChns.CurrentAllOrders <- updatedLocalOrders
-						currentAllOrders = updatedLocalOrders
-					}
 				} else if recID == masterID {
-					if (currentAllOrders != updatedLocalOrders) && !masterAck {
-						updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, updatedLocalOrders)
-					} else {
-						updatedLocalOrders = incomming.AllOrders
-						if currentAllOrders != updatedLocalOrders {
-							esmChns.CurrentAllOrders <- updatedLocalOrders
-							currentAllOrders = updatedLocalOrders
-						}
-					}
+					updatedLocalOrders = incomming.AllOrders
 				}
+				esmChns.CurrentAllOrders <- updatedLocalOrders
+				currentAllOrders = updatedLocalOrders
+
 				if incomming.IsReceipt {
 					if incomming.MsgId == currentMsgID {
-						if recID == masterID {
-							masterAck = true
-						}
 						if !contains(receivedReceipt, recID) {
 							receivedReceipt = append(receivedReceipt, recID)
 							if len(receivedReceipt) == numPeers {

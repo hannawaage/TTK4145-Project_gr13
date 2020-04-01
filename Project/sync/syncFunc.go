@@ -113,8 +113,7 @@ func newCabOrdersOnly(id int, current *[config.NumElevs][config.NumFloors][confi
 }
 
 func mergeLocalOrders(id int, local *[config.NumFloors][config.NumButtons]bool, incomming [config.NumElevs][config.NumFloors][config.NumButtons]bool) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
-	var merged [config.NumElevs][config.NumFloors][config.NumButtons]bool
-	merged = incomming
+	merged := incomming
 	for floor := 0; floor < config.NumFloors; floor++ {
 		for btn := 0; btn < config.NumButtons-1; btn++ {
 			if local[floor][btn] {
