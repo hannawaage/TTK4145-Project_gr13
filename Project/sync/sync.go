@@ -26,12 +26,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	go func() {
 		for {
 			select {
-			case b := <-syncCh.Online:
-				if b {
-					fmt.Println("Yaho, we are online!")
-				} else {
-					fmt.Println("Boo, we are offline.")
-				}
 			case elev = <-esmChns.Elev:
 				if updatedLocalOrders[id] != elev.Orders {
 					if !(len(onlineIPs) > 0) {
@@ -94,7 +88,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				if !contains(onlineIPs, recID) {
 					onlineIPs = append(onlineIPs, recID)
 					numPeers = len(onlineIPs)
-					syncCh.Online <- true
 					for i := 0; i < numPeers; i++ {
 						theID := onlineIPs[i]
 						if theID < masterID {

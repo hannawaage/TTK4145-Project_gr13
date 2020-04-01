@@ -51,8 +51,6 @@ type EsmChns struct {
 }
 
 type SyncChns struct {
-	SendChn       chan Message
-	RecChn        chan Message
-	Online        chan bool
-	OfflineUpdate chan [NumElevs][NumFloors][NumButtons]bool
+	SendChn chan Message
+	RecChn  chan Message
 }
