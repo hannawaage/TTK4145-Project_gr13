@@ -68,3 +68,59 @@ func costCalculator(id int, order elevio.ButtonEvent, allElevs *[config.NumElevs
 	}
 	return bestElevator
 }
+
+func contains(elevs []int, new int) bool {
+	for _, a := range elevs {
+		if a == new {
+			return true
+		}
+	}
+	return false
+}
+
+func mergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumButtons]bool) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
+	var merged [config.NumElevs][config.NumFloors][config.NumButtons]bool
+	merged[id] = all[id]
+	for elev := 0; elev < config.NumElevs; elev++ {
+		if elev == id {
+			continue
+		}
+		for floor := 0; floor < config.NumFloors; floor++ {
+			for btn := 0; btn < config.NumButtons; btn++ {
+				if all[elev][floor][btn] && btn != config.NumButtons-1 {
+					merged[id][floor][btn] = true
+					merged[elev][floor][btn] = false
+				}
+			}
+		}
+	}
+	return merged
+}
+
+func newCabOrdersOnly(id int, current *[config.NumElevs][config.NumFloors][config.NumButtons]bool, updated *[config.NumElevs][config.NumFloors][config.NumButtons]bool) bool {
+	var newCab bool
+	for floor := 0; floor < config.NumFloors; floor++ {
+		for btn := 0; btn < config.NumButtons-1; btn++ {
+			if current[id][floor][btn] != updated[id][floor][btn] {
+				return false
+			}
+		}
+		if current[id][floor][2] != updated[id][floor][2] {
+			newCab = true
+		}
+	}
+	return newCab
+}
+
+func mergeLocalOrders(id int, local *[config.NumFloors][config.NumButtons]bool, incomming [config.NumElevs][config.NumFloors][config.NumButtons]bool) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
+	var merged [config.NumElevs][config.NumFloors][config.NumButtons]bool
+	merged = incomming
+	for floor := 0; floor < config.NumFloors; floor++ {
+		for btn := 0; btn < config.NumButtons-1; btn++ {
+			if local[floor][btn] {
+				merged[id][floor][btn] = true
+			}
+		}
+	}
+	return merged
+}
