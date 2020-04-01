@@ -54,7 +54,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	go func() {
 		for {
 			if currentAllOrders != updatedLocalOrders {
-				if !online {
+				if !(len(onlineIPs) == numPeers) {
 					updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
 					esmChns.CurrentAllOrders <- updatedLocalOrders
 					currentAllOrders = updatedLocalOrders
