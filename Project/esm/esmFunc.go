@@ -33,7 +33,6 @@ func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config
 				if elev == id {
 					if currentAllOrders[elev][floor][btn] {
 						elevio.SetButtonLamp(btn, floor, true)
-						fmt.Println("Slår på lyset")
 						elevator.Orders[floor][btn] = true
 					} else {
 						elevio.SetButtonLamp(btn, floor, false)
@@ -42,7 +41,6 @@ func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config
 				} else {
 					if currentAllOrders[elev][floor][btn] && (btn != elevio.BT_Cab) {
 						elevio.SetButtonLamp(btn, floor, true)
-						fmt.Println("Slår på lyset")
 					} else {
 						elevio.SetButtonLamp(btn, floor, false)
 					}
@@ -58,6 +56,7 @@ func ClearOrders(id int, elevator config.Elevator) [config.NumFloors][config.Num
 	var b elevio.ButtonType
 	for b = 0; b < config.NumButtons; b++ {
 		elevio.SetButtonLamp(b, elevator.Floor, false)
+		fmt.Println("Slår av lyset")
 		elevator.Orders[elevator.Floor][b] = false
 	}
 	return elevator.Orders
