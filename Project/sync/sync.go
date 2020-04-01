@@ -31,6 +31,11 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		online             bool
 	)
 
+	for i := 0; i < config.NumFloors; i++ {
+		timeStamps[i] = *time.NewTimer(5 * time.Second)
+		timeStamps[i].Stop()
+	}
+
 	go func() {
 		for {
 			select {
@@ -56,10 +61,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 	msgTimer := time.NewTimer(5 * time.Second)
 	msgTimer.Stop()
-	for i := 0; i < config.NumFloors; i++ {
-		timeStamps[i] = *time.NewTimer(5 * time.Second)
-		timeStamps[i].Stop()
-	}
 
 	go func() {
 		for {
