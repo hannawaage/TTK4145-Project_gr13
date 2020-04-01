@@ -45,13 +45,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					if currentAllOrders[id] != elev.Orders {
 						updatedLocalOrders[id] = elev.Orders
 						esmChns.CurrentAllOrders <- updatedLocalOrders
-						floor := setTimeStamps(&timeStamps, &currentAllOrders, &updatedLocalOrders)
-						if !(floor < 0) {
-							go func() { timeStamps[floor].Reset(5 * time.Second) }()
-							fmt.Println("timer set for floor", floor)
-						} else {
-							fmt.Println("no timer set for floor", floor)
-						}
+						setTimeStamps(&timeStamps, &currentAllOrders, &updatedLocalOrders)
 						currentAllOrders = updatedLocalOrders
 					}
 				}
@@ -96,13 +90,8 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				if currentAllOrders != updatedLocalOrders {
 					esmChns.CurrentAllOrders <- updatedLocalOrders
 					currentAllOrders = updatedLocalOrders
-					floor := setTimeStamps(&timeStamps, &currentAllOrders, &updatedLocalOrders)
-					if !(floor < 0) {
-						go func() { timeStamps[floor].Reset(5 * time.Second) }()
-						fmt.Println("timer set for floor", floor)
-					} else {
-						fmt.Println("no timer set for floor", floor)
-					}
+					setTimeStamps(&timeStamps, &currentAllOrders, &updatedLocalOrders)
+
 				}
 				if incomming.IsReceipt {
 					if incomming.MsgId == currentMsgID {
@@ -162,17 +151,18 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 }
 
-func setTimeStamps(prevTime *[config.NumFloors]*time.Timer, current *[config.NumElevs][config.NumFloors][config.NumButtons]bool, updated *[config.NumElevs][config.NumFloors][config.NumButtons]bool) int {
-	new := -1
+func setTimeStamps(prevTime *[config.NumFloors]*time.Timer, current *[config.NumElevs][config.NumFloors][config.NumButtons]bool, updated *[config.NumElevs][config.NumFloors][config.NumButtons]bool) {
 	for elev := 0; elev < config.NumElevs; elev++ {
 		for floor := 0; floor < config.NumFloors; floor++ {
 			for btn := 0; btn < config.NumButtons; btn++ {
 				if updated[elev][floor][btn] && !current[elev][floor][btn] {
-					new = floor
-					return new
+					prevTime[floor].Reset(5 * time.Second)
+					fmt.Println("timer set for floor ", floor)
+				} else if !updated[elev][floor][btn] && current[elev][floor][btn] {
+					prevTime[floor].Stop()
+					fmt.Println("Timer stopped for floor ", floor)
 				}
 			}
 		}
 	}
-	return new
 }
