@@ -11,12 +11,6 @@ import (
 
 func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	masterID := id
-	localIP, err := localip.LocalIP()
-	if err != nil {
-		fmt.Println(err)
-		localIP = "DISCONNECTED"
-	}
-
 	var (
 		numPeers           int
 		elev               config.Elevator
@@ -29,10 +23,15 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		allElevs           [config.NumElevs]config.Elevator
 		masterAck          bool
 	)
-
 	go func() {
 		for {
 			select {
+			case b := <-syncCh.Online:
+				if b {
+					fmt.Println("Yaho, we are online!")
+				} else {
+					fmt.Println("Boo, we are offline.")
+				}
 			case elev = <-esmChns.Elev:
 				if updatedLocalOrders[id] != elev.Orders {
 					updatedLocalOrders[id] = elev.Orders
@@ -43,10 +42,16 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		}
 	}()
 
+	localIP, err := localip.LocalIP()
+	if err != nil {
+		fmt.Println(err)
+		localIP = "DISCONNECTED"
+	}
+
 	go func() {
 		for {
 			if currentAllOrders != updatedLocalOrders {
-				if !(len(onlineIPs) > 0) {
+				if !(len(onlineIPs) == numPeers) {
 					updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
 					esmChns.CurrentAllOrders <- updatedLocalOrders
 					currentAllOrders = updatedLocalOrders
@@ -63,7 +68,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 	msgTimer := time.NewTimer(5 * time.Second)
 	msgTimer.Stop()
-
 	go func() {
 		for {
 			currentMsgID = rand.Intn(256)
@@ -82,6 +86,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				if !contains(onlineIPs, recID) {
 					onlineIPs = append(onlineIPs, recID)
 					numPeers = len(onlineIPs)
+					syncCh.Online <- true
 					for i := 0; i < numPeers; i++ {
 						theID := onlineIPs[i]
 						if theID < masterID {
@@ -100,8 +105,11 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						}
 					} else if recID == masterID {
 						if (currentAllOrders != updatedLocalOrders) && !masterAck {
+							// Hvis det er lokale endringer
 							updatedLocalOrders = mergeLocalOrders(id, &elev.Orders, updatedLocalOrders)
+							// Da sendes oppdatert liste til Master.
 						} else {
+							// Hvis det ikke er lokale endringer eller vi har sendt de lokale endringene og fått masterAck
 							updatedLocalOrders = incomming.AllOrders
 							if currentAllOrders != updatedLocalOrders {
 								esmChns.CurrentAllOrders <- updatedLocalOrders
