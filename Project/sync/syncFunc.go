@@ -34,7 +34,7 @@ func costCalculator(id int, order elevio.ButtonEvent, allElevs *[config.NumElevs
 	minCost := (config.NumButtons * config.NumFloors) * config.NumElevs
 	bestElevator := onlineIDs[0]
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
-		if !contains(onlineIDs, allElevs[elevator].Id) && (elevator != id) {
+		if (!contains(onlineIDs, allElevs[elevator].Id) && (elevator != id)) || (allElevs[elevator].State == config.Undefined) {
 			continue
 		}
 		cost := order.Floor - allElevs[elevator].Floor

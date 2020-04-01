@@ -26,6 +26,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		receivedReceipt    []int
 		updatedLocalOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
+		timeStamps         [config.NumFloors]time.Timer
 		allElevs           [config.NumElevs]config.Elevator
 		online             bool
 	)
@@ -58,7 +59,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			time.Sleep(1 * time.Second)
 		}
 	}()
-
 	for {
 		select {
 		case incomming := <-syncCh.RecChn:
@@ -84,6 +84,9 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				if currentAllOrders != updatedLocalOrders {
 					esmChns.CurrentAllOrders <- updatedLocalOrders
 					currentAllOrders = updatedLocalOrders
+					if id == masterID {
+						timeStamps = setTimeStamps(timeStamps, &currentAllOrders, &updatedLocalOrders)
+					}
 				}
 				if incomming.IsReceipt {
 					if incomming.MsgId == currentMsgID {
@@ -118,6 +121,59 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				esmChns.CurrentAllOrders <- updatedLocalOrders
 				currentAllOrders = updatedLocalOrders
 			}
+		case <-timeStamps[0].C:
+			if online && id == masterID {
+				faultyElev := findFaultyElev(0, &currentAllOrders)
+				allElevs[faultyElev].State = config.Undefined
+				updatedLocalOrders = CostFunction(id, allElevs, onlineIDs)
+			}
+		case <-timeStamps[1].C:
+			if online && id == masterID {
+				faultyElev := findFaultyElev(1, &currentAllOrders)
+				allElevs[faultyElev].State = config.Undefined
+				updatedLocalOrders = CostFunction(id, allElevs, onlineIDs)
+			}
+		case <-timeStamps[2].C:
+			if online && id == masterID {
+				faultyElev := findFaultyElev(2, &currentAllOrders)
+				allElevs[faultyElev].State = config.Undefined
+				updatedLocalOrders = CostFunction(id, allElevs, onlineIDs)
+			}
+		case <-timeStamps[3].C:
+			if online && id == masterID {
+				faultyElev := findFaultyElev(3, &currentAllOrders)
+				allElevs[faultyElev].State = config.Undefined
+				updatedLocalOrders = CostFunction(id, allElevs, onlineIDs)
+			}
 		}
 	}
+
+}
+
+func setTimeStamps(prevTime [config.NumFloors]time.Timer, current *[config.NumElevs][config.NumFloors][config.NumButtons]bool, updated *[config.NumElevs][config.NumFloors][config.NumButtons]bool) [config.NumFloors]time.Timer {
+	for elev := 0; elev < config.NumElevs; elev++ {
+		for floor := 0; floor < config.NumFloors; floor++ {
+			for btn := 0; btn < config.NumButtons; btn++ {
+				if updated[elev][floor][btn] && !current[elev][floor][btn] {
+					prevTime[floor].Reset(5 * time.Second)
+				} else if !updated[elev][floor][btn] && current[elev][floor][btn] {
+					prevTime[floor].Stop()
+				}
+			}
+		}
+	}
+	return prevTime
+}
+
+func findFaultyElev(floor int, current *[config.NumElevs][config.NumFloors][config.NumButtons]bool) int {
+	faulty := 0
+	for elev := 0; elev < config.NumElevs; elev++ {
+		for btn := 0; btn < config.NumButtons; btn++ {
+			if current[elev][floor][btn] {
+				faulty = elev
+				return faulty
+			}
+		}
+	}
+	return faulty
 }
