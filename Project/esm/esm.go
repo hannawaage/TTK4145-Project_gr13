@@ -49,6 +49,7 @@ func RunElevator(esmChns config.EsmChns, id int) {
 				elevio.SetMotorDirection(elevator.Dir)
 				if elevator.Dir == elevio.MD_Stop {
 					if OrdersInFloor(elevator) {
+						elevator.Orders, elevator.Lights = ClearOrders(id, elevator)
 						elevator.State = DoorOpen
 						elevio.SetDoorOpenLamp(true)
 						doorTimedOut.Reset(3 * time.Second)
