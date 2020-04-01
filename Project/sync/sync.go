@@ -90,7 +90,9 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					esmChns.CurrentAllOrders <- updatedLocalOrders
 					currentAllOrders = updatedLocalOrders
 					floor := setTimeStamps(&timeStamps, &currentAllOrders, &updatedLocalOrders)
-					timeStamps[floor].Reset(5 * time.Second)
+					if !(floor < 0) {
+						timeStamps[floor].Reset(5 * time.Second)
+					}
 				}
 				if incomming.IsReceipt {
 					if incomming.MsgId == currentMsgID {
@@ -151,6 +153,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 }
 
 func setTimeStamps(prevTime *[config.NumFloors]time.Timer, current *[config.NumElevs][config.NumFloors][config.NumButtons]bool, updated *[config.NumElevs][config.NumFloors][config.NumButtons]bool) int {
+	new := -1
 	for elev := 0; elev < config.NumElevs; elev++ {
 		for floor := 0; floor < config.NumFloors; floor++ {
 			for btn := 0; btn < config.NumButtons; btn++ {
@@ -160,4 +163,5 @@ func setTimeStamps(prevTime *[config.NumFloors]time.Timer, current *[config.NumE
 			}
 		}
 	}
+	return new
 }
