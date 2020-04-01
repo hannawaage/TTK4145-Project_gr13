@@ -39,8 +39,9 @@ func main() {
 	Init(bcport, NumFloors)
 
 	syncChns := config.SyncChns{
-		SendChn: make(chan config.Message),
-		RecChn:  make(chan config.Message),
+		SendChn:      make(chan config.Message),
+		RecChn:       make(chan config.Message),
+		OrderTimeout: make(chan bool),
 	}
 
 	bcastport := 16576

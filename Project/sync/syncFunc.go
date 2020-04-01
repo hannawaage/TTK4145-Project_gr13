@@ -1,6 +1,8 @@
 package sync
 
 import (
+	"time"
+
 	"../config"
 	"../driver-go/elevio"
 )
@@ -122,4 +124,18 @@ func mergeLocalOrders(id int, local *[config.NumFloors][config.NumButtons]bool, 
 		}
 	}
 	return merged
+}
+
+func setTimeStamps(prevTime *[config.NumFloors]*time.Timer, current *[config.NumElevs][config.NumFloors][config.NumButtons]bool, updated *[config.NumElevs][config.NumFloors][config.NumButtons]bool) {
+	for elev := 0; elev < config.NumElevs; elev++ {
+		for floor := 0; floor < config.NumFloors; floor++ {
+			for btn := 0; btn < config.NumButtons; btn++ {
+				if updated[elev][floor][btn] && !current[elev][floor][btn] {
+					prevTime[floor].Reset(10 * time.Second)
+				} else if !updated[elev][floor][btn] && current[elev][floor][btn] {
+					prevTime[floor].Stop()
+				}
+			}
+		}
+	}
 }
