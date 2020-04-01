@@ -45,7 +45,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						}
 					}
 				}
-				allElevs[id] = elev
+				allElevs[id].Orders = updatedLocalOrders[id]
 				masterAck = false
 			}
 		}
