@@ -93,6 +93,8 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					if !(floor < 0) {
 						timeStamps[floor].Reset(5 * time.Second)
 						fmt.Println("timer set for floor", floor)
+					} else {
+						fmt.Println("no timer set for floor", floor)
 					}
 				}
 				if incomming.IsReceipt {
