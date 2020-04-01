@@ -40,8 +40,8 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					if currentAllOrders[id] != elev.Orders {
 						updatedLocalOrders[id] = elev.Orders
 						esmChns.CurrentAllOrders <- updatedLocalOrders
-						currentAllOrders = updatedLocalOrders
 						timeStamps = setTimeStamps(timeStamps, &currentAllOrders, &updatedLocalOrders)
+						currentAllOrders = updatedLocalOrders
 					}
 				}
 			}
