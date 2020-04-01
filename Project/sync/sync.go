@@ -38,8 +38,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				if !online {
 					if currentAllOrders[id] != elev.Orders {
 						updatedLocalOrders[id] = elev.Orders
-						fmt.Println("Updated local orders to: ")
-						fmt.Println(updatedLocalOrders[id])
 						esmChns.CurrentAllOrders <- updatedLocalOrders
 						currentAllOrders = updatedLocalOrders
 					}
