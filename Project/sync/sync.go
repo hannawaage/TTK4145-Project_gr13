@@ -52,7 +52,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	msgTimer.Stop()
 	for i := 0; i < config.NumFloors; i++ {
 		timeStamps[i] = *time.NewTimer(5 * time.Second)
-		//timeStamps[i].Stop()
+		timeStamps[i].Stop()
 	}
 
 	go func() {
@@ -89,7 +89,8 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				if currentAllOrders != updatedLocalOrders {
 					esmChns.CurrentAllOrders <- updatedLocalOrders
 					currentAllOrders = updatedLocalOrders
-					setTimeStamps(&timeStamps, &currentAllOrders, &updatedLocalOrders)
+					floor := setTimeStamps(&timeStamps, &currentAllOrders, &updatedLocalOrders)
+					timeStamps[floor].Reset(5 * time.Second)
 				}
 				if incomming.IsReceipt {
 					if incomming.MsgId == currentMsgID {
@@ -149,16 +150,12 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 }
 
-func setTimeStamps(prevTime *[config.NumFloors]time.Timer, current *[config.NumElevs][config.NumFloors][config.NumButtons]bool, updated *[config.NumElevs][config.NumFloors][config.NumButtons]bool) {
+func setTimeStamps(prevTime *[config.NumFloors]time.Timer, current *[config.NumElevs][config.NumFloors][config.NumButtons]bool, updated *[config.NumElevs][config.NumFloors][config.NumButtons]bool) int {
 	for elev := 0; elev < config.NumElevs; elev++ {
 		for floor := 0; floor < config.NumFloors; floor++ {
 			for btn := 0; btn < config.NumButtons; btn++ {
 				if updated[elev][floor][btn] && !current[elev][floor][btn] {
-					prevTime[floor].Reset(5 * time.Second)
-					fmt.Println("Timer reset on floor", floor)
-				} else if !updated[elev][floor][btn] && current[elev][floor][btn] {
-					prevTime[floor].Stop()
-					fmt.Println("Timer stopped on floor", floor)
+					return floor
 				}
 			}
 		}
