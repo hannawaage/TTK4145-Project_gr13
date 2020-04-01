@@ -37,7 +37,6 @@ func RunElevator(esmChns config.EsmChns, id int) {
 			if elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] == false { //Hvis ikke allerede en ordre
 				elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] = true
 				go ShareElev(elevator, esmChns)
-				//elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] = false //Så ordren ikke påvirker esm før kostfunksjonen har evaluert den
 			}
 
 		case currentAllOrders := <-esmChns.CurrentAllOrders:
@@ -53,7 +52,6 @@ func RunElevator(esmChns config.EsmChns, id int) {
 						elevator.State = DoorOpen
 						elevio.SetDoorOpenLamp(true)
 						doorTimedOut.Reset(3 * time.Second)
-						//elevator.Orders = ClearOrders(id, elevator)
 					}
 				} else {
 					elevator.State = Moving
