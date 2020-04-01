@@ -1,14 +1,10 @@
-package elevsm
+package esm
 
 import (
-	. "../config"
-	. "../driver-go/elevio"
-
-	//  . "../timer"
-
 	"time"
 
-	. "./esmFunctions"
+	. "../config"
+	. "../driver-go/elevio"
 )
 
 func RunElevator(esmChns EsmChns, id int) {

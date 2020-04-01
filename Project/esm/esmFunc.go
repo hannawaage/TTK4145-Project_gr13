@@ -1,10 +1,10 @@
-package esmFunctions
+package esm
 
 import (
 	"fmt"
 
-	"../../config"
-	"../../driver-go/elevio"
+	"../config"
+	"../driver-go/elevio"
 )
 
 // Funksjoner som begynner med stor forbokstav kan kun brukes utenfor modulen, eks UpdateOrders, motsatt for funksjoner med liten forbokstav
