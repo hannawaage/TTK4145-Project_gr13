@@ -71,6 +71,7 @@ func ClearOrders(id int, elevator config.Elevator) [config.NumFloors][config.Num
 	var btn elevio.ButtonType
 	for btn = 0; btn < config.NumButtons; btn++ {
 		elevio.SetButtonLamp(btn, elevator.Floor, false)
+		fmt.Println("Slår av lys")
 		elevator.Orders[elevator.Floor][btn] = false
 	}
 	return elevator.Orders
