@@ -144,7 +144,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		case <-msgTimer.C:
 			numTimeouts++
 			if numTimeouts > 2 {
-				syncCh.Online <- false
 				fmt.Println("Three timeouts in a row")
 				numTimeouts = 0
 				onlineIPs = onlineIPs[:0]
