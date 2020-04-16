@@ -54,7 +54,5 @@ func main() {
 	go PollFloorSensor(esmChns.Floors)
 	go RunElevator(esmChns, idDig)
 
-	for {
-
-	}
+	select{}
 }
