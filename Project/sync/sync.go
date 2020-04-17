@@ -18,9 +18,9 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	masterID := id
 
 	var (
-		numPeers           int
-		currentMsgID       int
-		numTimeouts        int
+		numPeers     int
+		currentMsgID int
+		//numTimeouts        int
 		elev               config.Elevator
 		onlineIDs          []int
 		receivedReceipt    []int
