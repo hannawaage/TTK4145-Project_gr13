@@ -18,9 +18,8 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	masterID := id
 
 	var (
-		numPeers     int
-		currentMsgID int
-		//numTimeouts        int
+		numPeers           int
+		currentMsgID       int
 		elev               config.Elevator
 		onlineIDs          []int
 		receivedReceipt    []int
@@ -95,7 +94,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						if !contains(receivedReceipt, recID) {
 							receivedReceipt = append(receivedReceipt, recID)
 							if len(receivedReceipt) == numPeers {
-								//numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
 							}
@@ -110,8 +108,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 			}
 		case <-msgTimer.C:
-			fmt.Println("TTimeout")
-			//numTimeouts = 0
+			fmt.Println("Timeout")
 			numPeers = 0
 			onlineIDs = onlineIDs[:0]
 			receivedReceipt = receivedReceipt[:0]
@@ -120,10 +117,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
 			esmChns.CurrentAllOrders <- updatedLocalOrders
 			currentAllOrders = updatedLocalOrders
-			/*numTimeouts++
-			if numTimeouts > 2 {
-
-			}*/
 		case timeout := <-syncCh.OrderTimeout:
 			if timeout {
 				updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
