@@ -34,7 +34,6 @@ type Message struct {
 	AllOrders [NumElevs][NumFloors][NumButtons]bool
 	MsgId     int
 	IsReceipt bool
-	LocalIP   string
 	LocalID   int
 }
 
