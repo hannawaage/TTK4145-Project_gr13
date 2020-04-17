@@ -5,18 +5,12 @@ import (
 	"../driver-go/elevio"
 )
 
-const (
-	Undefined = config.Undefined
-	Idle      = config.Idle
-	Moving    = config.Moving
-	DoorOpen  = config.DoorOpen
-)
-
-func CostFunction(id int, allElevs [NumElevs]config.Elevator, onlineIDs []int) [NumElevs][NumFloors][NumButtons]bool {
-	var allElevsMat [NumElevs][NumFloors][NumButtons]bool
+// CostFunction tar inn en allElevs, id, lage ny
+func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs []int) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
+	var allElevsMat [config.NumElevs][config.NumFloors][config.NumButtons]bool
 	bestElevator := allElevs[0].Id
-	for elevator := 0; elevator < NumElevs; elevator++ {
-		for floor := 0; floor < NumFloors; floor++ {
+	for elevator := 0; elevator < config.NumElevs; elevator++ {
+		for floor := 0; floor < config.NumFloors; floor++ {
 			for button := elevio.BT_HallUp; button < elevio.BT_Cab; button++ {
 				if allElevs[elevator].Orders[floor][button] == true {
 					order := elevio.ButtonEvent{
@@ -30,21 +24,21 @@ func CostFunction(id int, allElevs [NumElevs]config.Elevator, onlineIDs []int) [
 			}
 		}
 	}
-	for elevator := 0; elevator < NumElevs; elevator++ {
+	for elevator := 0; elevator < config.NumElevs; elevator++ {
 		allElevsMat[elevator] = allElevs[elevator].Orders
 	}
 	return allElevsMat
 }
 
-func costCalculator(id int, order elevio.ButtonEvent, allElevs *[NumElevs]config.Elevator, onlineIDs []int) int {
-	minCost := (NumButtons * NumFloors) * NumElevs
+func costCalculator(id int, order elevio.ButtonEvent, allElevs *[config.NumElevs]config.Elevator, onlineIDs []int) int {
+	minCost := (config.NumButtons * config.NumFloors) * config.NumElevs
 	bestElevator := onlineIDs[0]
-	for elevator := 0; elevator < NumElevs; elevator++ {
-		if (!contains(onlineIDs, allElevs[elevator].Id) && (elevator != id)) || (allElevs[elevator].State == Undefined) {
+	for elevator := 0; elevator < config.NumElevs; elevator++ {
+		if (!contains(onlineIDs, allElevs[elevator].Id) && (elevator != id)) || (allElevs[elevator].State == config.Undefined) {
 			continue
 		}
 		cost := order.Floor - allElevs[elevator].Floor
-		if (cost == 0) && (allElevs[elevator].State != Moving) {
+		if (cost == 0) && (allElevs[elevator].State != config.Moving) {
 			bestElevator = elevator
 			return bestElevator
 		}
@@ -59,11 +53,11 @@ func costCalculator(id int, order elevio.ButtonEvent, allElevs *[NumElevs]config
 				cost += 3
 			}
 		}
-		if cost == 0 && allElevs[elevator].State == Moving {
+		if cost == 0 && allElevs[elevator].State == config.Moving {
 			cost += 4
 		}
 
-		if allElevs[elevator].State == DoorOpen {
+		if allElevs[elevator].State == config.DoorOpen {
 			cost++
 		}
 
@@ -84,16 +78,16 @@ func contains(elevs []int, new int) bool {
 	return false
 }
 
-func mergeAllOrders(id int, all [NumElevs][NumFloors][NumButtons]bool) [NumElevs][NumFloors][NumButtons]bool {
-	var merged [NumElevs][NumFloors][NumButtons]bool
+func mergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumButtons]bool) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
+	var merged [config.NumElevs][config.NumFloors][config.NumButtons]bool
 	merged[id] = all[id]
-	for elev := 0; elev < NumElevs; elev++ {
+	for elev := 0; elev < config.NumElevs; elev++ {
 		if elev == id {
 			continue
 		}
-		for floor := 0; floor < NumFloors; floor++ {
-			for btn := 0; btn < NumButtons; btn++ {
-				if all[elev][floor][btn] && btn != NumButtons-1 {
+		for floor := 0; floor < config.NumFloors; floor++ {
+			for btn := 0; btn < config.NumButtons; btn++ {
+				if all[elev][floor][btn] && btn != config.NumButtons-1 {
 					merged[id][floor][btn] = true
 					merged[elev][floor][btn] = false
 				}
@@ -103,10 +97,37 @@ func mergeAllOrders(id int, all [NumElevs][NumFloors][NumButtons]bool) [NumElevs
 	return merged
 }
 
-func updateTimeStamp(timeStamps *[NumFloors]int, current *[NumElevs][NumFloors][NumButtons]bool, updated *[NumElevs][NumFloors][NumButtons]bool) {
-	for elev := 0; elev < NumElevs; elev++ {
-		for floor := 0; floor < NumFloors; floor++ {
-			for btn := 0; btn < NumButtons; btn++ {
+func newCabOrdersOnly(id int, current *[config.NumElevs][config.NumFloors][config.NumButtons]bool, updated *[config.NumElevs][config.NumFloors][config.NumButtons]bool) bool {
+	var newCab bool
+	for floor := 0; floor < config.NumFloors; floor++ {
+		for btn := 0; btn < config.NumButtons-1; btn++ {
+			if current[id][floor][btn] != updated[id][floor][btn] {
+				return false
+			}
+		}
+		if current[id][floor][2] != updated[id][floor][2] {
+			newCab = true
+		}
+	}
+	return newCab
+}
+
+func mergeLocalOrders(id int, local *[config.NumFloors][config.NumButtons]bool, incomming [config.NumElevs][config.NumFloors][config.NumButtons]bool) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
+	merged := incomming
+	for floor := 0; floor < config.NumFloors; floor++ {
+		for btn := 0; btn < config.NumButtons-1; btn++ {
+			if local[floor][btn] {
+				merged[id][floor][btn] = true
+			}
+		}
+	}
+	return merged
+}
+
+func updateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElevs][config.NumFloors][config.NumButtons]bool, updated *[config.NumElevs][config.NumFloors][config.NumButtons]bool) {
+	for elev := 0; elev < config.NumElevs; elev++ {
+		for floor := 0; floor < config.NumFloors; floor++ {
+			for btn := 0; btn < config.NumButtons; btn++ {
 				if updated[elev][floor][btn] {
 					timeStamps[floor]++
 				} else if !updated[elev][floor][btn] && current[elev][floor][btn] {
@@ -117,9 +138,9 @@ func updateTimeStamp(timeStamps *[NumFloors]int, current *[NumElevs][NumFloors][
 	}
 }
 
-func TimeStampTimeout(timeStamps *[NumFloors]int) bool {
-	for floor := 0; floor < NumFloors; floor++ {
-		if timeStamps[floor] > 20 {
+func TimeStampTimeout(timeStamps *[config.NumFloors]int) bool {
+	for floor := 0; floor < config.NumFloors; floor++ {
+		if timeStamps[floor] > 10 {
 			return true
 		}
 	}

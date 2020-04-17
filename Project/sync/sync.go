@@ -6,27 +6,27 @@ import (
 	"time"
 
 	"../config"
-)
-
-const (
-	NumElevs   = config.NumElevs
-	NumFloors  = config.NumFloors
-	NumButtons = config.NumButtons
+	"../network/localip"
 )
 
 func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	masterID := id
-
+	localIP, err := localip.LocalIP()
+	if err != nil {
+		fmt.Println(err)
+		localIP = "DISCONNECTED"
+	}
 	var (
 		numPeers           int
 		currentMsgID       int
+		numTimeouts        int
 		elev               config.Elevator
 		onlineIDs          []int
 		receivedReceipt    []int
-		updatedLocalOrders [NumElevs][NumFloors][NumButtons]bool
-		currentAllOrders   [NumElevs][NumFloors][NumButtons]bool
-		orderTimeStamps    [NumFloors]int
-		allElevs           [NumElevs]config.Elevator
+		updatedLocalOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
+		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
+		orderTimeStamps    [config.NumFloors]int
+		allElevs           [config.NumElevs]config.Elevator
 		online             bool
 	)
 
@@ -56,9 +56,9 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				go func() { syncCh.OrderTimeout <- true }()
 			}
 			currentMsgID = rand.Intn(256)
-			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, id}
+			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, localIP, id}
 			syncCh.SendChn <- msg
-			msgTimer.Reset(500 * time.Millisecond)
+			msgTimer.Reset(800 * time.Millisecond)
 			time.Sleep(1 * time.Second)
 		}
 	}()
@@ -94,13 +94,14 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						if !contains(receivedReceipt, recID) {
 							receivedReceipt = append(receivedReceipt, recID)
 							if len(receivedReceipt) == numPeers {
+								numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
 							}
 						}
 					}
 				} else {
-					msg := config.Message{elev, updatedLocalOrders, incomming.MsgId, true, id}
+					msg := config.Message{elev, updatedLocalOrders, incomming.MsgId, true, localIP, id}
 					for i := 0; i < 5; i++ {
 						syncCh.SendChn <- msg
 						time.Sleep(10 * time.Millisecond)
@@ -108,15 +109,19 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 			}
 		case <-msgTimer.C:
-			fmt.Println("Timeout")
-			numPeers = 0
-			onlineIDs = onlineIDs[:0]
-			receivedReceipt = receivedReceipt[:0]
-			masterID = id
-			online = false
-			updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
-			esmChns.CurrentAllOrders <- updatedLocalOrders
-			currentAllOrders = updatedLocalOrders
+			numTimeouts++
+			if numTimeouts > 2 {
+				fmt.Println("Three timeouts in a row")
+				numTimeouts = 0
+				numPeers = 0
+				onlineIDs = onlineIDs[:0]
+				receivedReceipt = receivedReceipt[:0]
+				masterID = id
+				online = false
+				updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
+				esmChns.CurrentAllOrders <- updatedLocalOrders
+				currentAllOrders = updatedLocalOrders
+			}
 		case timeout := <-syncCh.OrderTimeout:
 			if timeout {
 				updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
