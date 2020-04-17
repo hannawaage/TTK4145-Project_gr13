@@ -110,19 +110,20 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 			}
 		case <-msgTimer.C:
-			numTimeouts++
+			fmt.Println("TTimeout")
+			numTimeouts = 0
+			numPeers = 0
+			onlineIDs = onlineIDs[:0]
+			receivedReceipt = receivedReceipt[:0]
+			masterID = id
+			online = false
+			updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
+			esmChns.CurrentAllOrders <- updatedLocalOrders
+			currentAllOrders = updatedLocalOrders
+			/*numTimeouts++
 			if numTimeouts > 2 {
-				fmt.Println("Three timeouts in a row")
-				numTimeouts = 0
-				numPeers = 0
-				onlineIDs = onlineIDs[:0]
-				receivedReceipt = receivedReceipt[:0]
-				masterID = id
-				online = false
-				updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
-				esmChns.CurrentAllOrders <- updatedLocalOrders
-				currentAllOrders = updatedLocalOrders
-			}
+
+			}*/
 		case timeout := <-syncCh.OrderTimeout:
 			if timeout {
 				updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
