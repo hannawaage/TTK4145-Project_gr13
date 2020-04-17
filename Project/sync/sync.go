@@ -9,6 +9,12 @@ import (
 	"../network/localip"
 )
 
+const (
+	NumElevs   = config.NumElevs
+	NumFloors  = config.NumFloors
+	NumButtons = config.NumButtons
+)
+
 func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	masterID := id
 	localIP, err := localip.LocalIP()
@@ -23,10 +29,10 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		elev               config.Elevator
 		onlineIDs          []int
 		receivedReceipt    []int
-		updatedLocalOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
-		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
-		orderTimeStamps    [config.NumFloors]int
-		allElevs           [config.NumElevs]config.Elevator
+		updatedLocalOrders [NumElevs][NumFloors][NumButtons]bool
+		currentAllOrders   [NumElevs][NumFloors][NumButtons]bool
+		orderTimeStamps    [NumFloors]int
+		allElevs           [NumElevs]config.Elevator
 		online             bool
 	)
 

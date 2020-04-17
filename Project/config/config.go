@@ -3,7 +3,7 @@ package config
 import (
 	"time"
 
-	. "../driver-go/elevio"
+	"../driver-go/elevio"
 )
 
 // Passe på at de ulike modulene ikke importerer hverandre, designe som et hieraki.
@@ -25,7 +25,7 @@ const (
 type Elevator struct {
 	Id     int
 	Floor  int
-	Dir    MotorDirection
+	Dir    elevio.MotorDirection
 	State  ElevState
 	Orders [NumFloors][NumButtons]bool
 	Lights [NumElevs][NumFloors][NumButtons]bool
@@ -42,7 +42,7 @@ type Message struct {
 
 type EsmChns struct {
 	CurrentAllOrders chan [NumElevs][NumFloors][NumButtons]bool
-	Buttons          chan ButtonEvent
+	Buttons          chan elevio.ButtonEvent
 	Floors           chan int
 	Elev             chan Elevator
 	OrderAbove       chan bool
