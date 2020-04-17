@@ -6,8 +6,6 @@ import (
 	"../driver-go/elevio"
 )
 
-// Passe på at de ulike modulene ikke importerer hverandre, designe som et hieraki.
-
 const DoorOpenTime = 3000 * time.Millisecond
 const NumElevs = 3
 const NumButtons = 3

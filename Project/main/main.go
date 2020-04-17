@@ -12,27 +12,13 @@ import (
 )
 
 func main() {
-	const NumElevs = config.NumElevs
-	const NumFloors = config.NumFloors
-	const NumButtons = config.NumButtons
 
 	esmChns := config.EsmChns{
 		Elev:             make(chan config.Elevator),
-		CurrentAllOrders: make(chan [NumElevs][NumFloors][NumButtons]bool),
+		CurrentAllOrders: make(chan [config.NumElevs][config.NumFloors][config.NumButtons]bool),
 		Buttons:          make(chan elevio.ButtonEvent),
 		Floors:           make(chan int),
 	}
-
-	var bcport string
-	var id string
-	flag.StringVar(&bcport, "bcport", "", "bcport of this peer")
-	flag.StringVar(&id, "id", "", "id of this peer")
-	flag.Parse()
-
-	idDig, _ := strconv.Atoi(id)
-	idDig--
-
-	elevio.Init(bcport, NumFloors)
 
 	syncChns := config.SyncChns{
 		SendChn:      make(chan config.Message),
@@ -40,6 +26,15 @@ func main() {
 		OrderTimeout: make(chan bool),
 	}
 
+	var bcport string
+	var id string
+	flag.StringVar(&bcport, "bcport", "", "bcport of this peer")
+	flag.StringVar(&id, "id", "", "id of this peer")
+	flag.Parse()
+	idDig, _ := strconv.Atoi(id)
+	idDig--
+
+	elevio.Init(bcport, config.NumFloors)
 	bcastport := 16576
 
 	go bcast.Transmitter(bcastport, syncChns.SendChn)

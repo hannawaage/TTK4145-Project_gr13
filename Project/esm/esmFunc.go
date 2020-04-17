@@ -23,18 +23,18 @@ func ShareElev(elevator config.Elevator, esmChns config.EsmChns) {
 	esmChns.Elev <- elevator
 }
 
-func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool) ([config.NumFloors][config.NumButtons]bool, [config.NumElevs][config.NumFloors][config.NumButtons]bool) {
+func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [NumElevs][NumFloors][NumButtons]bool) ([NumFloors][NumButtons]bool, [NumElevs][NumFloors][NumButtons]bool) {
 	var btn elevio.ButtonType
-	for elev := 0; elev < config.NumElevs; elev++ {
-		for floor := 0; floor < config.NumFloors; floor++ {
-			for btn = 0; btn < config.NumButtons; btn++ {
+	for elev := 0; elev < NumElevs; elev++ {
+		for floor := 0; floor < NumFloors; floor++ {
+			for btn = 0; btn < NumButtons; btn++ {
 				if !currentAllOrders[elev][floor][btn] && elevator.Lights[elev][floor][btn] {
 					elevator.Lights[elev][floor][btn] = false
 					if !elevator.Orders[floor][btn] {
 						elevio.SetButtonLamp(btn, floor, false)
 					}
 				}
-				if currentAllOrders[elev][floor][btn] && !(elev != id && btn == config.NumButtons-1) {
+				if currentAllOrders[elev][floor][btn] && !(elev != id && btn == NumButtons-1) {
 					elevator.Lights[elev][floor][btn] = true
 					elevio.SetButtonLamp(btn, floor, true)
 				}
@@ -51,9 +51,9 @@ func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config
 	return elevator.Orders, elevator.Lights
 }
 
-func ClearOrders(id int, elevator config.Elevator) ([config.NumFloors][config.NumButtons]bool, [config.NumElevs][config.NumFloors][config.NumButtons]bool) {
+func ClearOrders(id int, elevator config.Elevator) ([NumFloors][NumButtons]bool, [NumElevs][NumFloors][NumButtons]bool) {
 	var btn elevio.ButtonType
-	for btn = 0; btn < config.NumButtons; btn++ {
+	for btn = 0; btn < NumButtons; btn++ {
 		elevator.Lights[id][elevator.Floor][btn] = false
 		elevio.SetButtonLamp(btn, elevator.Floor, false)
 		elevator.Orders[elevator.Floor][btn] = false
@@ -103,8 +103,8 @@ func ShouldStop(elevator config.Elevator) bool {
 }
 
 func ordersAbove(elevator config.Elevator) bool {
-	for floor := elevator.Floor + 1; floor < config.NumFloors; floor++ {
-		for btn := 0; btn < config.NumButtons; btn++ {
+	for floor := elevator.Floor + 1; floor < NumFloors; floor++ {
+		for btn := 0; btn < NumButtons; btn++ {
 			if elevator.Orders[floor][btn] {
 				return true
 			}
@@ -115,7 +115,7 @@ func ordersAbove(elevator config.Elevator) bool {
 
 func ordersBelow(elevator config.Elevator) bool {
 	for floor := 0; floor < elevator.Floor; floor++ {
-		for btn := 0; btn < config.NumButtons; btn++ {
+		for btn := 0; btn < NumButtons; btn++ {
 			if elevator.Orders[floor][btn] {
 				return true
 			}
@@ -125,7 +125,7 @@ func ordersBelow(elevator config.Elevator) bool {
 }
 
 func OrdersInFloor(elevator config.Elevator) bool {
-	for btn := 0; btn < config.NumButtons; btn++ {
+	for btn := 0; btn < NumButtons; btn++ {
 		if elevator.Orders[elevator.Floor][btn] {
 			return true
 		}
