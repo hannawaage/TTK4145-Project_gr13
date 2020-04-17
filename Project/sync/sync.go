@@ -95,7 +95,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						if !contains(receivedReceipt, recID) {
 							receivedReceipt = append(receivedReceipt, recID)
 							if len(receivedReceipt) == numPeers {
-								numTimeouts = 0
+								//numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
 							}
@@ -111,7 +111,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			}
 		case <-msgTimer.C:
 			fmt.Println("TTimeout")
-			numTimeouts = 0
+			//numTimeouts = 0
 			numPeers = 0
 			onlineIDs = onlineIDs[:0]
 			receivedReceipt = receivedReceipt[:0]
