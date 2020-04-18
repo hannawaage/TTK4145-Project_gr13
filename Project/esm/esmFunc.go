@@ -30,32 +30,19 @@ func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config
 		for floor := 0; floor < config.NumFloors; floor++ {
 			for btn = 0; btn < config.NumButtons; btn++ {
 				if elev == id {
+					if elevator.Orders[floor][btn] != currentAllOrders[id][floor][btn] {
+						elevio.SetButtonLamp(btn, floor, currentAllOrders[id][floor][btn])
+					}
 					elevator.Orders[floor][btn] = currentAllOrders[id][floor][btn]
 					elevator.Lights[elev][floor][btn] = elevator.Orders[floor][btn]
-					elevio.SetButtonLamp(btn, floor, elevator.Orders[floor][btn])
-					/*
-						if elevator.Orders[floor][btn] != currentAllOrders[id][floor][btn] {
-							elevator.Orders[floor][btn] = currentAllOrders[id][floor][btn]
-							elevator.Lights[elev][floor][btn] = elevator.Orders[floor][btn]
-							elevio.SetButtonLamp(btn, floor, elevator.Orders[floor][btn])
-							fmt.Println("Slår på lys fra current")
-						} else {
-							fmt.Println("De er ikke ulike")
-							fmt.Println(elevator.Orders)
-							fmt.Println(currentAllOrders[id])
-						}*/
 				} else {
 					if btn != config.NumButtons-1 {
+						if elevator.Orders[floor][btn] != currentAllOrders[id][floor][btn] {
+							elevio.SetButtonLamp(btn, floor, currentAllOrders[id][floor][btn])
+						}
 						elevator.Orders[floor][btn] = currentAllOrders[id][floor][btn]
 						elevator.Lights[elev][floor][btn] = elevator.Orders[floor][btn]
-						elevio.SetButtonLamp(btn, floor, elevator.Orders[floor][btn])
 					}
-					/*
-						if (elevator.Lights[elev][floor][btn] != currentAllOrders[elev][floor][btn]) && (btn != config.NumButtons-1) {
-							elevator.Lights[elev][floor][btn] = currentAllOrders[elev][floor][btn]
-							elevio.SetButtonLamp(btn, floor, currentAllOrders[elev][floor][btn])
-							fmt.Println("Slår av lys fra current")
-						}*/
 				}
 			}
 		}
