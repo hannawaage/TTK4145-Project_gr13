@@ -42,7 +42,7 @@ func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config
 					elevator.Lights[elev][floor][btn] = false
 					elevio.SetButtonLamp(btn, floor, false)
 				}
-				if currentAllOrders[elev][floor][btn] && !(elev != id && btn == config.NumButtons-1) {
+				if currentAllOrders[elev][floor][btn] && (elev == id || btn != config.NumButtons-1) {
 					elevator.Lights[elev][floor][btn] = true
 					elevio.SetButtonLamp(btn, floor, true)
 				}
