@@ -27,7 +27,7 @@ func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config
 	var btn elevio.ButtonType
 
 	/*
-		Hvis det ikke er ordre i currentAll og lyset er på, skal lyset slås av
+		Hvis current og det enten er denne heisen,
 	*/
 
 	for elev := 0; elev < config.NumElevs; elev++ {
@@ -36,17 +36,25 @@ func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config
 				if elev == id {
 					if elevator.Orders[floor][btn] != currentAllOrders[id][floor][btn] {
 						elevator.Orders[floor][btn] = currentAllOrders[id][floor][btn]
+						if currentAllOrders[elev][floor][btn] {
+							elevator.Lights[elev][floor][btn] = true
+							elevio.SetButtonLamp(btn, floor, true)
+						} else {
+							elevator.Lights[elev][floor][btn] = false
+							elevio.SetButtonLamp(btn, floor, false)
+						}
+					}
+				} else {
+					if (elevator.Lights[elev][floor][btn] != currentAllOrders[elev][floor][btn]) && (btn != config.NumButtons-1) {
+						if currentAllOrders[elev][floor][btn] {
+							elevator.Lights[elev][floor][btn] = true
+							elevio.SetButtonLamp(btn, floor, true)
+						} else {
+							elevator.Lights[elev][floor][btn] = false
+							elevio.SetButtonLamp(btn, floor, false)
+						}
 					}
 				}
-				if !currentAllOrders[elev][floor][btn] && elevator.Lights[elev][floor][btn] {
-					elevator.Lights[elev][floor][btn] = false
-					elevio.SetButtonLamp(btn, floor, false)
-				}
-				if currentAllOrders[elev][floor][btn] && (elev == id || btn != config.NumButtons-1) {
-					elevator.Lights[elev][floor][btn] = true
-					elevio.SetButtonLamp(btn, floor, true)
-				}
-
 			}
 		}
 	}
