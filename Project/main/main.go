@@ -53,8 +53,8 @@ func main() {
 	go PollFloorSensor(esmChns.Floors)
 	go RunElevator(esmChns, idDig)
 
-	select {}
-	//for {
+	//select {}
+	for {
 
-	//}
+	}
 }
