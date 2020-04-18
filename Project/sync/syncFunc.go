@@ -29,6 +29,7 @@ func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs [
 						Button: button,
 					}
 					bestElevator = costCalculator(id, order, &allElevs, onlineIDs)
+					fmt.Println("BestElev", bestElevator)
 					allElevs[elevator].Orders[order.Floor][order.Button] = false
 					allElevs[bestElevator].Orders[order.Floor][order.Button] = true
 				}
