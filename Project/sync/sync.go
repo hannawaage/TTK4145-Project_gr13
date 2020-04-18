@@ -82,11 +82,11 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				allElevs[recID] = incomming.Elev
 				if id == masterID {
 					updatedLocalOrders = CostFunction(id, allElevs, onlineIDs)
-					fmt.Println("Kjører cost")
 				} else if recID == masterID {
 					updatedLocalOrders = incomming.AllOrders
 				}
 				if currentAllOrders != updatedLocalOrders {
+					fmt.Println("Endrer min current")
 					esmChns.CurrentAllOrders <- updatedLocalOrders
 					currentAllOrders = updatedLocalOrders
 				}
