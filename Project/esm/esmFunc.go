@@ -25,14 +25,20 @@ func ShareElev(elevator config.Elevator, esmChns config.EsmChns) {
 
 func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool) ([config.NumFloors][config.NumButtons]bool, [config.NumElevs][config.NumFloors][config.NumButtons]bool) {
 	var btn elevio.ButtonType
+
+	/*
+		Hvis det ikke er ordre i currentAll og lyset er på, skal lyset slås av
+	*/
+
 	for elev := 0; elev < config.NumElevs; elev++ {
 		for floor := 0; floor < config.NumFloors; floor++ {
 			for btn = 0; btn < config.NumButtons; btn++ {
 				if !currentAllOrders[elev][floor][btn] && elevator.Lights[elev][floor][btn] {
 					elevator.Lights[elev][floor][btn] = false
-					if !elevator.Orders[floor][btn] {
-						elevio.SetButtonLamp(btn, floor, false)
-					}
+					elevio.SetButtonLamp(btn, floor, false)
+					/*if !elevator.Orders[floor][btn] {
+
+					}*/
 				}
 				if currentAllOrders[elev][floor][btn] && !(elev != id && btn == config.NumButtons-1) {
 					elevator.Lights[elev][floor][btn] = true
