@@ -41,7 +41,8 @@ func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs [
 	afterSum := sumOrders(allElevsMat)
 
 	if afterSum < prevSum {
-		fmt.Println("HOLA")
+		fmt.Println("Prevsum", prevSum)
+		fmt.Println("Aftersum", afterSum)
 	}
 	return allElevsMat
 }
