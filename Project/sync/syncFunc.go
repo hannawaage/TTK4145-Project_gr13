@@ -7,6 +7,10 @@ import (
 
 // CostFunction tar inn en allElevs, id, lage ny
 func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs []int) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
+	/*
+		Hvis heisen ordren ligger hos er i bevegelse, skal den ikke forandres
+	*/
+
 	var allElevsMat [config.NumElevs][config.NumFloors][config.NumButtons]bool
 	bestElevator := allElevs[0].Id
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
@@ -17,9 +21,12 @@ func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs [
 						Floor:  floor,
 						Button: button,
 					}
-					bestElevator = costCalculator(id, order, &allElevs, onlineIDs)
-					allElevs[elevator].Orders[order.Floor][order.Button] = false
-					allElevs[bestElevator].Orders[order.Floor][order.Button] = true
+					if !(allElevs[elevator].State == config.Moving) {
+						bestElevator = costCalculator(id, order, &allElevs, onlineIDs)
+						allElevs[elevator].Orders[order.Floor][order.Button] = false
+						allElevs[bestElevator].Orders[order.Floor][order.Button] = true
+					}
+
 				}
 			}
 		}
