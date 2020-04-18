@@ -86,7 +86,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					updatedLocalOrders = incomming.AllOrders
 				}
 				if currentAllOrders != updatedLocalOrders {
-					fmt.Println("Endrer min current")
 					esmChns.CurrentAllOrders <- updatedLocalOrders
 					currentAllOrders = updatedLocalOrders
 				}
