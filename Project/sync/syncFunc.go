@@ -17,7 +17,7 @@ func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs [
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
 		allElevsMat[elevator] = allElevs[elevator].Orders
 	}
-
+	fmt.Println(allElevsMat)
 	prevSum := sumOrders(allElevsMat)
 	bestElevator := allElevs[0].Id
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
@@ -43,6 +43,7 @@ func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs [
 	if afterSum < prevSum {
 		fmt.Println("Prevsum", prevSum)
 		fmt.Println("Aftersum", afterSum)
+		fmt.Println(allElevsMat)
 	}
 	return allElevsMat
 }
