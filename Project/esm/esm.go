@@ -61,7 +61,7 @@ func RunElevator(esmChns config.EsmChns, id int) {
 				elevator.Orders, elevator.Lights = ClearOrders(id, elevator)
 			default:
 			}
-			go ShareElev(elevator, esmChns)
+			//go ShareElev(elevator, esmChns)
 
 		case newFloor := <-esmChns.Floors:
 			elevator.Floor = newFloor

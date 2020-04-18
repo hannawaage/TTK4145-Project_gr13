@@ -21,12 +21,9 @@ func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs [
 						Floor:  floor,
 						Button: button,
 					}
-					if !(allElevs[elevator].State == config.Moving) {
-						bestElevator = costCalculator(id, order, &allElevs, onlineIDs)
-						allElevs[elevator].Orders[order.Floor][order.Button] = false
-						allElevs[bestElevator].Orders[order.Floor][order.Button] = true
-					}
-
+					bestElevator = costCalculator(id, order, &allElevs, onlineIDs)
+					allElevs[elevator].Orders[order.Floor][order.Button] = false
+					allElevs[bestElevator].Orders[order.Floor][order.Button] = true
 				}
 			}
 		}
