@@ -41,6 +41,10 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						esmChns.CurrentAllOrders <- updatedLocalOrders
 						currentAllOrders = updatedLocalOrders
 					}
+				} else {
+					if id == masterID {
+						updatedLocalOrders = CostFunction(id, allElevs, onlineIDs)
+					}
 				}
 			}
 		}
