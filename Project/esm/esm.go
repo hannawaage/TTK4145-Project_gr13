@@ -1,7 +1,6 @@
 package esm
 
 import (
-	"fmt"
 	"time"
 
 	"../config"
@@ -46,8 +45,6 @@ func RunElevator(esmChns config.EsmChns, id int) {
 			case Undefined:
 			case Idle:
 				elevator.Dir = SetDirection(elevator)
-				fmt.Println("Jeg har mottat ordrelisten")
-				fmt.Println(elevator.Orders)
 				elevio.SetMotorDirection(elevator.Dir)
 				if elevator.Dir == elevio.MD_Stop {
 					if OrdersInFloor(elevator) {
