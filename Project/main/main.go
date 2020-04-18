@@ -39,9 +39,8 @@ func main() {
 	Init(bcport, NumFloors)
 
 	syncChns := config.SyncChns{
-		SendChn:      make(chan config.Message),
-		RecChn:       make(chan config.Message),
-		OrderTimeout: make(chan bool),
+		SendChn: make(chan config.Message),
+		RecChn:  make(chan config.Message),
 	}
 
 	bcastport := 16576
@@ -54,5 +53,8 @@ func main() {
 	go PollFloorSensor(esmChns.Floors)
 	go RunElevator(esmChns, idDig)
 
-	select{}
+	select {}
+	//for {
+
+	//}
 }

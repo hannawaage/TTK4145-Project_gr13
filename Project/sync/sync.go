@@ -16,6 +16,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		fmt.Println(err)
 		localIP = "DISCONNECTED"
 	}
+
 	var (
 		numPeers           int
 		currentMsgID       int
@@ -25,7 +26,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		receivedReceipt    []int
 		updatedLocalOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
 		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
-		orderTimeStamps    [config.NumFloors]int
 		allElevs           [config.NumElevs]config.Elevator
 		online             bool
 	)
@@ -51,10 +51,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 	go func() {
 		for {
-			updateTimeStamp(&orderTimeStamps, &currentAllOrders, &updatedLocalOrders)
-			if TimeStampTimeout(&orderTimeStamps) {
-				go func() { syncCh.OrderTimeout <- true }()
-			}
 			currentMsgID = rand.Intn(256)
 			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, localIP, id}
 			syncCh.SendChn <- msg
@@ -121,15 +117,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
 				esmChns.CurrentAllOrders <- updatedLocalOrders
 				currentAllOrders = updatedLocalOrders
-			}
-		case timeout := <-syncCh.OrderTimeout:
-			if timeout {
-				updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
-				esmChns.CurrentAllOrders <- updatedLocalOrders
-				currentAllOrders = updatedLocalOrders
-				elev.Orders = currentAllOrders[id]
-				fmt.Println("Order  timeout")
-				orderTimeStamps = [config.NumFloors]int{}
 			}
 		}
 	}
