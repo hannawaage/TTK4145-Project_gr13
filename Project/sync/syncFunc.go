@@ -1,6 +1,8 @@
 package sync
 
 import (
+	"fmt"
+
 	"../config"
 	"../driver-go/elevio"
 )
@@ -12,6 +14,11 @@ func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs [
 	*/
 
 	var allElevsMat [config.NumElevs][config.NumFloors][config.NumButtons]bool
+	for elevator := 0; elevator < config.NumElevs; elevator++ {
+		allElevsMat[elevator] = allElevs[elevator].Orders
+	}
+
+	prevSum := sumOrders(allElevsMat)
 	bestElevator := allElevs[0].Id
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
 		for floor := 0; floor < config.NumFloors; floor++ {
@@ -30,6 +37,11 @@ func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs [
 	}
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
 		allElevsMat[elevator] = allElevs[elevator].Orders
+	}
+	afterSum := sumOrders(allElevsMat)
+
+	if afterSum < prevSum {
+		fmt.Println("HOLA")
 	}
 	return allElevsMat
 }
@@ -99,21 +111,6 @@ func mergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumBu
 		}
 	}
 	return merged
-}
-
-func newCabOrdersOnly(id int, current *[config.NumElevs][config.NumFloors][config.NumButtons]bool, updated *[config.NumElevs][config.NumFloors][config.NumButtons]bool) bool {
-	var newCab bool
-	for floor := 0; floor < config.NumFloors; floor++ {
-		for btn := 0; btn < config.NumButtons-1; btn++ {
-			if current[id][floor][btn] != updated[id][floor][btn] {
-				return false
-			}
-		}
-		if current[id][floor][2] != updated[id][floor][2] {
-			newCab = true
-		}
-	}
-	return newCab
 }
 
 func sumOrders(incomming [config.NumElevs][config.NumFloors][config.NumButtons]bool) int {
