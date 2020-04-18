@@ -33,7 +33,7 @@ func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs [
 func costCalculator(id int, order elevio.ButtonEvent, allElevs *[config.NumElevs]config.Elevator, onlineIDs []int) int {
 	minCost := (config.NumButtons * config.NumFloors) * config.NumElevs
 	bestElevator := onlineIDs[0]
-	numMoving := 0
+	//numMoving := 0
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
 		if !contains(onlineIDs, allElevs[elevator].Id) && (elevator != id) {
 			continue
@@ -55,7 +55,7 @@ func costCalculator(id int, order elevio.ButtonEvent, allElevs *[config.NumElevs
 			}
 		}
 		if cost == 0 && allElevs[elevator].State == config.Moving {
-			cost += 10
+			cost += 3
 		}
 
 		if allElevs[elevator].State == config.DoorOpen {
@@ -68,12 +68,13 @@ func costCalculator(id int, order elevio.ButtonEvent, allElevs *[config.NumElevs
 		}
 
 		if allElevs[elevator].State == config.Moving {
-			numMoving++
+			continue
 		}
 	}
-	if numMoving > 1 {
-		bestElevator = id
-	}
+	/*
+		if numMoving > 1 {
+			bestElevator = id
+		}*/
 	return bestElevator
 }
 
