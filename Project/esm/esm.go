@@ -1,6 +1,7 @@
 package esm
 
 import (
+	"fmt"
 	"time"
 
 	"../config"
@@ -40,6 +41,7 @@ func RunElevator(esmChns config.EsmChns, id int) {
 			}
 
 		case currentAllOrders := <-esmChns.CurrentAllOrders:
+			fmt.Println("Fått ny current")
 			elevator.Orders, elevator.Lights = SetCurrentOrders(id, elevator, currentAllOrders)
 			switch elevator.State {
 			case Undefined:
