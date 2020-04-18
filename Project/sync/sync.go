@@ -6,16 +6,10 @@ import (
 	"time"
 
 	"../config"
-	"../network/localip"
 )
 
 func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	masterID := id
-	localIP, err := localip.LocalIP()
-	if err != nil {
-		fmt.Println(err)
-		localIP = "DISCONNECTED"
-	}
 
 	var (
 		numPeers         int
@@ -51,7 +45,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	go func() {
 		for {
 			currentMsgID = rand.Intn(256)
-			msg := config.Message{elev, updatedAllOrders, currentMsgID, false, localIP, id}
+			msg := config.Message{elev, updatedAllOrders, currentMsgID, false, id}
 			syncCh.SendChn <- msg
 			msgTimer.Reset(200 * time.Millisecond)
 			time.Sleep(500 * time.Millisecond)
@@ -98,7 +92,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						esmChns.CurrentAllOrders <- updatedAllOrders
 						currentAllOrders = updatedAllOrders
 					}
-					msg := config.Message{elev, updatedAllOrders, incomming.MsgId, true, localIP, id}
+					msg := config.Message{elev, updatedAllOrders, incomming.MsgId, true, id}
 					for i := 0; i < 5; i++ {
 						syncCh.SendChn <- msg
 						time.Sleep(20 * time.Millisecond)
