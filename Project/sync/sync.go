@@ -87,6 +87,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 				if currentAllOrders != updatedAllOrders {
 					if id == masterID {
+						fmt.Println("Kostfunksjon sier nå: ")
 						fmt.Println(updatedAllOrders)
 					}
 					esmChns.CurrentAllOrders <- updatedAllOrders
