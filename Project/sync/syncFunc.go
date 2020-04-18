@@ -122,7 +122,6 @@ func sumOrders(incomming [config.NumElevs][config.NumFloors][config.NumButtons]b
 			for btn := 0; btn < config.NumButtons-1; btn++ {
 				if incomming[elev][floor][btn] {
 					sum++
-					fmt.Println("Teller i etasje", floor)
 				}
 			}
 		}
