@@ -85,11 +85,12 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				} else if recID == masterID {
 					updatedAllOrders = incomming.AllOrders
 				}
-				if (currentAllOrders != updatedAllOrders) || (currentAllOrders[id] == updatedAllOrders[id]) {
-					fmt.Println(currentAllOrders[id] == updatedAllOrders[id])
+				esmChns.CurrentAllOrders <- updatedAllOrders
+				currentAllOrders = updatedAllOrders
+				/*if (currentAllOrders != updatedAllOrders) || (currentAllOrders[id] == updatedAllOrders[id]) {
 					esmChns.CurrentAllOrders <- updatedAllOrders
 					currentAllOrders = updatedAllOrders
-				}
+				}*/
 				if incomming.IsReceipt {
 					if incomming.MsgId == currentMsgID {
 						if !contains(receivedReceipt, recID) {
