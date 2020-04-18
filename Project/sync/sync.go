@@ -85,7 +85,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				} else if recID == masterID {
 					updatedAllOrders = incomming.AllOrders
 				}
-				if currentAllOrders != updatedAllOrders {
+				if (currentAllOrders != updatedAllOrders) || (currentAllOrders[id] == updatedAllOrders[id]) {
 					esmChns.CurrentAllOrders <- updatedAllOrders
 					currentAllOrders = updatedAllOrders
 				}
