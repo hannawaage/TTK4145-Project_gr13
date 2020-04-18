@@ -41,10 +41,8 @@ func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config
 				if elev == id {
 					if currentAllOrders[id][floor][btn] {
 						elevator.Orders[floor][btn] = true
-					} else if elevator.Orders[floor][btn] && !currentAllOrders[id][floor][btn] {
+					} else {
 						elevator.Orders[floor][btn] = false
-						fmt.Println("Sletter ordre fordi current ikke har den")
-						fmt.Println("I etasje", floor)
 					}
 				}
 			}
