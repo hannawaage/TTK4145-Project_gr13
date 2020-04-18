@@ -116,14 +116,16 @@ func newCabOrdersOnly(id int, current *[config.NumElevs][config.NumFloors][confi
 	return newCab
 }
 
-func mergeLocalOrders(id int, local *[config.NumFloors][config.NumButtons]bool, incomming [config.NumElevs][config.NumFloors][config.NumButtons]bool) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
-	merged := incomming
-	for floor := 0; floor < config.NumFloors; floor++ {
-		for btn := 0; btn < config.NumButtons-1; btn++ {
-			if local[floor][btn] {
-				merged[id][floor][btn] = true
+func sumOrders(incomming [config.NumElevs][config.NumFloors][config.NumButtons]bool) int {
+	sum := 0
+	for elev := 0; elev < config.NumElevs; elev++ {
+		for floor := 0; floor < config.NumFloors; floor++ {
+			for btn := 0; btn < config.NumButtons-1; btn++ {
+				if incomming[elev][floor][btn] {
+					sum++
+				}
 			}
 		}
 	}
-	return merged
+	return sum
 }
