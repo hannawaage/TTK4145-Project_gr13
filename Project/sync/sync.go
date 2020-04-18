@@ -18,16 +18,16 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	}
 
 	var (
-		numPeers           int
-		currentMsgID       int
-		numTimeouts        int
-		elev               config.Elevator
-		onlineIDs          []int
-		receivedReceipt    []int
-		updatedLocalOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
-		currentAllOrders   [config.NumElevs][config.NumFloors][config.NumButtons]bool
-		allElevs           [config.NumElevs]config.Elevator
-		online             bool
+		numPeers         int
+		currentMsgID     int
+		numTimeouts      int
+		elev             config.Elevator
+		onlineIDs        []int
+		receivedReceipt  []int
+		updatedAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
+		currentAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
+		allElevs         [config.NumElevs]config.Elevator
+		online           bool
 	)
 
 	go func() {
@@ -37,13 +37,13 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				allElevs[id] = elev
 				if !online {
 					if currentAllOrders[id] != elev.Orders {
-						updatedLocalOrders[id] = elev.Orders
-						esmChns.CurrentAllOrders <- updatedLocalOrders
-						currentAllOrders = updatedLocalOrders
+						updatedAllOrders[id] = elev.Orders
+						esmChns.CurrentAllOrders <- updatedAllOrders
+						currentAllOrders = updatedAllOrders
 					}
 				} else {
 					if id == masterID {
-						updatedLocalOrders = CostFunction(id, allElevs, onlineIDs)
+						updatedAllOrders = CostFunction(id, allElevs, onlineIDs)
 					}
 				}
 			}
@@ -56,7 +56,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	go func() {
 		for {
 			currentMsgID = rand.Intn(256)
-			msg := config.Message{elev, updatedLocalOrders, currentMsgID, false, localIP, id}
+			msg := config.Message{elev, updatedAllOrders, currentMsgID, false, localIP, id}
 			syncCh.SendChn <- msg
 			msgTimer.Reset(800 * time.Millisecond)
 			time.Sleep(1 * time.Second)
@@ -81,13 +81,13 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 				allElevs[recID] = incomming.Elev
 				if id == masterID {
-					updatedLocalOrders = CostFunction(id, allElevs, onlineIDs)
+					updatedAllOrders = CostFunction(id, allElevs, onlineIDs)
 				} else if recID == masterID {
-					updatedLocalOrders = incomming.AllOrders
+					updatedAllOrders = incomming.AllOrders
 				}
-				if currentAllOrders != updatedLocalOrders {
-					esmChns.CurrentAllOrders <- updatedLocalOrders
-					currentAllOrders = updatedLocalOrders
+				if currentAllOrders != updatedAllOrders {
+					esmChns.CurrentAllOrders <- updatedAllOrders
+					currentAllOrders = updatedAllOrders
 				}
 				if incomming.IsReceipt {
 					if incomming.MsgId == currentMsgID {
@@ -101,7 +101,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						}
 					}
 				} else {
-					msg := config.Message{elev, updatedLocalOrders, incomming.MsgId, true, localIP, id}
+					msg := config.Message{elev, updatedAllOrders, incomming.MsgId, true, localIP, id}
 					for i := 0; i < 5; i++ {
 						syncCh.SendChn <- msg
 						time.Sleep(10 * time.Millisecond)
@@ -118,9 +118,9 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				receivedReceipt = receivedReceipt[:0]
 				masterID = id
 				online = false
-				updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
-				esmChns.CurrentAllOrders <- updatedLocalOrders
-				currentAllOrders = updatedLocalOrders
+				updatedAllOrders = mergeAllOrders(id, updatedAllOrders)
+				esmChns.CurrentAllOrders <- updatedAllOrders
+				currentAllOrders = updatedAllOrders
 			}
 		}
 	}
