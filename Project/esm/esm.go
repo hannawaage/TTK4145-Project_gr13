@@ -84,7 +84,7 @@ func RunElevator(esmChns config.EsmChns, id int) {
 				elevator.State = Moving
 				elevio.SetMotorDirection(elevator.Dir)
 			}
-			go ShareElev(elevator, esmChns)
+			//go ShareElev(elevator, esmChns)
 		}
 	}
 }
