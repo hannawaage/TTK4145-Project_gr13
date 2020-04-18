@@ -54,7 +54,4 @@ func main() {
 	go RunElevator(esmChns, idDig)
 
 	select {}
-	//for {
-
-	//}
 }

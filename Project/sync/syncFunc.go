@@ -54,7 +54,7 @@ func costCalculator(id int, order elevio.ButtonEvent, allElevs *[config.NumElevs
 			}
 		}
 		if cost == 0 && allElevs[elevator].State == config.Moving {
-			cost += 4
+			cost += 10
 		}
 
 		if allElevs[elevator].State == config.DoorOpen {
