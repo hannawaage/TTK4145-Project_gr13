@@ -32,8 +32,6 @@ func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config
 					elevator.Lights[elev][floor][btn] = false
 					if !elevator.Orders[floor][btn] {
 						elevio.SetButtonLamp(btn, floor, false)
-						fmt.Println("Current sier jeg skal slette ordre i etasje ", floor)
-						fmt.Println("For heis nummer ", elev)
 					}
 				}
 				if currentAllOrders[elev][floor][btn] && !(elev != id && btn == config.NumButtons-1) {
@@ -46,7 +44,6 @@ func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config
 					} else {
 						if elevator.Orders[floor][btn] {
 							elevator.Orders[floor][btn] = false
-							fmt.Println("Current sier jeg skal slette ordre i etasje ", floor)
 						}
 					}
 				}
