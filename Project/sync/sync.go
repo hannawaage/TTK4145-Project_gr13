@@ -86,6 +86,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					updatedAllOrders = incomming.AllOrders
 				}
 				if (currentAllOrders != updatedAllOrders) || (currentAllOrders[id] == updatedAllOrders[id]) {
+					fmt.Println(currentAllOrders[id] == updatedAllOrders[id])
 					esmChns.CurrentAllOrders <- updatedAllOrders
 					currentAllOrders = updatedAllOrders
 				}
