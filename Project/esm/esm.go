@@ -74,7 +74,6 @@ func RunElevator(esmChns config.EsmChns, id int) {
 				elevio.SetMotorDirection(elevio.MD_Stop)
 				doorTimedOut.Reset(DoorOpenTime)
 				elevator.Orders, elevator.Lights = ClearOrders(id, elevator)
-				elevator.Orders, elevator.Lights = SetCurrentOrders(id, elevator, currentAllOrders)
 			}
 			go ShareElev(elevator, esmChns)
 
