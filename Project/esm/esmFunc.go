@@ -41,7 +41,13 @@ func SetCurrentOrders(id int, elevator config.Elevator, currentAllOrders [config
 				if elev == id {
 					if currentAllOrders[id][floor][btn] && !elevator.Orders[floor][btn] {
 						elevator.Orders[floor][btn] = true
+<<<<<<< HEAD
 					} else {
+=======
+						fmt.Println("Mottat ordre")
+						fmt.Println("I etasje", floor)
+					} else if elevator.Orders[floor][btn] && !currentAllOrders[id][floor][btn] {
+>>>>>>> 27a2c3a6c7b1cfb19fccf3c171531fd71d160672
 						elevator.Orders[floor][btn] = false
 					}
 				}
