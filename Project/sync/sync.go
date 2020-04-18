@@ -77,7 +77,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 				allElevs[id] = elev
 				allElevs[recID] = incomming.Elev
-				//allElevs[recID].Orders = incomming.AllOrders[recID]
 				if id == masterID {
 					updatedAllOrders = CostFunction(id, allElevs, onlineIDs)
 				} else if recID == masterID {
@@ -103,7 +102,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					msg := config.Message{elev, updatedAllOrders, incomming.MsgId, true, localIP, id}
 					for i := 0; i < 5; i++ {
 						syncCh.SendChn <- msg
-						time.Sleep(10 * time.Millisecond)
+						time.Sleep(20 * time.Millisecond)
 					}
 				}
 			}
