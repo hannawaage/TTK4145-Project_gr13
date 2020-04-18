@@ -79,6 +79,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						}
 					}
 				}
+				allElevs[recID] = incomming.Elev
 				allElevs[recID].Orders = incomming.AllOrders[recID]
 				if id == masterID {
 					updatedAllOrders = CostFunction(id, allElevs, onlineIDs)
