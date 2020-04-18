@@ -9,16 +9,8 @@ import (
 
 // CostFunction tar inn en allElevs, id, lage ny
 func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs []int) [config.NumElevs][config.NumFloors][config.NumButtons]bool {
-	/*
-		Hvis heisen ordren ligger hos er i bevegelse, skal den ikke forandres
-	*/
-
 	var allElevsMat [config.NumElevs][config.NumFloors][config.NumButtons]bool
-	for elevator := 0; elevator < config.NumElevs; elevator++ {
-		allElevsMat[elevator] = allElevs[elevator].Orders
-	}
-	beforeElevs := allElevsMat
-	prevSum := sumOrders(allElevsMat)
+
 	bestElevator := allElevs[0].Id
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
 		for floor := 0; floor < config.NumFloors; floor++ {
@@ -38,14 +30,6 @@ func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs [
 	}
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
 		allElevsMat[elevator] = allElevs[elevator].Orders
-	}
-	afterSum := sumOrders(allElevsMat)
-
-	if afterSum < prevSum {
-		fmt.Println("Prevsum", prevSum)
-		fmt.Println(beforeElevs)
-		fmt.Println("Aftersum", afterSum)
-		fmt.Println(allElevsMat)
 	}
 	return allElevsMat
 }

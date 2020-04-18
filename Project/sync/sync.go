@@ -34,7 +34,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		for {
 			select {
 			case elev = <-esmChns.Elev:
-				//allElevs[id] = elev
 				if !online {
 					if currentAllOrders[id] != elev.Orders {
 						updatedAllOrders[id] = elev.Orders
@@ -54,8 +53,8 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			currentMsgID = rand.Intn(256)
 			msg := config.Message{elev, updatedAllOrders, currentMsgID, false, localIP, id}
 			syncCh.SendChn <- msg
-			msgTimer.Reset(800 * time.Millisecond)
-			time.Sleep(1 * time.Second)
+			msgTimer.Reset(200 * time.Millisecond)
+			time.Sleep(500 * time.Millisecond)
 		}
 	}()
 
