@@ -113,7 +113,7 @@ func updateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElev
 
 func TimeStampTimeout(timeStamps *[config.NumFloors]int) bool {
     for floor := 0; floor < config.NumFloors; floor++ {
-        if timeStamps[floor] > 10 {
+        if timeStamps[floor] > 40 {
             return true
         }
     }
