@@ -94,7 +94,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						}
 					}
 					if id == masterID {
-						updatedAllOrders = CostFunction(id, allElevs, onlineIDs)
+						updatedAllOrders = CostFunction(id, allElevs, onlineIDs, faultyElev)
 					} else if recID == masterID {
 						updatedAllOrders = incomming.AllOrders
 					}
