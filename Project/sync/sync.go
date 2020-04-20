@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"../config"
-	"../driver-go/elevio"
 )
 
 func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns, bcport string) {
