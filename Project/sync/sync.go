@@ -118,7 +118,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				currentAllOrders = updatedAllOrders
 		case timeout := <-syncCh.OrderTimeout:
             if timeout {
-				faultyElev := FindFaultyElev(currentAllOrders, orderTimeStamps)
+				faultyElev := FindFaultyElev(&currentAllOrders, &orderTimeStamps)
 				updatedAllOrders = MergeAllOrders(id, updatedAllOrders)
 				if faultyElev >= 0 {
 					updatedAllOrders[faultyElev] = [config.NumFloors][config.NumButtons]bool{}
