@@ -122,6 +122,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns, bcport string)
             faultyElev = FindFaultyElev(&currentAllOrders, &orderTimeStamps)
 			fmt.Println("Faulty: ", faultyElev)
 			if id == faultyElev {
+				fmt.Println("Exiting for reinitialization")
 				os.Exit(1)
 			} else {
 				updatedAllOrders = MergeAllOrders(id, updatedAllOrders)
