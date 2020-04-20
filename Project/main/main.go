@@ -39,10 +39,8 @@ func main() {
 		OrderTimeout: make(chan bool),
 	}
 
-	bcastport := 16576
-
-	go bcast.Transmitter(bcastport, syncChns.SendChn)
-	go bcast.Receiver(bcastport, syncChns.RecChn)
+	go bcast.Transmitter(config.Bcastport, syncChns.SendChn)
+	go bcast.Receiver(config.Bcastport, syncChns.RecChn)
 	go sync.Sync(idDig, syncChns, esmChns, bcport)
 
 	go elevio.PollButtons(esmChns.Buttons)
