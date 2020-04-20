@@ -1,7 +1,6 @@
 package sync
 
 import (
-	"fmt"
 	"math/rand"
 	"os"
 	"time"
