@@ -62,7 +62,7 @@ func ClearOrders(id int, elevator config.Elevator) ([config.NumFloors][config.Nu
 		elevator.Lights[elevator.Floor][btn] = false
 		elevio.SetButtonLamp(btn, elevator.Floor, false)
 		elevator.Orders[elevator.Floor][btn] = 0
-		fmt.Println("Cleared order in floor", floor)
+		fmt.Println("Cleared order in floor", elevator.Floor)
 	}
 	return elevator.Orders, elevator.Lights
 }
