@@ -8,7 +8,7 @@ import (
 )
 
 // CostFunction tar inn en allElevs, id, lage ny
-func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs []int, faultyElev int) [config.NumElevs][config.NumFloors][config.NumButtons]int {
+func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs []int) [config.NumElevs][config.NumFloors][config.NumButtons]int {
 	var allElevsMat [config.NumElevs][config.NumFloors][config.NumButtons]int
 
 	bestElevator := allElevs[0].Id
@@ -30,11 +30,11 @@ func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs [
 	return allElevsMat
 }
 
-func costCalculator(id int, floor int, allElevs *[config.NumElevs]config.Elevator, onlineIDs []int, elev int, faultyElev int) int {
+func costCalculator(id int, floor int, allElevs *[config.NumElevs]config.Elevator, onlineIDs []int, elev int) int {
 	minCost := 4*(config.NumButtons * config.NumFloors) * config.NumElevs
 	bestElevator := onlineIDs[0]
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
-		if (!Contains(onlineIDs, allElevs[elevator].Id) && (elevator != id)) || (elevator == faultyElev) {
+		if (!Contains(onlineIDs, allElevs[elevator].Id) && (elevator != id)) {
 			continue
 		}
 		cost := (floor - allElevs[elevator].Floor)
