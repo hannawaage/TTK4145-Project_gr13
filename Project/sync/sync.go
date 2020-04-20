@@ -132,7 +132,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 				fmt.Println("Order  timeout")
 				orderTimeStamps = [config.NumFloors]int{}
-				//time.Sleep(10 * time.Second)
                 numOrderTimeouts++
             }
 		}
