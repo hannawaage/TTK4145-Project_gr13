@@ -63,7 +63,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		case incomming := <-syncCh.RecChn:
 			recID := incomming.LocalID
 			if id != recID {
-				if !Contains(onlineIDs, recID) && (recID != faultyElev) {
+				if !Contains(onlineIDs, recID) { //&& (recID != faultyElev) {
 					onlineIDs = append(onlineIDs, recID)
 					numPeers = len(onlineIDs)
 					online = true
@@ -135,7 +135,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				receivedReceipt = receivedReceipt[:0]
 				masterID = id
 				online = false
-
             }
 		}
 	}
