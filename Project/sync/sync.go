@@ -123,23 +123,21 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				esmChns.CurrentAllOrders <- updatedAllOrders
 				currentAllOrders = updatedAllOrders
 		case timeout := <-syncCh.OrderTimeout:
-            if timeout {
-				faultyElev = FindFaultyElev(&currentAllOrders, &orderTimeStamps)
-					fmt.Println("Faulty: ", faultyElev)
-					if id != faultyElev {
-						updatedAllOrders = MergeAllOrders(id, updatedAllOrders)
-					}
-					updatedAllOrders[faultyElev] = [config.NumFloors][config.NumButtons]int{}
-					esmChns.CurrentAllOrders <- updatedAllOrders
-					currentAllOrders = updatedAllOrders
-				fmt.Println("Order  timeout")
-				orderTimeStamps = [config.NumFloors]int{}
-				numPeers = 0
-				onlineIDs = onlineIDs[:0]
-				receivedReceipt = receivedReceipt[:0]
-				masterID = id
-				online = false
-            }
+            faultyElev = FindFaultyElev(&currentAllOrders, &orderTimeStamps)
+			fmt.Println("Faulty: ", faultyElev)
+			if id != faultyElev {
+				updatedAllOrders = MergeAllOrders(id, updatedAllOrders)
+			}
+			updatedAllOrders[faultyElev] = [config.NumFloors][config.NumButtons]int{}
+			esmChns.CurrentAllOrders <- updatedAllOrders
+			currentAllOrders = updatedAllOrders
+			fmt.Println("Order  timeout")
+			orderTimeStamps = [config.NumFloors]int{}
+			numPeers = 0
+			onlineIDs = onlineIDs[:0]
+			receivedReceipt = receivedReceipt[:0]
+			masterID = id
+			online = false
 		}
 	}
 }
