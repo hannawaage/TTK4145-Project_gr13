@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"../config"
+	"../driver-go/elevio"
 )
 
 func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
@@ -46,17 +47,15 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 	go func() {
 		for {
-			if id != faultyElev{
-				UpdateTimeStamp(&orderTimeStamps, &currentAllOrders, &allElevs)
-				if TimeStampTimeout(&orderTimeStamps) {
-					go func() { syncCh.OrderTimeout <- true }()
-				}
-				currentMsgID = rand.Intn(256)
-				msg := config.Message{elev, updatedAllOrders, currentMsgID, false, id}
-				syncCh.SendChn <- msg
-				msgTimer.Reset(200 * time.Millisecond)
-				time.Sleep(500 * time.Millisecond)
+			UpdateTimeStamp(&orderTimeStamps, &currentAllOrders, &allElevs)
+			if TimeStampTimeout(&orderTimeStamps) {
+				go func() { syncCh.OrderTimeout <- true }()
 			}
+			currentMsgID = rand.Intn(256)
+			msg := config.Message{elev, updatedAllOrders, currentMsgID, false, id}
+			syncCh.SendChn <- msg
+			msgTimer.Reset(200 * time.Millisecond)
+			time.Sleep(500 * time.Millisecond)
 		}
 	}()
 
@@ -65,9 +64,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		case incomming := <-syncCh.RecChn:
 			recID := incomming.LocalID
 			if id != recID {
-				if (recID == faultyElev || id == faultyElev) {
-					break
-				}
 				if !Contains(onlineIDs, recID) {
 					onlineIDs = append(onlineIDs, recID)
 					numPeers = len(onlineIDs)
@@ -125,7 +121,9 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		case <-syncCh.OrderTimeout:
             faultyElev = FindFaultyElev(&currentAllOrders, &orderTimeStamps)
 			fmt.Println("Faulty: ", faultyElev)
-			if id != faultyElev {
+			if id == faultyElev {
+				elevio.Init(bcport, NumFloors)
+			} else {
 				updatedAllOrders = MergeAllOrders(id, updatedAllOrders)
 			}
 			updatedAllOrders[faultyElev] = [config.NumFloors][config.NumButtons]int{}
