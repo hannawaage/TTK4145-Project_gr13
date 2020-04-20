@@ -64,12 +64,25 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					fmt.Println("I'm online with numPeers =", numPeers)
 					for i := 0; i < numPeers; i++ {
 						theID := onlineIDs[i]
-						if theID < masterID {
+						if theID < masterID { 
 							masterID = theID
 						}
 					}
 				}
-				allElevs[id] = elev
+
+				if incomming.IsReceipt {
+					if incomming.MsgId == currentMsgID {
+						if !contains(receivedReceipt, recID) {
+							receivedReceipt = append(receivedReceipt, recID)
+							if len(receivedReceipt) == numPeers {
+								numTimeouts = 0
+								msgTimer.Stop()
+								receivedReceipt = receivedReceipt[:0]
+							}
+						}
+					}
+				} else {
+					allElevs[id] = elev
 					allElevs[recID] = incomming.Elev
 					for elevator := 0; elevator < config.NumElevs; elevator++ {
 						if !contains(onlineIDs, allElevs[elevator].Id) && (elevator != id){
@@ -85,18 +98,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						esmChns.CurrentAllOrders <- updatedAllOrders
 						currentAllOrders = updatedAllOrders
 					}
-				if incomming.IsReceipt {
-					if incomming.MsgId == currentMsgID {
-						if !contains(receivedReceipt, recID) {
-							receivedReceipt = append(receivedReceipt, recID)
-							if len(receivedReceipt) == numPeers {
-								numTimeouts = 0
-								msgTimer.Stop()
-								receivedReceipt = receivedReceipt[:0]
-							}
-						}
-					}
-				} else {
 					msg := config.Message{elev, updatedAllOrders, incomming.MsgId, true, id}
 					for i := 0; i < 5; i++ {
 						syncCh.SendChn <- msg
@@ -105,6 +106,18 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 			}
 		case <-msgTimer.C:
+			fmt.Println("Assuming error, running offline")
+				numTimeouts = 0
+				numPeers = 0
+				onlineIDs = onlineIDs[:0]
+				receivedReceipt = receivedReceipt[:0]
+				masterID = id
+				online = false
+				updatedAllOrders = mergeAllOrders(id, updatedAllOrders)
+				fmt.Println("allOrders = ", updatedAllOrders)
+				esmChns.CurrentAllOrders <- updatedAllOrders
+				currentAllOrders = updatedAllOrders
+			/*
 			numTimeouts++
 			if numTimeouts > 2 {
 				fmt.Println("Assuming error, running offline")
@@ -118,7 +131,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				fmt.Println("allOrders = ", updatedAllOrders)
 				esmChns.CurrentAllOrders <- updatedAllOrders
 				currentAllOrders = updatedAllOrders
-			}
+			}*/
 		}
 	}
 }
