@@ -52,4 +52,5 @@ type EsmChns struct {
 type SyncChns struct {
 	SendChn chan Message
 	RecChn  chan Message
+	OrderTimeout chan bool
 }
