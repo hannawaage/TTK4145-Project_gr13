@@ -35,7 +35,7 @@ type ButtonEvent struct {
 	Button ButtonType
 }
 
-func Init(addr string, numFloors int) {
+func Init(addr string, numFloors int) bool {
 	/*if _initialized {
 		fmt.Println("Driver already initialized!")
 		return
@@ -47,6 +47,7 @@ func Init(addr string, numFloors int) {
 	if err != nil {
 		panic(err.Error())
 	}
+	return true
 	//_initialized = true
 }
 
