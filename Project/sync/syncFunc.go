@@ -97,7 +97,7 @@ func MergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumBu
 	return merged
 }
 
-func UpdateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElevs][config.NumFloors][config.NumButtons]int, allElevs &[config.NumElevs]config.Elevator) {
+func UpdateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElevs][config.NumFloors][config.NumButtons]int, allElevs *[config.NumElevs]config.Elevator) {
     for elev := 0; elev < config.NumElevs; elev++ {
         for floor := 0; floor < config.NumFloors; floor++ {
             for btn := 0; btn < config.NumButtons; btn++ {
