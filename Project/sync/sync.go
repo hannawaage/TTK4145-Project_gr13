@@ -47,7 +47,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 	go func() {
 		for {
-			UpdateTimeStamp(&orderTimeStamps, &currentAllOrders, &allElevs)
+			UpdateTimeStamp(&orderTimeStamps, &currentAllOrders, &allElevs, faultyElev)
             if TimeStampTimeout(&orderTimeStamps) {
                 go func() { syncCh.OrderTimeout <- true }()
             }
@@ -120,15 +120,16 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				currentAllOrders = updatedAllOrders
 		case timeout := <-syncCh.OrderTimeout:
             if timeout {
+				updatedAllOrders = MergeAllOrders(id, updatedAllOrders)
 				if numOrderTimeouts == 0 {
 					faultyElev = FindFaultyElev(&currentAllOrders, &orderTimeStamps)
 					fmt.Println("Faulty: ", faultyElev)
-				}
-				updatedAllOrders = MergeAllOrders(id, updatedAllOrders)
-				if faultyElev >= 0 {
-					updatedAllOrders[faultyElev] = [config.NumFloors][config.NumButtons]int{}
+					if faultyElev >= 0 {
+						updatedAllOrders[faultyElev] = [config.NumFloors][config.NumButtons]int{}
+					}
 				}
 				elev.Orders = updatedAllOrders[id]
+				allElevs[id] = elev
                 esmChns.CurrentAllOrders <- updatedAllOrders
 				currentAllOrders = updatedAllOrders
 				fmt.Println("Order  timeout")
