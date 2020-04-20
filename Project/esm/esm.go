@@ -2,7 +2,7 @@ package esm
 
 import (
 	"time"
-	"fmt"
+
 	"../config"
 	"../driver-go/elevio"
 )
