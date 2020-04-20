@@ -126,6 +126,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns, bcport string)
 			} else {
 				updatedAllOrders = MergeAllOrders(id, updatedAllOrders)
 			}
+			updatedAllOrders[faultyElev] = [config.NumFloors][config.NumButtons]int{}
 			esmChns.CurrentAllOrders <- updatedAllOrders
 			currentAllOrders = updatedAllOrders
 			fmt.Println("Order  timeout")
