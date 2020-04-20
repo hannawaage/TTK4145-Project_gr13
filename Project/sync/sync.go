@@ -70,7 +70,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					onlineIDs = append(onlineIDs, recID)
 					numPeers = len(onlineIDs)
 					online = true
-					fmt.Println("I'm online with numPeers =", numPeers)
 					for i := 0; i < numPeers; i++ {
 						theID := onlineIDs[i]
 						if theID < masterID { 
@@ -107,7 +106,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					msg := config.Message{elev, updatedAllOrders, incomming.MsgId, true, id}
 					for i := 0; i < 5; i++ {
 						syncCh.SendChn <- msg
-						time.Sleep(30 * time.Millisecond)
+						time.Sleep(10 * time.Millisecond)
 					}
 				}
 			}
