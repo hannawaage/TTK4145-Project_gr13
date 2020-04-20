@@ -99,21 +99,21 @@ func MergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumBu
 
 func UpdateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElevs][config.NumFloors][config.NumButtons]int, allElevs *[config.NumElevs]config.Elevator, faultyElev int) {
 	var numOrders int
-	for floor := 0; floor < config.NumFloors; floor++{}
+	for floor := 0; floor < config.NumFloors; floor++ {
+		numOrders = 0
 		for elev := 0; elev < config.NumElevs; elev++ {
-			numOrders = 0
             for btn := 0; btn < config.NumButtons; btn++ {
                 if (current[elev][floor][btn] > 0 ){
 					numOrders ++
                     timeStamps[floor]++
 				} 
 			}
-			if numOrders == 0 {
-				if timeStamps[floor] != 0 {
-					timeStamps[floor] = 0
-				}
+		}
+		if numOrders == 0 {
+			if timeStamps[floor] != 0 {
+				timeStamps[floor] = 0
 			}
-        }
+		}
     }
 }
 
