@@ -9,7 +9,7 @@ import (
 
 const _pollRate = 20 * time.Millisecond
 
-var _initialized bool = false
+//var _initialized bool = false
 var _numFloors int = 4
 var _mtx sync.Mutex
 var _conn net.Conn
@@ -36,10 +36,10 @@ type ButtonEvent struct {
 }
 
 func Init(addr string, numFloors int) {
-	if _initialized {
+	/*if _initialized {
 		fmt.Println("Driver already initialized!")
 		return
-	}
+	}*/
 	_numFloors = numFloors
 	_mtx = sync.Mutex{}
 	var err error
@@ -47,7 +47,7 @@ func Init(addr string, numFloors int) {
 	if err != nil {
 		panic(err.Error())
 	}
-	_initialized = true
+	//_initialized = true
 }
 
 func SetMotorDirection(dir MotorDirection) {
