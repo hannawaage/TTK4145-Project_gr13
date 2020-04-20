@@ -131,7 +131,8 @@ func FindFaultyElev(current *[config.NumElevs][config.NumFloors][config.NumButto
         for floor := 0; floor < config.NumFloors; floor++ {
             for btn := 0; btn < config.NumButtons; btn++ {
                 if (timeStamps[floor] > 20) && (current[elev][floor][btn] > 20) {
-            		return elev
+					return elev
+					fmt.Println("Heihei")
         		}
             }
         }
