@@ -127,8 +127,8 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						updatedAllOrders = MergeAllOrders(id, updatedAllOrders)
 					}
 					updatedAllOrders[faultyElev] = [config.NumFloors][config.NumButtons]int{}
-					elev.Orders = updatedAllOrders[id]
-					allElevs[id] = elev
+					//elev.Orders = updatedAllOrders[id]
+					//allElevs[id] = elev
 					esmChns.CurrentAllOrders <- updatedAllOrders
 					currentAllOrders = updatedAllOrders
 				}
