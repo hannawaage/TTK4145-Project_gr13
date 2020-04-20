@@ -63,7 +63,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		case incomming := <-syncCh.RecChn:
 			recID := incomming.LocalID
 			if id != recID {
-				if recID == faultyElev {
+				if (recID == faultyElev || id == faultyElev) {
 					break
 				}
 				if !Contains(onlineIDs, recID) {
