@@ -123,6 +123,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			updatedAllOrders = MergeAllOrders(id, updatedAllOrders)
 			esmChns.CurrentAllOrders <- updatedAllOrders
 			currentAllOrders = updatedAllOrders
+			
 		case <-syncCh.OrderTimeout:
 			faultyElev = FindFaultyElev(&currentAllOrders, &orderTimeStamps)
 			if id == faultyElev {
