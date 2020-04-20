@@ -40,8 +40,6 @@ func RunElevator(esmChns config.EsmChns, id int) {
 			}
 
 		case currentAllOrders := <-esmChns.CurrentAllOrders:
-			fmt.Println("Fikk denne ordrelisten: ")
-			fmt.Println(currentAllOrders[id])
 			elevator.Orders, elevator.Lights = SetCurrentOrders(id, elevator, currentAllOrders)
 			switch elevator.State {
 			case Undefined:
