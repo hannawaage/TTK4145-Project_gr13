@@ -9,6 +9,12 @@ import (
 	"../config"
 )
 
+const (
+	NumElevs   = config.NumElevs
+	NumFloors  = config.NumFloors
+	NumButtons = config.NumButtons
+)
+
 func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	masterID := id
 
@@ -18,10 +24,10 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		elev             config.Elevator
 		onlineIDs        []int
 		receivedReceipt  []int
-		updatedAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]int
-		currentAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]int
-		allElevs         [config.NumElevs]config.Elevator
-		orderTimeStamps  [config.NumFloors]int
+		updatedAllOrders [NumElevs][NumFloors][NumButtons]int
+		currentAllOrders [NumElevs][NumFloors][NumButtons]int
+		allElevs         [NumElevs]config.Elevator
+		orderTimeStamps  [NumFloors]int
 		online           bool
 		faultyElev       int = -1
 	)
@@ -87,9 +93,9 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					}
 				} else {
 					allElevs[recID] = incomming.Elev
-					for elevator := 0; elevator < config.NumElevs; elevator++ {
+					for elevator := 0; elevator < NumElevs; elevator++ {
 						if !Contains(onlineIDs, allElevs[elevator].Id) && (elevator != id) {
-							allElevs[elevator].Orders = [config.NumFloors][config.NumButtons]int{}
+							allElevs[elevator].Orders = [NumFloors][NumButtons]int{}
 						}
 					}
 					if id == masterID {
@@ -127,7 +133,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			}
 			esmChns.CurrentAllOrders <- updatedAllOrders
 			currentAllOrders = updatedAllOrders
-			orderTimeStamps = [config.NumFloors]int{}
+			orderTimeStamps = [NumFloors]int{}
 			numPeers = 0
 			onlineIDs = onlineIDs[:0]
 			receivedReceipt = receivedReceipt[:0]

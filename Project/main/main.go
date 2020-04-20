@@ -43,7 +43,6 @@ func main() {
 	go bcast.Transmitter(config.Bcastport, syncChns.SendChn)
 	go bcast.Receiver(config.Bcastport, syncChns.RecChn)
 	go sync.Sync(idDig, syncChns, esmChns)
-
 	go elevio.PollButtons(esmChns.Buttons)
 	go elevio.PollFloorSensor(esmChns.Floors)
 	go esm.RunElevator(esmChns, idDig)
