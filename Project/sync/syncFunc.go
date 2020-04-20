@@ -89,7 +89,7 @@ func MergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumBu
 			for btn := 0; btn < config.NumButtons; btn++ {
 				if all[elev][floor][btn] > 0 && btn != config.NumButtons-1 {
 					merged[id][floor][btn] = all[elev][floor][btn]
-					//merged[elev][floor][btn] = 0
+					merged[elev][floor][btn] = 0
 				}
 			}
 		}
@@ -98,20 +98,21 @@ func MergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumBu
 }
 
 func UpdateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElevs][config.NumFloors][config.NumButtons]int, allElevs *[config.NumElevs]config.Elevator, faultyElev int) {
-    for elev := 0; elev < config.NumElevs; elev++ {
-        for floor := 0; floor < config.NumFloors; floor++ {
+	var numOrders int
+	for floor := 0; floor < config.NumFloors; floor++{}
+		for elev := 0; elev < config.NumElevs; elev++ {
+			numOrders = 0
             for btn := 0; btn < config.NumButtons; btn++ {
                 if (current[elev][floor][btn] > 0 ){
+					numOrders ++
                     timeStamps[floor]++
-				} else if (current[elev][floor][btn] && (allElevs[elev].Floor == floor) && (elev != faultyElev)) {
-					if (allElevs[elev].State == config.DoorOpen || allElevs[elev].State == config.Idle) {
-						if timeStamps[floor] != 0 {
-							timeStamps[floor] = 0
-							fmt.Println("Timestamp nulled on floor:", floor)
-						}
-					}
-                }
-            }
+				} 
+			}
+			if numOrders == 0 {
+				if timeStamps[floor] != 0 {
+					timeStamps[floor] = 0
+				}
+			}
         }
     }
 }
