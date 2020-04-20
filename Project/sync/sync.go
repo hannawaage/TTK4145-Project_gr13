@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
+	"os"
 
 	"../config"
 	"../driver-go/elevio"
@@ -122,11 +123,10 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns, bcport string)
             faultyElev = FindFaultyElev(&currentAllOrders, &orderTimeStamps)
 			fmt.Println("Faulty: ", faultyElev)
 			if id == faultyElev {
-				elevio.Init(bcport, config.NumFloors)
+				os.Exit(1)
 			} else {
 				updatedAllOrders = MergeAllOrders(id, updatedAllOrders)
 			}
-			//updatedAllOrders[faultyElev] = [config.NumFloors][config.NumButtons]int{}
 			esmChns.CurrentAllOrders <- updatedAllOrders
 			currentAllOrders = updatedAllOrders
 			fmt.Println("Order  timeout")
