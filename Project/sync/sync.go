@@ -9,7 +9,7 @@ import (
 	"../config"
 )
 
-func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns, bcport string) {
+func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	masterID := id
 
 	var (
