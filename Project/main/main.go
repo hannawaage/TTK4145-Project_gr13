@@ -48,7 +48,7 @@ func main() {
 
 	go bcast.Transmitter(bcastport, syncChns.SendChn)
 	go bcast.Receiver(bcastport, syncChns.RecChn)
-	go sync.Sync(idDig, syncChns, esmChns)
+	go sync.Sync(idDig, syncChns, esmChns, bcport)
 
 	go PollButtons(esmChns.Buttons)
 	go PollFloorSensor(esmChns.Floors)
