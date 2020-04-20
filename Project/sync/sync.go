@@ -14,7 +14,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	var (
 		numPeers         int
 		currentMsgID     int
-		//numTimeouts      int
 		elev             config.Elevator
 		onlineIDs        []int
 		receivedReceipt  []int
@@ -75,7 +74,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						if !contains(receivedReceipt, recID) {
 							receivedReceipt = append(receivedReceipt, recID)
 							if len(receivedReceipt) == numPeers {
-								//numTimeouts = 0
 								msgTimer.Stop()
 								receivedReceipt = receivedReceipt[:0]
 							}
@@ -107,7 +105,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			}
 		case <-msgTimer.C:
 			fmt.Println("Assuming error, running offline")
-				//numTimeouts = 0
 				numPeers = 0
 				onlineIDs = onlineIDs[:0]
 				receivedReceipt = receivedReceipt[:0]
@@ -117,21 +114,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				fmt.Println("allOrders = ", updatedAllOrders)
 				esmChns.CurrentAllOrders <- updatedAllOrders
 				currentAllOrders = updatedAllOrders
-			/*
-			numTimeouts++
-			if numTimeouts > 2 {
-				fmt.Println("Assuming error, running offline")
-				numTimeouts = 0
-				numPeers = 0
-				onlineIDs = onlineIDs[:0]
-				receivedReceipt = receivedReceipt[:0]
-				masterID = id
-				online = false
-				updatedAllOrders = mergeAllOrders(id, updatedAllOrders)
-				fmt.Println("allOrders = ", updatedAllOrders)
-				esmChns.CurrentAllOrders <- updatedAllOrders
-				currentAllOrders = updatedAllOrders
-			}*/
 		}
 	}
 }
