@@ -101,9 +101,9 @@ func UpdateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElev
     for elev := 0; elev < config.NumElevs; elev++ {
         for floor := 0; floor < config.NumFloors; floor++ {
             for btn := 0; btn < config.NumButtons; btn++ {
-                if (updated[elev][floor][btn] > 0 ){
+                if (current[elev][floor][btn] > 0 ){
                     timeStamps[floor]++
-                } else if (allElevs[elev].Floor == floor) && (allElevs[elev].State == DoorOpen) {
+                } else if (allElevs[elev].Floor == floor) && (allElevs[elev].State == config.DoorOpen) {
                     timeStamps[floor] = 0
                 }
             }
