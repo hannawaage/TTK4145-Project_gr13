@@ -106,6 +106,7 @@ func UpdateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElev
 				} else if ((allElevs[elev].Floor == floor) && (elev != faultyElev)) {
 					if (allElevs[elev].State == config.DoorOpen || allElevs[elev].State == config.Idle) {
 						timeStamps[floor] = 0
+						fmt.Println("Timestamp nulled")
 					}
                 }
             }
