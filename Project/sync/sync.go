@@ -63,6 +63,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		case incomming := <-syncCh.RecChn:
 			recID := incomming.LocalID
 			if recID == faultyElev {
+				fmt.Println("Id =", recID)
 				break
 			}
 			if id != recID {
