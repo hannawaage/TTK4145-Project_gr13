@@ -118,6 +118,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				currentAllOrders = updatedAllOrders
 		case timeout := <-syncCh.OrderTimeout:
             if timeout {
+				online = false
 				updatedAllOrders = mergeAllOrders(id, updatedAllOrders)
 				elev.Orders = updatedAllOrders[id]
                 esmChns.CurrentAllOrders <- updatedAllOrders
