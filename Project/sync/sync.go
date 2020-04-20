@@ -46,15 +46,17 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 	go func() {
 		for {
-			UpdateTimeStamp(&orderTimeStamps, &currentAllOrders, &allElevs, faultyElev)
-            if TimeStampTimeout(&orderTimeStamps) {
-                go func() { syncCh.OrderTimeout <- true }()
-            }
-			currentMsgID = rand.Intn(256)
-			msg := config.Message{elev, updatedAllOrders, currentMsgID, false, id}
-			syncCh.SendChn <- msg
-			msgTimer.Reset(200 * time.Millisecond)
-			time.Sleep(500 * time.Millisecond)
+			if id != faultyElev{
+				UpdateTimeStamp(&orderTimeStamps, &currentAllOrders, &allElevs, faultyElev)
+				if TimeStampTimeout(&orderTimeStamps) {
+					go func() { syncCh.OrderTimeout <- true }()
+				}
+				currentMsgID = rand.Intn(256)
+				msg := config.Message{elev, updatedAllOrders, currentMsgID, false, id}
+				syncCh.SendChn <- msg
+				msgTimer.Reset(200 * time.Millisecond)
+				time.Sleep(500 * time.Millisecond)
+			}
 		}
 	}()
 
