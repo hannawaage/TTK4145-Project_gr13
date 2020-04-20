@@ -124,9 +124,9 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				if numOrderTimeouts == 0 {
 					faultyElev = FindFaultyElev(&currentAllOrders, &orderTimeStamps)
 					fmt.Println("Faulty: ", faultyElev)
-					if faultyElev >= 0 {
-						updatedAllOrders[faultyElev] = [config.NumFloors][config.NumButtons]int{}
-					}
+				}
+				if faultyElev >= 0 {
+					updatedAllOrders[faultyElev] = [config.NumFloors][config.NumButtons]int{}
 				}
 				elev.Orders = updatedAllOrders[id]
 				allElevs[id] = elev
