@@ -89,7 +89,7 @@ func MergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumBu
 			for btn := 0; btn < config.NumButtons; btn++ {
 				if all[elev][floor][btn] > 0 && btn != config.NumButtons-1 {
 					merged[id][floor][btn] = all[elev][floor][btn]
-					merged[elev][floor][btn] = 0
+					//merged[elev][floor][btn] = 0
 				}
 			}
 		}
