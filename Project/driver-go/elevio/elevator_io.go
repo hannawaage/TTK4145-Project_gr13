@@ -1,7 +1,7 @@
 package elevio
 
 import (
-	//"fmt"
+	"fmt"
 	"net"
 	"sync"
 	"time"
@@ -9,7 +9,7 @@ import (
 
 const _pollRate = 20 * time.Millisecond
 
-//var _initialized bool = false
+var _initialized bool = false
 var _numFloors int = 4
 var _mtx sync.Mutex
 var _conn net.Conn
@@ -35,11 +35,12 @@ type ButtonEvent struct {
 	Button ButtonType
 }
 
-func Init(addr string, numFloors int) bool {
-	/*if _initialized {
+func Init(addr string, numFloors int) {
+	if _initialized {
 		fmt.Println("Driver already initialized!")
+		panic()
 		return
-	}*/
+	}
 	_numFloors = numFloors
 	_mtx = sync.Mutex{}
 	var err error
@@ -47,8 +48,7 @@ func Init(addr string, numFloors int) bool {
 	if err != nil {
 		panic(err.Error())
 	}
-	return true
-	//_initialized = true
+	_initialized = true
 }
 
 func SetMotorDirection(dir MotorDirection) {
