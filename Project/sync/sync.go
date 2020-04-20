@@ -36,8 +36,8 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		for {
 			select {
 			case elev = <-esmChns.Elev:
+				allElevs[id] = elev
 				if !online {
-					allElevs[id] = elev
 					if currentAllOrders[id] != elev.Orders {
 						updatedAllOrders[id] = elev.Orders
 						esmChns.CurrentAllOrders <- updatedAllOrders
