@@ -1,8 +1,6 @@
 package sync
 
 import (
-	"fmt"
-
 	"../config"
 	"../driver-go/elevio"
 )
