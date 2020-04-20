@@ -112,13 +112,17 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				onlineIDs = onlineIDs[:0]
 				receivedReceipt = receivedReceipt[:0]
 				masterID = id
-				online = false
+				online = falses
 				updatedAllOrders = MergeAllOrders(id, updatedAllOrders)
 				esmChns.CurrentAllOrders <- updatedAllOrders
 				currentAllOrders = updatedAllOrders
 		case timeout := <-syncCh.OrderTimeout:
             if timeout {
+				faultyElev := findFaultyElev(currentAllOrders, orderTimeStamps)
 				updatedAllOrders = MergeAllOrders(id, updatedAllOrders)
+				if faultyElev >= 0 {
+					updatedAllOrders[faultyElev] = [config.NumFloors][config.NumButtons]bool{}
+				}
 				elev.Orders = updatedAllOrders[id]
                 esmChns.CurrentAllOrders <- updatedAllOrders
 				currentAllOrders = updatedAllOrders
