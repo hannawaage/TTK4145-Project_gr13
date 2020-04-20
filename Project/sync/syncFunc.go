@@ -97,13 +97,13 @@ func MergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumBu
 	return merged
 }
 
-func UpdateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElevs][config.NumFloors][config.NumButtons]int, updated *[config.NumElevs][config.NumFloors][config.NumButtons]int) {
+func UpdateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElevs][config.NumFloors][config.NumButtons]int, allElevs &[config.NumElevs]config.Elevator) {
     for elev := 0; elev < config.NumElevs; elev++ {
         for floor := 0; floor < config.NumFloors; floor++ {
             for btn := 0; btn < config.NumButtons; btn++ {
                 if (updated[elev][floor][btn] > 0 ){
                     timeStamps[floor]++
-                } else if !(updated[elev][floor][btn] > 0) && (current[elev][floor][btn] > 0 ){
+                } else if (allElevs[elev].Floor == floor) && (allElevs[elev].State == DoorOpen) {
                     timeStamps[floor] = 0
                 }
             }
