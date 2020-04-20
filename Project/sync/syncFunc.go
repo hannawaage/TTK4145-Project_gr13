@@ -104,7 +104,7 @@ func UpdateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElev
                 if (current[elev][floor][btn] > 0 ){
                     timeStamps[floor]++
 				} else if ((allElevs[elev].Floor == floor) && (elev != faultyElev)) {
-					if (allElevs[elev].State == config.DoorOpen || allElevs[elev].State == Idle) {
+					if (allElevs[elev].State == config.DoorOpen || allElevs[elev].State == config.Idle) {
 						timeStamps[floor] = 0
 					}
                 }
