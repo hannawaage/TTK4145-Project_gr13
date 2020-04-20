@@ -22,7 +22,7 @@ func main() {
 	const NumButtons = config.NumButtons
 	esmChns := config.EsmChns{
 		Elev:             make(chan config.Elevator),
-		CurrentAllOrders: make(chan [NumElevs][NumFloors][NumButtons]bool),
+		CurrentAllOrders: make(chan [NumElevs][NumFloors][NumButtons]int),
 		Buttons:          make(chan ButtonEvent),
 		Floors:           make(chan int),
 	}

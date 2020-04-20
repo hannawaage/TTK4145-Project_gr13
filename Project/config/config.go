@@ -27,20 +27,20 @@ type Elevator struct {
 	Floor  int
 	Dir    MotorDirection
 	State  ElevState
-	Orders [NumFloors][NumButtons]bool
-	Lights [NumElevs][NumFloors][NumButtons]bool
+	Orders [NumFloors][NumButtons]int
+	Lights [NumFloors][NumButtons]bool
 }
 
 type Message struct {
 	Elev      Elevator
-	AllOrders [NumElevs][NumFloors][NumButtons]bool
+	AllOrders [NumElevs][NumFloors][NumButtons]int
 	MsgId     int
 	IsReceipt bool
 	LocalID   int
 }
 
 type EsmChns struct {
-	CurrentAllOrders chan [NumElevs][NumFloors][NumButtons]bool
+	CurrentAllOrders chan [NumElevs][NumFloors][NumButtons]int
 	Buttons          chan ButtonEvent
 	Floors           chan int
 	Elev             chan Elevator

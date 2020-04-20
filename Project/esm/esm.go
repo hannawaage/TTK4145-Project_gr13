@@ -23,8 +23,8 @@ func RunElevator(esmChns config.EsmChns, id int) {
 	elevator := config.Elevator{
 		Id:     id,
 		State:  config.Idle,
-		Orders: [NumFloors][NumButtons]bool{},
-		Lights: [NumElevs][NumFloors][NumButtons]bool{},
+		Orders: [NumFloors][NumButtons]int{},
+		Lights: [NumFloors][NumButtons]bool{},
 	}
 	doorTimedOut := time.NewTimer(DoorOpenTime)
 	doorTimedOut.Stop()
@@ -34,8 +34,8 @@ func RunElevator(esmChns config.EsmChns, id int) {
 	for {
 		select {
 		case newButtonOrder := <-esmChns.Buttons:
-			if elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] == false { //Hvis ikke allerede en ordre
-				elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] = true
+			if elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] == 0 { //Hvis ikke allerede en ordre
+				elevator.Orders[newButtonOrder.Floor][newButtonOrder.Button] = 1
 				go ShareElev(elevator, esmChns)
 			}
 
@@ -66,7 +66,7 @@ func RunElevator(esmChns config.EsmChns, id int) {
 		case newFloor := <-esmChns.Floors:
 			elevator.Floor = newFloor
 			elevio.SetFloorIndicator(newFloor)
-			if ShouldStop(elevator) || (!ShouldStop(elevator) && elevator.Orders == [NumFloors][NumButtons]bool{}) {
+			if ShouldStop(elevator) || (!ShouldStop(elevator) && elevator.Orders == [NumFloors][NumButtons]int{}) {
 				elevio.SetDoorOpenLamp(true)
 				elevator.State = DoorOpen
 				elevio.SetMotorDirection(elevio.MD_Stop)

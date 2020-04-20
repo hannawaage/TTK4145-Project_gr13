@@ -18,8 +18,8 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		elev             config.Elevator
 		onlineIDs        []int
 		receivedReceipt  []int
-		updatedAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
-		currentAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]bool
+		updatedAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]int
+		currentAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]int
 		allElevs         [config.NumElevs]config.Elevator
 		online           bool
 	)
@@ -39,7 +39,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		}
 	}()
 
-	msgTimer := time.NewTimer(5 * time.Second)
+	msgTimer := time.NewTimer(10 * time.Second)
 	msgTimer.Stop()
 
 	go func() {
@@ -61,6 +61,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					onlineIDs = append(onlineIDs, recID)
 					numPeers = len(onlineIDs)
 					online = true
+					fmt.Println("I'm online with numPeers =", numPeers)
 					for i := 0; i < numPeers; i++ {
 						theID := onlineIDs[i]
 						if theID < masterID {
@@ -83,6 +84,11 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				} else {
 					allElevs[id] = elev
 					allElevs[recID] = incomming.Elev
+					for elevator := 0; elevator < config.NumElevs; elevator++ {
+						if !contains(onlineIDs, allElevs[elevator].Id) && (elevator != id){
+							allElevs[elevator].Orders = [config.NumFloors][config.NumButtons]int{}
+						}
+					}
 					if id == masterID {
 						updatedAllOrders = CostFunction(id, allElevs, onlineIDs)
 					} else if recID == masterID {
@@ -102,7 +108,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		case <-msgTimer.C:
 			numTimeouts++
 			if numTimeouts > 2 {
-				fmt.Println("Three timeouts in a row")
+				fmt.Println("Assuming error, running offline")
 				numTimeouts = 0
 				numPeers = 0
 				onlineIDs = onlineIDs[:0]
@@ -110,6 +116,8 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				masterID = id
 				online = false
 				updatedAllOrders = mergeAllOrders(id, updatedAllOrders)
+				fmt.Println("allOrders = ", updatedAllOrders)
+
 				esmChns.CurrentAllOrders <- updatedAllOrders
 				currentAllOrders = updatedAllOrders
 			}
