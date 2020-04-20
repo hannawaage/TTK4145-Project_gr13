@@ -16,7 +16,7 @@ func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs [
 		for floor := 0; floor < config.NumFloors; floor++ {
 			for button := elevio.BT_HallUp; button < elevio.BT_Cab; button++ {
 				if allElevs[elevator].Orders[floor][button] == 1 {
-					bestElevator = costCalculator(id, floor, &allElevs, onlineIDs, elevator, faultyElev int)
+					bestElevator = costCalculator(id, floor, &allElevs, onlineIDs, elevator, faultyElev)
 					fmt.Println("bestElevator =", bestElevator)
 					allElevs[elevator].Orders[floor][button] = 0
 					allElevs[bestElevator].Orders[floor][button] = 2
@@ -103,7 +103,7 @@ func UpdateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElev
             for btn := 0; btn < config.NumButtons; btn++ {
                 if (current[elev][floor][btn] > 0 ){
                     timeStamps[floor]++
-				} else if ((allElevs[elev].Floor == floor) && && (elev != faultyElev)) {
+				} else if ((allElevs[elev].Floor == floor) && (elev != faultyElev)) {
 					if (allElevs[elev].State == config.DoorOpen || allElevs[elev].State == Idle) {
 						timeStamps[floor] = 0
 					}
