@@ -127,11 +127,11 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						updatedAllOrders = MergeAllOrders(id, updatedAllOrders)
 					}
 					updatedAllOrders[faultyElev] = [config.NumFloors][config.NumButtons]int{}
-					//esmChns.CurrentAllOrders <- updatedAllOrders
-					//currentAllOrders = updatedAllOrders
+					esmChns.CurrentAllOrders <- updatedAllOrders
+					currentAllOrders = updatedAllOrders
 				}
 				fmt.Println("Order  timeout")
-				//orderTimeStamps = [config.NumFloors]int{}
+				orderTimeStamps = [config.NumFloors]int{}
 				//time.Sleep(10 * time.Second)
                 numOrderTimeouts++
             }
