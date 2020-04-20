@@ -127,12 +127,13 @@ func TimeStampTimeout(timeStamps *[config.NumFloors]int) bool {
 }
 
 func FindFaultyElev(current *[config.NumElevs][config.NumFloors][config.NumButtons]int, timeStamps *[config.NumFloors]int) int {
+	fmt.Println("Timestamps:")
+	fmt.Println(timeStamps)
 	for elev := 0; elev < config.NumElevs; elev++ {
         for floor := 0; floor < config.NumFloors; floor++ {
             for btn := 0; btn < config.NumButtons; btn++ {
                 if (timeStamps[floor] > 20) && (current[elev][floor][btn] > 20) {
 					return elev
-					fmt.Println("Heihei")
         		}
             }
         }
