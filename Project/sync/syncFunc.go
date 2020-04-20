@@ -129,6 +129,8 @@ func TimeStampTimeout(timeStamps *[config.NumFloors]int) bool {
 func FindFaultyElev(current *[config.NumElevs][config.NumFloors][config.NumButtons]int, timeStamps *[config.NumFloors]int) int {
 	fmt.Println("Timestamps:")
 	fmt.Println(timeStamps)
+	fmt.Println("My orders:")
+	fmt.Println(current[id])
 	for elev := 0; elev < config.NumElevs; elev++ {
         for floor := 0; floor < config.NumFloors; floor++ {
             for btn := 0; btn < config.NumButtons; btn++ {
