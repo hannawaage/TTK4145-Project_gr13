@@ -1,19 +1,14 @@
 package main
 
 import (
-	//"flag"
-	//"strconv"
-
 	"flag"
 	"strconv"
 
 	"../config"
-	. "../driver-go/elevio"
-	. "../esm"
+	"../driver-go/elevio"
+	"../esm"
 	"../network/bcast"
 	"../sync"
-	//	"time"
-	//"fmt"
 )
 
 func main() {
@@ -23,7 +18,7 @@ func main() {
 	esmChns := config.EsmChns{
 		Elev:             make(chan config.Elevator),
 		CurrentAllOrders: make(chan [NumElevs][NumFloors][NumButtons]int),
-		Buttons:          make(chan ButtonEvent),
+		Buttons:          make(chan elevio.ButtonEvent),
 		Floors:           make(chan int),
 	}
 
@@ -36,12 +31,12 @@ func main() {
 	idDig, _ := strconv.Atoi(id)
 	idDig--
 
-	Init(bcport, NumFloors)
+	elevio.Init(bcport, NumFloors)
 
 	syncChns := config.SyncChns{
-		SendChn: make(chan config.Message),
-		RecChn:  make(chan config.Message),
-		OrderTimeout: make(chan bool),	
+		SendChn:      make(chan config.Message),
+		RecChn:       make(chan config.Message),
+		OrderTimeout: make(chan bool),
 	}
 
 	bcastport := 16576
@@ -50,9 +45,9 @@ func main() {
 	go bcast.Receiver(bcastport, syncChns.RecChn)
 	go sync.Sync(idDig, syncChns, esmChns, bcport)
 
-	go PollButtons(esmChns.Buttons)
-	go PollFloorSensor(esmChns.Floors)
-	go RunElevator(esmChns, idDig)
+	go elevio.PollButtons(esmChns.Buttons)
+	go elevio.PollFloorSensor(esmChns.Floors)
+	go esm.RunElevator(esmChns, idDig)
 
 	select {}
 }
