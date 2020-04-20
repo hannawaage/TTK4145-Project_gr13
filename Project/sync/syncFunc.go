@@ -16,7 +16,7 @@ func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs [
 		for floor := 0; floor < config.NumFloors; floor++ {
 			for button := elevio.BT_HallUp; button < elevio.BT_Cab; button++ {
 				if allElevs[elevator].Orders[floor][button] == 1 {
-					bestElevator = costCalculator(id, floor, &allElevs, onlineIDs, elevator, faultyElev)
+					bestElevator = costCalculator(id, floor, &allElevs, onlineIDs, elevator)
 					fmt.Println("bestElevator =", bestElevator)
 					allElevs[elevator].Orders[floor][button] = 0
 					allElevs[bestElevator].Orders[floor][button] = 2
@@ -97,7 +97,7 @@ func MergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumBu
 	return merged
 }
 
-func UpdateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElevs][config.NumFloors][config.NumButtons]int, allElevs *[config.NumElevs]config.Elevator, faultyElev int) {
+func UpdateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElevs][config.NumFloors][config.NumButtons]int, allElevs *[config.NumElevs]config.Elevator) {
 	var numOrders int
 	for floor := 0; floor < config.NumFloors; floor++ {
 		numOrders = 0
