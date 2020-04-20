@@ -64,7 +64,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 			recID := incomming.LocalID
 			if id != recID {
 				if recID == faultyElev {
-					fmt.Println("Id =", recID)
 					break
 				}
 				if !Contains(onlineIDs, recID) {
@@ -103,7 +102,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					}
 					if currentAllOrders != updatedAllOrders {
 						esmChns.CurrentAllOrders <- updatedAllOrders
-						fmt.Println("Fra master")
 						currentAllOrders = updatedAllOrders
 					}
 					msg := config.Message{elev, updatedAllOrders, incomming.MsgId, true, id}
