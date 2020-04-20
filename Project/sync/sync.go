@@ -99,6 +99,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					}
 					if currentAllOrders != updatedAllOrders {
 						esmChns.CurrentAllOrders <- updatedAllOrders
+						fmt.Println("Fra master")
 						currentAllOrders = updatedAllOrders
 					}
 					msg := config.Message{elev, updatedAllOrders, incomming.MsgId, true, id}
