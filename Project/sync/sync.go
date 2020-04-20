@@ -44,7 +44,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 	go func() {
 		for {
-			updateTimeStamp(&orderTimeStamps, &currentAllOrders, &updatedLocalOrders)
+			updateTimeStamp(&orderTimeStamps, &currentAllOrders, &updatedAllOrders)
             if TimeStampTimeout(&orderTimeStamps) {
                 go func() { syncCh.OrderTimeout <- true }()
             }
@@ -121,9 +121,9 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				currentAllOrders = updatedAllOrders
 		case timeout := <-syncCh.OrderTimeout:
             if timeout {
-                updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
-                esmChns.CurrentAllOrders <- updatedLocalOrders
-                currentAllOrders = updatedLocalOrders
+                updatedAllOrders = mergeAllOrders(id, updatedAllOrders)
+                esmChns.CurrentAllOrders <- updatedAllOrders
+                currentAllOrders = updatedAllOrders
                 elev.Orders = currentAllOrders[id]
                 fmt.Println("Order  timeout")
                 orderTimeStamps = [config.NumFloors]int{}
