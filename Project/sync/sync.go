@@ -20,6 +20,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		updatedAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]int
 		currentAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]int
 		allElevs         [config.NumElevs]config.Elevator
+		orderTimeStamps    [config.NumFloors]int
 		online           bool
 	)
 
@@ -43,6 +44,10 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 	go func() {
 		for {
+			updateTimeStamp(&orderTimeStamps, &currentAllOrders, &updatedLocalOrders)
+            if TimeStampTimeout(&orderTimeStamps) {
+                go func() { syncCh.OrderTimeout <- true }()
+            }
 			currentMsgID = rand.Intn(256)
 			msg := config.Message{elev, updatedAllOrders, currentMsgID, false, id}
 			syncCh.SendChn <- msg
@@ -114,6 +119,15 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				fmt.Println("allOrders = ", updatedAllOrders)
 				esmChns.CurrentAllOrders <- updatedAllOrders
 				currentAllOrders = updatedAllOrders
+		case timeout := <-syncCh.OrderTimeout:
+            if timeout {
+                updatedLocalOrders = mergeAllOrders(id, updatedLocalOrders)
+                esmChns.CurrentAllOrders <- updatedLocalOrders
+                currentAllOrders = updatedLocalOrders
+                elev.Orders = currentAllOrders[id]
+                fmt.Println("Order  timeout")
+                orderTimeStamps = [config.NumFloors]int{}
+            }
 		}
 	}
 }

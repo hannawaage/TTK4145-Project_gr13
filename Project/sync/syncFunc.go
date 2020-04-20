@@ -97,3 +97,25 @@ func mergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumBu
 	return merged
 }
 
+func updateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElevs][config.NumFloors][config.NumButtons]bool, updated *[config.NumElevs][config.NumFloors][config.NumButtons]bool) {
+    for elev := 0; elev < config.NumElevs; elev++ {
+        for floor := 0; floor < config.NumFloors; floor++ {
+            for btn := 0; btn < config.NumButtons; btn++ {
+                if updated[elev][floor][btn] {
+                    timeStamps[floor]++
+                } else if !updated[elev][floor][btn] && current[elev][floor][btn] {
+                    timeStamps[floor] = 0
+                }
+            }
+        }
+    }
+}
+
+func TimeStampTimeout(timeStamps *[config.NumFloors]int) bool {
+    for floor := 0; floor < config.NumFloors; floor++ {
+        if timeStamps[floor] > 10 {
+            return true
+        }
+    }
+    return false
+}
