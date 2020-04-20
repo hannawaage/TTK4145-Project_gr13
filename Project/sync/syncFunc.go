@@ -118,7 +118,7 @@ func UpdateTimeStamp(timeStamps *[NumFloors]int, current *[NumElevs][NumFloors][
 	}
 }
 
-func TimeStampTimeout(timeStamps *[NumFloors]int) bool {
+func OrderTimeout(timeStamps *[NumFloors]int) bool {
 	for floor := 0; floor < NumFloors; floor++ {
 		if timeStamps[floor] > 120 {
 			return true

@@ -54,7 +54,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	go func() {
 		for {
 			UpdateTimeStamp(&orderTimeStamps, &currentAllOrders, &allElevs)
-			if TimeStampTimeout(&orderTimeStamps) {
+			if OrderTimeout(&orderTimeStamps) {
 				go func() { syncCh.OrderTimeout <- true }()
 			}
 			currentMsgID = rand.Intn(256)
