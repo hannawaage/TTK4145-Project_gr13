@@ -8,7 +8,7 @@ import (
 )
 
 // CostFunction tar inn en allElevs, id, lage ny
-func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs []int) [config.NumElevs][config.NumFloors][config.NumButtons]int {
+func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs []int, faultyElev int) [config.NumElevs][config.NumFloors][config.NumButtons]int {
 	var allElevsMat [config.NumElevs][config.NumFloors][config.NumButtons]int
 
 	bestElevator := allElevs[0].Id
@@ -16,7 +16,7 @@ func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs [
 		for floor := 0; floor < config.NumFloors; floor++ {
 			for button := elevio.BT_HallUp; button < elevio.BT_Cab; button++ {
 				if allElevs[elevator].Orders[floor][button] == 1 {
-					bestElevator = costCalculator(id, floor, &allElevs, onlineIDs, elevator)
+					bestElevator = costCalculator(id, floor, &allElevs, onlineIDs, elevator, faultyElev int)
 					fmt.Println("bestElevator =", bestElevator)
 					allElevs[elevator].Orders[floor][button] = 0
 					allElevs[bestElevator].Orders[floor][button] = 2
@@ -30,11 +30,11 @@ func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs [
 	return allElevsMat
 }
 
-func costCalculator(id int, floor int, allElevs *[config.NumElevs]config.Elevator, onlineIDs []int, elev int) int {
+func costCalculator(id int, floor int, allElevs *[config.NumElevs]config.Elevator, onlineIDs []int, elev int, faultyElev int) int {
 	minCost := 4*(config.NumButtons * config.NumFloors) * config.NumElevs
 	bestElevator := onlineIDs[0]
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
-		if !Contains(onlineIDs, allElevs[elevator].Id) && (elevator != id) {
+		if (!Contains(onlineIDs, allElevs[elevator].Id) && (elevator != id)) || (elevator == faultyElev) {
 			continue
 		}
 		cost := (floor - allElevs[elevator].Floor)
@@ -103,8 +103,10 @@ func UpdateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElev
             for btn := 0; btn < config.NumButtons; btn++ {
                 if (current[elev][floor][btn] > 0 ){
                     timeStamps[floor]++
-                } else if ((allElevs[elev].Floor == floor) && (allElevs[elev].State == config.DoorOpen)) && (elev != faultyElev) {
-                    timeStamps[floor] = 0
+				} else if ((allElevs[elev].Floor == floor) && && (elev != faultyElev)) {
+					if (allElevs[elev].State == config.DoorOpen || allElevs[elev].State == Idle) {
+						timeStamps[floor] = 0
+					}
                 }
             }
         }
@@ -113,7 +115,7 @@ func UpdateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElev
 
 func TimeStampTimeout(timeStamps *[config.NumFloors]int) bool {
     for floor := 0; floor < config.NumFloors; floor++ {
-        if timeStamps[floor] > 40 {
+        if timeStamps[floor] > 20 {
             return true
         }
     }
@@ -124,7 +126,7 @@ func FindFaultyElev(current *[config.NumElevs][config.NumFloors][config.NumButto
 	for elev := 0; elev < config.NumElevs; elev++ {
         for floor := 0; floor < config.NumFloors; floor++ {
             for btn := 0; btn < config.NumButtons; btn++ {
-                if (timeStamps[floor] > 40) && (current[elev][floor][btn] > 0) {
+                if (timeStamps[floor] > 20) && (current[elev][floor][btn] > 0) {
             		return elev
         		}
             }
