@@ -62,11 +62,11 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		select {
 		case incomming := <-syncCh.RecChn:
 			recID := incomming.LocalID
-			if recID == faultyElev {
-				fmt.Println("Id =", recID)
-				break
-			}
 			if id != recID {
+				if recID == faultyElev {
+					fmt.Println("Id =", recID)
+					break
+				}
 				if !Contains(onlineIDs, recID) {
 					onlineIDs = append(onlineIDs, recID)
 					numPeers = len(onlineIDs)
