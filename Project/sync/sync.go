@@ -22,7 +22,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		allElevs         [config.NumElevs]config.Elevator
 		orderTimeStamps    [config.NumFloors]int
 		online           bool
-		faultyElev int
+		faultyElev int = -1
 	)
 
 	go func() {
