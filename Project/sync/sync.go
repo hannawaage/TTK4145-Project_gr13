@@ -47,7 +47,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 	go func() {
 		for {
 			if id != faultyElev{
-				UpdateTimeStamp(&orderTimeStamps, &currentAllOrders, &allElevs, faultyElev)
+				UpdateTimeStamp(&orderTimeStamps, &currentAllOrders, &allElevs)
 				if TimeStampTimeout(&orderTimeStamps) {
 					go func() { syncCh.OrderTimeout <- true }()
 				}
