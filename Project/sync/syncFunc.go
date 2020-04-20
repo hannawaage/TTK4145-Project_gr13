@@ -27,10 +27,10 @@ func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs [
 }
 
 func costCalculator(id int, floor int, allElevs *[config.NumElevs]config.Elevator, onlineIDs []int, elev int) int {
-	minCost := 4*(config.NumButtons * config.NumFloors) * config.NumElevs
+	minCost := 4 * (config.NumButtons * config.NumFloors) * config.NumElevs
 	bestElevator := onlineIDs[0]
 	for elevator := 0; elevator < config.NumElevs; elevator++ {
-		if (!Contains(onlineIDs, allElevs[elevator].Id) && (elevator != id)) {
+		if !Contains(onlineIDs, allElevs[elevator].Id) && (elevator != id) {
 			continue
 		}
 		cost := (floor - allElevs[elevator].Floor)
@@ -66,8 +66,8 @@ func costCalculator(id int, floor int, allElevs *[config.NumElevs]config.Elevato
 }
 
 func Contains(elevs []int, new int) bool {
-	for _, a := range elevs {
-		if a == new {
+	for _, elev := range elevs {
+		if elev == new {
 			return true
 		}
 	}
@@ -98,11 +98,11 @@ func UpdateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElev
 	for floor := 0; floor < config.NumFloors; floor++ {
 		numOrders = 0
 		for elev := 0; elev < config.NumElevs; elev++ {
-            for btn := 0; btn < config.NumButtons; btn++ {
-                if (current[elev][floor][btn] > 0 ){
-					numOrders ++
-                    timeStamps[floor]++
-				} 
+			for btn := 0; btn < config.NumButtons; btn++ {
+				if current[elev][floor][btn] > 0 {
+					numOrders++
+					timeStamps[floor]++
+				}
 			}
 		}
 		if numOrders == 0 {
@@ -110,27 +110,27 @@ func UpdateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElev
 				timeStamps[floor] = 0
 			}
 		}
-    }
+	}
 }
 
 func TimeStampTimeout(timeStamps *[config.NumFloors]int) bool {
-    for floor := 0; floor < config.NumFloors; floor++ {
-        if timeStamps[floor] > 120 {
-            return true
-        }
-    }
-    return false
+	for floor := 0; floor < config.NumFloors; floor++ {
+		if timeStamps[floor] > 120 {
+			return true
+		}
+	}
+	return false
 }
 
 func FindFaultyElev(current *[config.NumElevs][config.NumFloors][config.NumButtons]int, timeStamps *[config.NumFloors]int) int {
 	for elev := 0; elev < config.NumElevs; elev++ {
-        for floor := 0; floor < config.NumFloors; floor++ {
-            for btn := 0; btn < config.NumButtons; btn++ {
-                if (timeStamps[floor] > 120) && (current[elev][floor][btn] > 0) {
+		for floor := 0; floor < config.NumFloors; floor++ {
+			for btn := 0; btn < config.NumButtons; btn++ {
+				if (timeStamps[floor] > 120) && (current[elev][floor][btn] > 0) {
 					return elev
-        		}
-            }
-        }
+				}
+			}
+		}
 	}
 	return -1
 }
