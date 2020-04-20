@@ -119,7 +119,7 @@ func UpdateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElev
 
 func TimeStampTimeout(timeStamps *[config.NumFloors]int) bool {
     for floor := 0; floor < config.NumFloors; floor++ {
-        if timeStamps[floor] > 40 {
+        if timeStamps[floor] > 60 {
             return true
         }
     }
@@ -130,7 +130,7 @@ func FindFaultyElev(current *[config.NumElevs][config.NumFloors][config.NumButto
 	for elev := 0; elev < config.NumElevs; elev++ {
         for floor := 0; floor < config.NumFloors; floor++ {
             for btn := 0; btn < config.NumButtons; btn++ {
-                if (timeStamps[floor] > 40) && (current[elev][floor][btn] > 0) {
+                if (timeStamps[floor] > 60) && (current[elev][floor][btn] > 0) {
             		return elev
         		}
             }
