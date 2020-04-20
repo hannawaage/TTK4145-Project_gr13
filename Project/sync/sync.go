@@ -3,8 +3,8 @@ package sync
 import (
 	"fmt"
 	"math/rand"
-	"time"
 	"os"
+	"time"
 
 	"../config"
 )
@@ -21,9 +21,9 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns, bcport string)
 		updatedAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]int
 		currentAllOrders [config.NumElevs][config.NumFloors][config.NumButtons]int
 		allElevs         [config.NumElevs]config.Elevator
-		orderTimeStamps    [config.NumFloors]int
+		orderTimeStamps  [config.NumFloors]int
 		online           bool
-		faultyElev int = -1
+		faultyElev       int = -1
 	)
 
 	go func() {
@@ -70,7 +70,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns, bcport string)
 					online = true
 					for i := 0; i < numPeers; i++ {
 						theID := onlineIDs[i]
-						if theID < masterID { 
+						if theID < masterID {
 							masterID = theID
 						}
 					}
@@ -88,7 +88,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns, bcport string)
 				} else {
 					allElevs[recID] = incomming.Elev
 					for elevator := 0; elevator < config.NumElevs; elevator++ {
-						if !Contains(onlineIDs, allElevs[elevator].Id) && (elevator != id){
+						if !Contains(onlineIDs, allElevs[elevator].Id) && (elevator != id) {
 							allElevs[elevator].Orders = [config.NumFloors][config.NumButtons]int{}
 						}
 					}
@@ -109,18 +109,16 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns, bcport string)
 				}
 			}
 		case <-msgTimer.C:
-				fmt.Println("Offline")
-				numPeers = 0
-				onlineIDs = onlineIDs[:0]
-				receivedReceipt = receivedReceipt[:0]
-				masterID = id
-				online = false
-				updatedAllOrders = MergeAllOrders(id, updatedAllOrders)
-				esmChns.CurrentAllOrders <- updatedAllOrders
-				currentAllOrders = updatedAllOrders
+			numPeers = 0
+			onlineIDs = onlineIDs[:0]
+			receivedReceipt = receivedReceipt[:0]
+			masterID = id
+			online = false
+			updatedAllOrders = MergeAllOrders(id, updatedAllOrders)
+			esmChns.CurrentAllOrders <- updatedAllOrders
+			currentAllOrders = updatedAllOrders
 		case <-syncCh.OrderTimeout:
-            faultyElev = FindFaultyElev(&currentAllOrders, &orderTimeStamps)
-			fmt.Println("Faulty: ", faultyElev)
+			faultyElev = FindFaultyElev(&currentAllOrders, &orderTimeStamps)
 			if id == faultyElev {
 				fmt.Println("Exiting for reinitialization")
 				os.Exit(1)
@@ -129,7 +127,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns, bcport string)
 			}
 			esmChns.CurrentAllOrders <- updatedAllOrders
 			currentAllOrders = updatedAllOrders
-			fmt.Println("Order  timeout")
 			orderTimeStamps = [config.NumFloors]int{}
 			numPeers = 0
 			onlineIDs = onlineIDs[:0]

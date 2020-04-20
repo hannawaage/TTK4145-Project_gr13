@@ -7,7 +7,6 @@ import (
 	"../driver-go/elevio"
 )
 
-// CostFunction tar inn en allElevs, id, lage ny
 func CostFunction(id int, allElevs [config.NumElevs]config.Elevator, onlineIDs []int) [config.NumElevs][config.NumFloors][config.NumButtons]int {
 	var allElevsMat [config.NumElevs][config.NumFloors][config.NumButtons]int
 
