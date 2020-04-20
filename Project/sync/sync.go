@@ -121,11 +121,11 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				currentAllOrders = updatedAllOrders
 		case timeout := <-syncCh.OrderTimeout:
             if timeout {
-                updatedAllOrders = mergeAllOrders(id, updatedAllOrders)
+				updatedAllOrders = mergeAllOrders(id, updatedAllOrders)
+				elev.Orders = updatedAllOrders[id]
                 esmChns.CurrentAllOrders <- updatedAllOrders
 				currentAllOrders = updatedAllOrders
 				updateTimeStamp(&orderTimeStamps, &currentAllOrders, &updatedAllOrders)
-                //elev.Orders = currentAllOrders[id]
                 fmt.Println("Order  timeout")
                 orderTimeStamps = [config.NumFloors]int{}
             }
