@@ -122,10 +122,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns, bcport string)
             faultyElev = FindFaultyElev(&currentAllOrders, &orderTimeStamps)
 			fmt.Println("Faulty: ", faultyElev)
 			if id == faultyElev {
-				reboot := elevio.Init(bcport, config.NumFloors)
-				if reboot {
-					faultyElev = -1
-				}
+				elevio.Init(bcport, config.NumFloors)
 			} else {
 				updatedAllOrders = MergeAllOrders(id, updatedAllOrders)
 			}
