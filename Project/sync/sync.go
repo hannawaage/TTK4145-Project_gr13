@@ -44,7 +44,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 
 	go func() {
 		for {
-			updateTimeStamp(&orderTimeStamps, &currentAllOrders, &updatedAllOrders)
+			UpdateTimeStamp(&orderTimeStamps, &currentAllOrders, &updatedAllOrders)
             if TimeStampTimeout(&orderTimeStamps) {
                 go func() { syncCh.OrderTimeout <- true }()
             }
@@ -61,7 +61,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 		case incomming := <-syncCh.RecChn:
 			recID := incomming.LocalID
 			if id != recID {
-				if !contains(onlineIDs, recID) {
+				if !Contains(onlineIDs, recID) {
 					onlineIDs = append(onlineIDs, recID)
 					numPeers = len(onlineIDs)
 					online = true
@@ -75,7 +75,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 				if incomming.IsReceipt {
 					if incomming.MsgId == currentMsgID {
-						if !contains(receivedReceipt, recID) {
+						if !Contains(receivedReceipt, recID) {
 							receivedReceipt = append(receivedReceipt, recID)
 							if len(receivedReceipt) == numPeers {
 								msgTimer.Stop()
@@ -87,7 +87,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 					allElevs[id] = elev
 					allElevs[recID] = incomming.Elev
 					for elevator := 0; elevator < config.NumElevs; elevator++ {
-						if !contains(onlineIDs, allElevs[elevator].Id) && (elevator != id){
+						if !Contains(onlineIDs, allElevs[elevator].Id) && (elevator != id){
 							allElevs[elevator].Orders = [config.NumFloors][config.NumButtons]int{}
 						}
 					}
@@ -113,19 +113,18 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				receivedReceipt = receivedReceipt[:0]
 				masterID = id
 				online = false
-				updatedAllOrders = mergeAllOrders(id, updatedAllOrders)
+				updatedAllOrders = MergeAllOrders(id, updatedAllOrders)
 				esmChns.CurrentAllOrders <- updatedAllOrders
 				currentAllOrders = updatedAllOrders
 		case timeout := <-syncCh.OrderTimeout:
             if timeout {
-				online = false
-				updatedAllOrders = mergeAllOrders(id, updatedAllOrders)
+				updatedAllOrders = MergeAllOrders(id, updatedAllOrders)
 				elev.Orders = updatedAllOrders[id]
                 esmChns.CurrentAllOrders <- updatedAllOrders
 				currentAllOrders = updatedAllOrders
-				updateTimeStamp(&orderTimeStamps, &currentAllOrders, &updatedAllOrders)
-                fmt.Println("Order  timeout")
-                //orderTimeStamps = [config.NumFloors]int{}
+				fmt.Println("Order  timeout")
+				time.Sleep(10 * time.Second)
+                orderTimeStamps = [config.NumFloors]int{}
             }
 		}
 	}

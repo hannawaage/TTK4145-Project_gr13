@@ -69,7 +69,7 @@ func costCalculator(id int, floor int, allElevs *[config.NumElevs]config.Elevato
 	return bestElevator
 }
 
-func contains(elevs []int, new int) bool {
+func Contains(elevs []int, new int) bool {
 	for _, a := range elevs {
 		if a == new {
 			return true
@@ -78,7 +78,7 @@ func contains(elevs []int, new int) bool {
 	return false
 }
 
-func mergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumButtons]int) [config.NumElevs][config.NumFloors][config.NumButtons]int {
+func MergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumButtons]int) [config.NumElevs][config.NumFloors][config.NumButtons]int {
 	var merged [config.NumElevs][config.NumFloors][config.NumButtons]int
 	merged[id] = all[id]
 	for elev := 0; elev < config.NumElevs; elev++ {
@@ -97,7 +97,7 @@ func mergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumBu
 	return merged
 }
 
-func updateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElevs][config.NumFloors][config.NumButtons]int, updated *[config.NumElevs][config.NumFloors][config.NumButtons]int) {
+func UpdateTimeStamp(timeStamps *[config.NumFloors]int, current *[config.NumElevs][config.NumFloors][config.NumButtons]int, updated *[config.NumElevs][config.NumFloors][config.NumButtons]int) {
     for elev := 0; elev < config.NumElevs; elev++ {
         for floor := 0; floor < config.NumFloors; floor++ {
             for btn := 0; btn < config.NumButtons; btn++ {
