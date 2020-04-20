@@ -73,7 +73,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						}
 					}
 				}
-
 				if incomming.IsReceipt {
 					if incomming.MsgId == currentMsgID {
 						if !contains(receivedReceipt, recID) {
@@ -109,14 +108,12 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 			}
 		case <-msgTimer.C:
-			fmt.Println("Assuming error, running offline")
 				numPeers = 0
 				onlineIDs = onlineIDs[:0]
 				receivedReceipt = receivedReceipt[:0]
 				masterID = id
 				online = false
 				updatedAllOrders = mergeAllOrders(id, updatedAllOrders)
-				fmt.Println("allOrders = ", updatedAllOrders)
 				esmChns.CurrentAllOrders <- updatedAllOrders
 				currentAllOrders = updatedAllOrders
 		case timeout := <-syncCh.OrderTimeout:
@@ -127,7 +124,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				currentAllOrders = updatedAllOrders
 				updateTimeStamp(&orderTimeStamps, &currentAllOrders, &updatedAllOrders)
                 fmt.Println("Order  timeout")
-                orderTimeStamps = [config.NumFloors]int{}
+                //orderTimeStamps = [config.NumFloors]int{}
             }
 		}
 	}
