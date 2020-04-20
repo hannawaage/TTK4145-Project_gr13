@@ -113,6 +113,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				}
 			}
 		case <-msgTimer.C:
+				fmt.Println("Offline")
 				numPeers = 0
 				onlineIDs = onlineIDs[:0]
 				receivedReceipt = receivedReceipt[:0]
