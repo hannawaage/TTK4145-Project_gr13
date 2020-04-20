@@ -97,16 +97,3 @@ func mergeAllOrders(id int, all [config.NumElevs][config.NumFloors][config.NumBu
 	return merged
 }
 
-func sumOrders(incomming [config.NumElevs][config.NumFloors][config.NumButtons]int) int {
-	sum := 0
-	for elev := 0; elev < config.NumElevs; elev++ {
-		for floor := 0; floor < config.NumFloors; floor++ {
-			for btn := 0; btn < config.NumButtons-1; btn++ {
-				if incomming[elev][floor][btn] > 0 {
-					sum++
-				}
-			}
-		}
-	}
-	return sum
-}

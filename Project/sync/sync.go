@@ -69,20 +69,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						}
 					}
 				}
-
-				if incomming.IsReceipt {
-					if incomming.MsgId == currentMsgID {
-						if !contains(receivedReceipt, recID) {
-							receivedReceipt = append(receivedReceipt, recID)
-							if len(receivedReceipt) == numPeers {
-								numTimeouts = 0
-								msgTimer.Stop()
-								receivedReceipt = receivedReceipt[:0]
-							}
-						}
-					}
-				} else {
-					allElevs[id] = elev
+				allElevs[id] = elev
 					allElevs[recID] = incomming.Elev
 					for elevator := 0; elevator < config.NumElevs; elevator++ {
 						if !contains(onlineIDs, allElevs[elevator].Id) && (elevator != id){
@@ -98,6 +85,18 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 						esmChns.CurrentAllOrders <- updatedAllOrders
 						currentAllOrders = updatedAllOrders
 					}
+				if incomming.IsReceipt {
+					if incomming.MsgId == currentMsgID {
+						if !contains(receivedReceipt, recID) {
+							receivedReceipt = append(receivedReceipt, recID)
+							if len(receivedReceipt) == numPeers {
+								numTimeouts = 0
+								msgTimer.Stop()
+								receivedReceipt = receivedReceipt[:0]
+							}
+						}
+					}
+				} else {
 					msg := config.Message{elev, updatedAllOrders, incomming.MsgId, true, id}
 					for i := 0; i < 5; i++ {
 						syncCh.SendChn <- msg
@@ -117,7 +116,6 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				online = false
 				updatedAllOrders = mergeAllOrders(id, updatedAllOrders)
 				fmt.Println("allOrders = ", updatedAllOrders)
-
 				esmChns.CurrentAllOrders <- updatedAllOrders
 				currentAllOrders = updatedAllOrders
 			}
