@@ -121,7 +121,7 @@ func Sync(id int, syncCh config.SyncChns, esmChns config.EsmChns) {
 				faultyElev := FindFaultyElev(&currentAllOrders, &orderTimeStamps)
 				updatedAllOrders = MergeAllOrders(id, updatedAllOrders)
 				if faultyElev >= 0 {
-					updatedAllOrders[faultyElev] = [config.NumFloors][config.NumButtons]bool{}
+					updatedAllOrders[faultyElev] = [config.NumFloors][config.NumButtons]int{}
 				}
 				elev.Orders = updatedAllOrders[id]
                 esmChns.CurrentAllOrders <- updatedAllOrders
